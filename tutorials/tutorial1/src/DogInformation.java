@@ -1,14 +1,14 @@
 public class DogInformation {
     public static void main(String[] args) {
-        String name = "Frankie";
-        String microchipNum = "647388745360623";
-        char gender = 'F'; // F = female. M = male
-        boolean desexed = true;
-        int age = 2; // in years
-        String breed = "Dalmatian";
-        boolean purebred = false;
-        double height = 74.5; // in cm
-        double weight = 25.7; // in kg
+        String name = "Cujo";
+        String microchipNum = "52330648523343";
+        char gender = 'X'; // F = female. M = male
+        boolean desexed = false;
+        int age = 5; // in years
+        String breed = "Jack Russell";
+        boolean purebred = true;
+        double height = 54; // in cm
+        double weight = 19.5; // in kg
 
         // check gender
         String pronoun = "";
@@ -29,7 +29,11 @@ public class DogInformation {
 
         // build the system out string
         String output = ""; // declare blank string
-        output += name+ " is a " +age+ " year old " +breed+ ". ";
+        output += name+ " is a " +age+ " year old ";
+
+        if (purebred) output += "purebred ";
+
+        output += breed+ ". ";
         output += pronoun+ " microchip number is " +microchipNum+ ". ";
 
         if (desexed) {
