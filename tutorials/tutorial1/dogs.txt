@@ -1,0 +1,4 @@
+Name,microchip no,sex,desexed,age(years),breed,purebred,height(cm),weight(kg)
+Goldo,634928675220846,male,yes,3,Labrador,Yes,58,32.3
+Roughie,344563396748853,male,yes,5,Jack Russell,No,30.5,8.6
+Chips,028566478231762,female,no,1,Bulldog,No,42,21.5
