@@ -15,7 +15,7 @@ public class ReadGeeks {
      * @param args arguments that may be passed in when run on the command line
      */
     public static void main(String[] args) {
-        String filePath = "./geeks.txt"; //relative path
+        String filePath = "geeks.txt"; //relative path
         //create a Path object using the file path
         Path path = Path.of(filePath);
         //create an empty String, to contain the file contents

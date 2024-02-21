@@ -18,7 +18,7 @@ public class ReadWriteGeeks {
         //Absolute path: "C:/Users/andre/OneDrive/Documents/COSC120/Lectures/Topic 1/geeks.txt";
         //File path can also be "C:\\Users\\andre\\OneDrive\\Documents\\COSC120\\Lectures\\Topic 1\\geeks.txt";
         //Relative file path
-        String filePath = "./geeks.txt";
+        String filePath = "geeks.txt";
 
         //load the file
         Path path = Path.of(filePath);
