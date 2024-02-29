@@ -1,0 +1,1 @@
+Dalmatian,Rotweiler,German Shepherd,Jack Russell terrier,Wolfhound,Siberian Husky,Chihuahua,Moodle,Poodle,Labrador,Maremma,Wolfhound,Poodle,German Shepherd,Chihuahua,Moodle,Labrador,German Shepherd,Jack Russell terrier
