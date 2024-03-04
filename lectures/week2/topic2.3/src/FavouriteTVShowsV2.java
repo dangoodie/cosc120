@@ -23,7 +23,7 @@ public class FavouriteTVShowsV2 {
         Map<String, Set<String>> favoriteTVShowsHashMap = new HashMap<>();
 
         //string representing path to file
-        String filePath = "./TVshows.txt";
+        String filePath = "TVshows.txt";
         //load the file
         Path path = Path.of(filePath);
         //reads content of file as a String
