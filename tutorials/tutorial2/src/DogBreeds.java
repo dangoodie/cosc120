@@ -29,7 +29,6 @@ public class DogBreeds {
         System.out.println("******** Terrier Breeds ********");
         for (String breed : dogBreeds) {
             if (breed.contains("terrier")) {
-
                 // Unless it's a pit bull terrier
                 if (!breed.contains("pit bull terrier")){
                     System.out.println(breed);
