@@ -1,8 +1,6 @@
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class is used to create an adoption request object
@@ -16,9 +14,10 @@ public class AdoptionRequest {
     }
     /**
      * A method to load dog data from a file
-     * The key/value pair is dog/microchip number
+     * The key/value pair is microchip/dog
      * @param fileName a String representing the name of the file to load the data from
      * @return a Map of Dog objects
+     * @throws Exception if there is an error loading the data
      */
     public Map<Integer, Dog> loadDogData(String fileName) {
         Map<Integer, Dog> dogMap = new HashMap<>();
@@ -61,6 +60,69 @@ public class AdoptionRequest {
         System.out.println("Dog data loaded successfully");
         return dogMap;
     }
+
+    /**
+     * A method to get user input for their preferred dog
+     * @return a Map of the user's adoption request details
+     */
+    public Map <String, String> getUserInput() {
+        Scanner keyboard = new Scanner(System.in);
+        System.out.println("Please enter the desired dog breed: ");
+        String desiredBreed = keyboard.nextLine();
+
+        String desiredSex = "";
+        while (!desiredSex.equals("m") && !desiredSex.equals("f")) {
+            System.out.println("What is your preferred sex? (M/F): ");
+            desiredSex = keyboard.nextLine();
+            desiredSex = desiredSex.toLowerCase();
+
+            if (!desiredSex.equals("m") && !desiredSex.equals("f")) {
+                System.out.println("Please enter a valid sex.");
+            }
+        }
+
+        int maxAge = -1;
+        while (maxAge < 0 || maxAge > 20) {
+            System.out.println("Maximum age in years (max 20 years): ");
+            maxAge = keyboard.nextInt();
+            if (maxAge < 0 || maxAge > 20) {
+                System.out.println("Invalid value for maximum age: " + maxAge);
+            }
+        }
+
+        int minAge = -1;
+        while (minAge < 0 || minAge > 20 || minAge > maxAge) {
+            System.out.println("Minimum age in years (min 0 years): ");
+            minAge = keyboard.nextInt();
+            if (minAge < 0 || minAge > 20) {
+                System.out.println("Invalid value for minimum age: " + minAge);
+            }
+            if (minAge > maxAge) {
+                System.out.println("Minimum age cannot be greater than maximum age");
+            }
+        }
+
+        String desexed = "";
+
+        while (!Objects.equals(desexed, "yes") || !Objects.equals(desexed, "no")) {
+            System.out.println("Do you want the dog to be desexed? (yes/no): ");
+            desexed = keyboard.nextLine();
+            desexed = desexed.toLowerCase();
+            if (!Objects.equals(desexed, "yes") || !Objects.equals(desexed, "no")) {
+                System.out.println("Please enter a valid response.");
+            }
+        }
+        keyboard.close();
+        // return the user's adoption request
+        Map <String, String> userRequest = new HashMap<>();
+        userRequest.put("desiredBreed", desiredBreed);
+        userRequest.put("desiredSex", desiredSex);
+        userRequest.put("maxAge", String.valueOf(maxAge));
+        userRequest.put("minAge", String.valueOf(minAge));
+        userRequest.put("desexed", desexed);
+        return userRequest;
+    }
+
 
     /**
      * A method to convert yes or no string to a boolean
