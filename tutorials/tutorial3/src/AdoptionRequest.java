@@ -9,8 +9,36 @@ public class AdoptionRequest {
 
     public static void main(String[] args) {
         AdoptionRequest adoptionRequest = new AdoptionRequest();
-        Map <Integer, Dog> dogMap = adoptionRequest.loadDogData("./allDogs.txt");
+        Map<Integer, Dog> dogMap = adoptionRequest.loadDogData("allDogs.txt");
 
+        // update desexed status for a dog
+        Dog dog = dogMap.get(989343556);
+        dog.setDesexedStatus(true);
+
+        // get user input
+        Map<String, String> userRequest = adoptionRequest.getUserInput();
+
+        // find dogs with matching breed
+        Map<Integer, Dog> matchingBreed = adoptionRequest.findMatchingBreed(dogMap, userRequest);
+        System.out.println("Dogs with matching breed: ");
+        adoptionRequest.printDogDetails(matchingBreed);
+
+        // find dogs with matching breed in the age range
+        Map<Integer, Dog> matchingAge = adoptionRequest.findMatchingAge(matchingBreed, userRequest);
+        System.out.println("Dogs with matching breed and age: ");
+        adoptionRequest.printDogDetails(matchingAge);
+
+        // find dogs with matching breed, age, and sex
+        Map<Integer, Dog> matchingSex = adoptionRequest.findMatchingSex(matchingAge, userRequest);
+        System.out.println("Dogs with matching breed, age, and sex: ");
+        adoptionRequest.printDogDetails(matchingSex);
+
+        // find dogs with matching breed, age, sex, and desexed status
+        Map<Integer, Dog> matchingDesexed = adoptionRequest.findMatchingDesexed(matchingSex, userRequest);
+        System.out.println("Dogs with matching breed, age, sex, and desexed status: ");
+        adoptionRequest.printDogDetails(matchingDesexed);
+
+        System.exit(0);
     }
     /**
      * A method to load dog data from a file
@@ -29,9 +57,6 @@ public class AdoptionRequest {
 
             // split the file contents into individual dog data
             String[] dogData = fileContents.split("\n");
-            for (int i = 0; i < dogData.length; i++) {
-                dogData[i] = dogData[i].toLowerCase();
-            }
 
             // iterate through the dog data and create a Dog object for each dog
             // skipping the headers
@@ -40,12 +65,12 @@ public class AdoptionRequest {
                 String[] dogDetails = dogData[i].split(",");
 
                 // store the dog details in variables
-                String name = dogDetails[0];
+                String name = dogDetails[0].trim();
                 int microchipNumber = Integer.parseInt(dogDetails[1]);
-                String sex = dogDetails[2];
+                String sex = dogDetails[2].trim();
                 boolean desexed = yesNoBoolean(dogDetails[3]);
                 int age = Integer.parseInt(dogDetails[4]);
-                String breed = dogDetails[5];
+                String breed = dogDetails[5].trim();
 
                 // create a new Dog object
                 Dog newDog = new Dog(name, microchipNumber, breed, sex, desexed, age);
@@ -68,47 +93,53 @@ public class AdoptionRequest {
     public Map <String, String> getUserInput() {
         Scanner keyboard = new Scanner(System.in);
         System.out.println("Please enter the desired dog breed: ");
-        String desiredBreed = keyboard.nextLine();
+        String desiredBreed = keyboard.nextLine().toLowerCase().trim();
 
         String desiredSex = "";
-        while (!desiredSex.equals("m") && !desiredSex.equals("f")) {
-            System.out.println("What is your preferred sex? (M/F): ");
+        while (!desiredSex.equals("male") && !desiredSex.equals("female")) {
+            System.out.println("What is your preferred sex? (male/female): ");
             desiredSex = keyboard.nextLine();
-            desiredSex = desiredSex.toLowerCase();
+            desiredSex = desiredSex.toLowerCase().trim();
 
-            if (!desiredSex.equals("m") && !desiredSex.equals("f")) {
+            if (!desiredSex.equals("male") && !desiredSex.equals("female")) {
                 System.out.println("Please enter a valid sex.");
             }
-        }
 
-        int maxAge = -1;
-        while (maxAge < 0 || maxAge > 20) {
-            System.out.println("Maximum age in years (max 20 years): ");
-            maxAge = keyboard.nextInt();
-            if (maxAge < 0 || maxAge > 20) {
-                System.out.println("Invalid value for maximum age: " + maxAge);
-            }
         }
 
         int minAge = -1;
-        while (minAge < 0 || minAge > 20 || minAge > maxAge) {
+        while (minAge < 0 || minAge > 20) {
             System.out.println("Minimum age in years (min 0 years): ");
             minAge = keyboard.nextInt();
+            // capture keyboard return carriage
+            keyboard.nextLine();
             if (minAge < 0 || minAge > 20) {
                 System.out.println("Invalid value for minimum age: " + minAge);
             }
+
+        }
+
+        int maxAge = -1;
+        while (maxAge < 0 || maxAge > 20 || minAge > maxAge) {
+            System.out.println("Maximum age in years (max 20 years): ");
+            maxAge = keyboard.nextInt();
+            // capture keyboard return carriage
+            keyboard.nextLine();
+            if (maxAge < 0 || maxAge > 20) {
+                System.out.println("Invalid value for maximum age: " + maxAge);
+            }
             if (minAge > maxAge) {
-                System.out.println("Minimum age cannot be greater than maximum age");
+                System.out.println("Maximum age must be greater than minimum age.");
             }
         }
 
         String desexed = "";
 
-        while (!Objects.equals(desexed, "yes") || !Objects.equals(desexed, "no")) {
+        while (!desexed.equals("yes") && !desexed.equals("no")) {
             System.out.println("Do you want the dog to be desexed? (yes/no): ");
             desexed = keyboard.nextLine();
-            desexed = desexed.toLowerCase();
-            if (!Objects.equals(desexed, "yes") || !Objects.equals(desexed, "no")) {
+            desexed = desexed.toLowerCase().trim();
+            if (!desexed.equals("yes") && !desexed.equals("no")) {
                 System.out.println("Please enter a valid response.");
             }
         }
@@ -121,6 +152,81 @@ public class AdoptionRequest {
         userRequest.put("minAge", String.valueOf(minAge));
         userRequest.put("desexed", desexed);
         return userRequest;
+    }
+
+    /**
+     * A method to find dogs that match the user's breed preference
+     * @param dogMap a Map of Dog objects
+     * @param userRequest a Map of the user's adoption request details
+     * @return a Set of Dog objects that match the user's breed preference
+     */
+    public Map<Integer, Dog> findMatchingBreed(Map<Integer, Dog> dogMap, Map<String, String> userRequest) {
+        Map<Integer, Dog> matchingDogs = new HashMap<>();
+        String desiredBreed = userRequest.get("desiredBreed");
+        // create dummy dog object to access the isSameBreed method
+        Dog dummyDog = new Dog("", 0, desiredBreed, "", false, 0);
+        // iterate through the dog map and add dogs with matching breed to the set
+        for (Dog dog : dogMap.values()) {
+            if (dummyDog.isSameBreed(dog)) {
+                matchingDogs.put(dog.getMicrochipNumber(), dog);
+            }
+        }
+        return matchingDogs;
+    }
+
+    /**
+     * A method to find dogs that match the user's sex preference
+     * @param dogMap a Map of Dog objects
+     * @param userRequest a Map of the user's adoption request details
+     * @return a Set of Dog objects that match the user's sex preference
+     */
+    public Map<Integer, Dog> findMatchingSex(Map<Integer, Dog> dogMap, Map<String, String> userRequest) {
+        Map<Integer, Dog> matchingDogs = new HashMap<>();
+        String desiredSex = userRequest.get("desiredSex");
+        // create dummy dog object to access the isSameSex method
+        Dog dummyDog = new Dog("", 0, "", desiredSex, false, 0);
+        // iterate through the dog map and add dogs with matching sex
+        for (Dog dog : dogMap.values()) {
+            if (dummyDog.isSameSex(dog)) {
+                matchingDogs.put(dog.getMicrochipNumber(), dog);
+            }
+        }
+        return matchingDogs;
+    }
+
+    /**
+     * A method to find dogs that match the user's age preference
+     * @param dogMap a Map of Dog objects
+     * @param userRequest a Map of the user's adoption request details
+     * @return a Set of Dog objects that match the user's age preference
+     */
+    public Map<Integer, Dog> findMatchingAge(Map<Integer, Dog> dogMap, Map<String, String> userRequest) {
+        Map<Integer, Dog> matchingDogs = new HashMap<>();
+        int minAge = Integer.parseInt(userRequest.get("minAge"));
+        int maxAge = Integer.parseInt(userRequest.get("maxAge"));
+        for (Dog dog : dogMap.values()) {
+            if (dog.isAgeInRange(minAge, maxAge)) {
+                matchingDogs.put(dog.getMicrochipNumber(), dog);
+            }
+        }
+        return matchingDogs;
+    }
+
+    /**
+     * A method to find dogs that match the user's desexed preference
+     * @param dogMap a Map of Dog objects
+     * @param userRequest a Map of the user's adoption request details
+     * @return a Set of Dog objects that match the user's desexed preference
+     */
+    public Map<Integer, Dog> findMatchingDesexed(Map<Integer, Dog> dogMap, Map<String, String> userRequest) {
+        Map<Integer, Dog> matchingDogs = new HashMap<>();
+        boolean userValue = yesNoBoolean(userRequest.get("desexed"));
+        for (Dog dog : dogMap.values()) {
+            if (dog.getDesexedStatus() ==  userValue){
+                matchingDogs.put(dog.getMicrochipNumber(), dog);
+            }
+        }
+        return matchingDogs;
     }
 
 
@@ -140,5 +246,16 @@ public class AdoptionRequest {
             System.exit(0);
         }
         return result;
+    }
+
+    /**
+     * A method to print the details of a set of dogs
+     * @param dogs a Set of Dog objects
+     */
+    private void printDogDetails(Map<Integer, Dog> dogs) {
+        for (Dog dog : dogs.values()) {
+            System.out.println(dog.getName() + " (" + dog.getMicrochipNumber() + ") is a " + dog.getAge() + " year old " + dog.getBreed() + " " + dog.getSex() + ". Desexed: " + dog.getDesexedStatus() + ".");
+        }
+        System.out.println();
     }
 }

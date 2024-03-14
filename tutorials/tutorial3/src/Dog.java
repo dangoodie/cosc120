@@ -8,7 +8,7 @@ public class Dog {
     private final String breed;
     private final String sex;
     private boolean isDesexed;
-    private int age;
+    private final int age;
 
     /**
      * Constructor for the Dog class
@@ -91,7 +91,7 @@ public class Dog {
      * @return a boolean representing whether the dogs are the same breed
      */
     public boolean isSameBreed(Dog otherDog) {
-        return this.breed.equals(otherDog.getBreed());
+        return this.breed.equalsIgnoreCase(otherDog.getBreed());
     }
 
     /**
@@ -100,7 +100,7 @@ public class Dog {
      * @return a boolean representing whether the dogs are the same breed
      */
     public boolean isSameSex(Dog otherDog) {
-        return this.sex.equals(otherDog.getSex());
+        return this.sex.equalsIgnoreCase(otherDog.getSex());
     }
 
     /**
