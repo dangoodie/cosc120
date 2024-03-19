@@ -6,8 +6,8 @@ public class Dog {
     private final String name;
     private final int microchipNumber;
     private final String breed;
-    private final String sex;
-    private boolean isDesexed;
+    private final Gender gender;
+    private Desexed isDesexed;
     private final int age;
 
     /**
@@ -15,16 +15,16 @@ public class Dog {
      * @param name a String representing the dog's name
      * @param microchipNumber an int representing the dog's microchip number
      * @param breed a String representing the dog's breed
-     * @param sex a String representing the dog's sex
+     * @param gender a String representing the dog's sex
      * @param isDesexed a boolean representing whether the dog is desexed
      * @param age an int representing the dog's age
      */
 
-    public Dog(String name, int microchipNumber, String breed, String sex, boolean isDesexed, int age) {
+    public Dog(String name, int microchipNumber, String breed, Gender gender, Desexed isDesexed, int age) {
         this.name = name;
         this.microchipNumber = microchipNumber;
         this.breed = breed;
-        this.sex = sex;
+        this.gender = gender;
         this.isDesexed = isDesexed;
         this.age = age;
     }
@@ -57,15 +57,15 @@ public class Dog {
      * Method to provide access to the dog's sex
      * @return a String representing the dog's sex
      */
-    public String getSex() {
-        return sex;
+    public Gender getGender() {
+        return gender;
     }
 
     /**
      * Method to provide access to the dog's desexed status
      * @return a boolean representing whether the dog is desexed
      */
-    public boolean getDesexedStatus() {
+    public Desexed getDesexedStatus() {
         return isDesexed;
     }
 
@@ -81,7 +81,7 @@ public class Dog {
      * Method to set the dog's desexed status
      * @param isDesexed a boolean representing whether the dog is desexed
      */
-    public void setDesexedStatus(boolean isDesexed) {
+    public void setDesexedStatus(Desexed isDesexed) {
         this.isDesexed = isDesexed;
     }
 
@@ -100,7 +100,7 @@ public class Dog {
      * @return a boolean representing whether the dogs are the same breed
      */
     public boolean isSameSex(Dog otherDog) {
-        return this.sex.equalsIgnoreCase(otherDog.getSex());
+        return this.gender.toString().equalsIgnoreCase(otherDog.getGender().toString());
     }
 
     /**

@@ -5,7 +5,7 @@ class Dog {
     - String name
     - int microchipNumber
     - String breed
-    - String sex
+    - String gender
     - boolean isDesexed
     - int age
     + getName(): String
@@ -29,6 +29,8 @@ class Person {
     + getName(): String
     + getPhoneNumber(): String
     + getEmail(): String
+    + getFirstName(): String
+    + getLastName(): String
 }
 
 class AllDogs {
@@ -45,7 +47,17 @@ class FindADog {
     + writeAdoptionRequest(Dog, Person): void
     + main(String[] args): void
 }
-  
-  
+
+enum Gender {
+    MALE
+    FEMALE
+    toString(): String  
+}
+
+enum Desexed {
+    YES
+    NO
+    toString(): String
+}
 @enduml
 ```

@@ -1,29 +1,6 @@
-public class Person {
-    private final String name;
-    private final String phoneNumber;
-    private final String email;
-    private final String fName;
-    private final String lName;
-
-    public Person(String name, String phoneNumber, String email) {
-        this.name = name;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        String[] names = name.split(" ");
-        this.fName = names[0];
-        this.lName = names[names.length-1];
-    }
-
+public record Person (String name, String phoneNumber, String emailAddress) {
     public String getName() {
         return name;
-    }
-
-    public String getFirstName() {
-        return fName;
-    }
-
-    public String getLastName() {
-        return lName;
     }
 
     public String getPhoneNumber() {
@@ -31,6 +8,14 @@ public class Person {
     }
 
     public String getEmail() {
-        return email;
+        return emailAddress;
+    }
+
+    public String getFirstName() {
+        return name.split(" ")[0];
+    }
+
+    public String getLastName() {
+        return name.split(" ")[1];
     }
 }

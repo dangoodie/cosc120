@@ -5,6 +5,8 @@
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.*;
 
 /**
@@ -26,9 +28,14 @@ public class FindADog {
             System.exit(0);
         }
 
-        boolean adopt = yesNoBoolean(JOptionPane.showInputDialog("Would you like to adopt " + foundDog.getName() + " (" + foundDog.getMicrochipNumber() + ")?"));
-        if (!adopt) {
-            JOptionPane.showMessageDialog(null, "Thank you for using the FindADog program");
+        try {
+            int result = JOptionPane.showConfirmDialog(null, "We found a dog that matches your criteria: " + foundDog.getName() + " (" + foundDog.getMicrochipNumber() + "). Would you like to adopt this dog?");
+            if (result != JOptionPane.YES_OPTION) {
+                JOptionPane.showMessageDialog(null, "Thank you for using the FindADog program");
+                System.exit(0);
+            }
+        } catch (NullPointerException e) {
+            System.out.println("User cancelled the adoption");
             System.exit(0);
         }
 
@@ -68,13 +75,13 @@ public class FindADog {
                 // store the dog details in variables
                 String name = dogDetails[0].trim();
                 int microchipNumber = Integer.parseInt(dogDetails[1]);
-                String sex = dogDetails[2].trim();
-                boolean desexed = yesNoBoolean(dogDetails[3]);
+                Gender gender = Gender.valueOf(dogDetails[2].trim().toUpperCase());
+                Desexed desexed = Desexed.valueOf(dogDetails[3].trim().toUpperCase());
                 int age = Integer.parseInt(dogDetails[4]);
                 String breed = dogDetails[5].trim();
 
                 // create a new Dog object
-                Dog newDog = new Dog(name, microchipNumber, breed, sex, desexed, age);
+                Dog newDog = new Dog(name, microchipNumber, breed, gender, desexed, age);
                 allDogs.addDog(newDog);
             }
 
@@ -94,25 +101,41 @@ public class FindADog {
      */
     // rebuild using Java Swing
     public static Dog getUserSearchCriteria() {
-        String breed = null;
-        String sex = null;
-        boolean desexed = false;
-        int age = 0;
-
-        try {
-            breed = JOptionPane.showInputDialog("What breed of dog are you looking for?");
-            sex = JOptionPane.showInputDialog("Do you want a male or female dog?");
-            desexed = yesNoBoolean(JOptionPane.showInputDialog("Do you want a desexed dog? (yes/no)"));
-            age = Integer.parseInt(JOptionPane.showInputDialog("What age do you want the dog to be?"));
-
-        } catch (NullPointerException e) {
-            System.out.println("User cancelled the search");
-            System.exit(0);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid age entered");
+        String breed = JOptionPane.showInputDialog("What breed of dog are you looking for?");
+        if (breed == null) {
+            System.out.println("User cancelled the adoption");
             System.exit(0);
         }
-        return new Dog("", -1, breed, sex, desexed, age);
+
+        Gender gender = (Gender) JOptionPane.showInputDialog(null, "Please select your preferred gender: ", null,JOptionPane.QUESTION_MESSAGE, null,Gender.values(), Gender.MALE);
+        if (gender == null) {
+            System.out.println("User cancelled the adoption");
+            System.exit(0);
+        }
+
+        Desexed desexed = (Desexed) JOptionPane.showInputDialog(null, "Would you like the dog to be desexed: ", null,JOptionPane.QUESTION_MESSAGE, null,Desexed.values(), Desexed.YES);
+        if (desexed == null) {
+            System.out.println("User cancelled the adoption");
+            System.exit(0);
+        }
+
+        int age = -1;
+        do {
+            String ageInput = JOptionPane.showInputDialog("What age of dog are you looking for? (0 to 20)");
+            if (ageInput == null) {
+                System.out.println("User cancelled the adoption");
+                System.exit(0);
+            }
+            try {
+                age = Integer.parseInt(ageInput);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid age");
+            }
+        } while (age < 0 || age > 20);
+
+
+
+        return new Dog("", -1, breed, gender, desexed, age);
     }
 
     /**
@@ -126,38 +149,30 @@ public class FindADog {
             System.out.println("User cancelled the adoption");
             System.exit(0);
         }
-
-        String phoneNumber = JOptionPane.showInputDialog("What is your phone number?");
-        if (phoneNumber == null) {
-            System.out.println("User cancelled the adoption");
-            System.exit(0);
-        }
-
-        String emailAddress = JOptionPane.showInputDialog("What is your email address?");
-        if (emailAddress == null) {
-            System.out.println("User cancelled the adoption");
-            System.exit(0);
-        }
+        String phoneNumber = "";
+        do {
+            phoneNumber = JOptionPane.showInputDialog("What is your phone number?");
+            if (phoneNumber == null) {
+                System.out.println("User cancelled the adoption");
+                System.exit(0);
+            }
+            if (!isValidPhoneNumber(phoneNumber)) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid phone number");
+            }
+        } while (!isValidPhoneNumber(phoneNumber));
+        String emailAddress = "";
+        do {
+            emailAddress = JOptionPane.showInputDialog("What is your email address?");
+            if (emailAddress == null) {
+                System.out.println("User cancelled the adoption");
+                System.exit(0);
+            }
+            if (!isValidEmail(emailAddress)) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid email address");
+            }
+        } while (!isValidEmail(emailAddress));
 
         return new Person(name, phoneNumber, emailAddress);
-    }
-
-    /**
-     * A method to convert yes or no string to a boolean
-     * @param value a String representing the value to convert to a boolean
-     * @return a boolean value
-     */
-    public static boolean yesNoBoolean(String value) {
-        boolean result = false;
-        if (value.equalsIgnoreCase("yes")) {
-            result = true;
-        } else if (value.equalsIgnoreCase("no")) {
-            result = false;
-        } else {
-            System.out.println("Invalid value for yes/no: " + value);
-            System.exit(0);
-        }
-        return result;
     }
 
     /**
@@ -180,4 +195,27 @@ public class FindADog {
         }
         System.out.println("Adoption request written to file successfully");
     }
+
+    /**
+     * A method to validate a phone number
+     * @param phoneNumber a String representing the phone number
+     * @return a boolean indicating whether the phone number is valid
+     */
+    public static boolean isValidPhoneNumber(String phoneNumber) {
+        Pattern pattern = Pattern.compile("^0\\d{9}$");
+        Matcher matcher = pattern.matcher(phoneNumber);
+        return matcher.matches();
+    }
+
+    /**
+     * A method to validate an email address
+     * @param email a String representing the email address
+     * @return a boolean indicating whether the email address is valid
+     */
+    public static boolean isValidEmail(String email) {
+        Pattern pattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
 }
+

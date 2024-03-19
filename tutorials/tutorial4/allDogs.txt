@@ -1,4 +1,4 @@
-Name,microchip no,sex,desexed,age(years),breed
+Name,microchip no,gender,desexed,age(years),breed
 Frankie,647388745,female,yes,2,Dalmatian
 Goldo,634928675,male,yes,3,Labrador
 Roughie,344563396,male,yes,5,Jack Russell
