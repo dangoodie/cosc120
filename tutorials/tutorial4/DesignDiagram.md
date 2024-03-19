@@ -41,11 +41,13 @@ class AllDogs {
 }
 
 class FindADog {
+    + main(String[] args): void
     + loadDogsFromFile(String): AllDogs
     + getUserSearchCriteria(): Dog
     + getUserContactDetails(): Person
     + writeAdoptionRequest(Dog, Person): void
-    + main(String[] args): void
+    + isValidPhoneNumber(String): boolean
+    + isValidEmail(String): boolean
 }
 
 enum Gender {
