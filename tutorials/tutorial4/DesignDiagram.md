@@ -1,0 +1,50 @@
+# Dog Adoption UML
+```plantuml
+@startuml
+class Dog {
+    - String name
+    - int microchipNumber
+    - String breed
+    - String sex
+    - boolean isDesexed
+    - int age
+    + getName(): String
+    + getMicrochipNumber(): int
+    + getBreed(): String
+    + getSex(): String
+    + getDesexedStatus(): boolean
+    + getAge(): int
+    + setDesexedStatus(boolean): void
+    + isSameBreed(Dog): boolean
+    + isSameSex(Dog): boolean
+    + isAgeInRange(int, int): boolean
+    + isSameDesexedStatus(Dog): boolean
+}
+
+class Person {
+    - String name
+    - String phoneNumber
+    - String email
+    + getName(): String
+    + getPhoneNumber(): String
+    + getEmail(): String
+}
+
+class AllDogs {
+    - ArrayList<Dog> dogs
+    + addDog(Dog): void
+    + removeDog(Dog): void
+    + searchDog(Dog): Dog
+}
+
+class FindADog {
+    + loadDogsFromFile(String): allDogs
+    + getUserSearchCriteria(): Dog
+    + getUserContactDetails(): Person
+    + writeAdoptionRequest(): void
+    + main(String[] args): void
+}
+  
+  
+@enduml
+```

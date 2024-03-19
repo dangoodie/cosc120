@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  */
 public class SeekAGeek {
     //fields
-    private static final String filePath = "./allGeeks.txt";
+    private static final String filePath = "allGeeks.txt";
     private static AllGeeks allGeeks;
 
     /**
@@ -137,7 +137,7 @@ public class SeekAGeek {
     private static Geek signUp(){
         String username = JOptionPane.showInputDialog("Please create a unique username: ");
         if(username==null) System.exit(0);
-        while(allGeeks.getGeek(username)!=null || username.length()==0) {
+        while(allGeeks.getGeek(username)!=null || username.isEmpty()) {
             username = JOptionPane.showInputDialog("This username is invalid or is already taken. Please try again. ");
             if(username==null) System.exit(0);
         }
@@ -369,7 +369,7 @@ public class SeekAGeek {
             //Geek potentialMatch = allGeeks.findDreamGeek(dreamGeek, username);
             List<Geek> potentialMatches = allGeeks.findDreamGeek(dreamGeek, username);
             //instead of checking if one match is null, check if the List is empty (no matches)
-            if (potentialMatches.size()==0) JOptionPane.showMessageDialog(null, "Sadly, no match meets your criteria.");
+            if (potentialMatches.isEmpty()) JOptionPane.showMessageDialog(null, "Sadly, no match meets your criteria.");
             //if (potentialMatch == null) JOptionPane.showMessageDialog(null, "Sadly, no match meets your criteria.");
             else {
                 //create a String array to contain the names of all the potential matches - the user is to choose one of them
