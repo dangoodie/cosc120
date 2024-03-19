@@ -43,7 +43,7 @@ class AllDogs {
 class FindADog {
     + main(String[] args): void
     + loadDogsFromFile(String): AllDogs
-    + getUserSearchCriteria(): Dog
+    + getUserSearchCriteria(Set<String>): Dog
     + getUserContactDetails(): Person
     + writeAdoptionRequest(Dog, Person): void
     + isValidPhoneNumber(String): boolean

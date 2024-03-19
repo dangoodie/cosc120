@@ -9,6 +9,8 @@ public class Dog {
     private final Gender gender;
     private Desexed isDesexed;
     private final int age;
+    private int minAge;
+    private int maxAge;
 
     /**
      * Constructor for the Dog class
@@ -110,6 +112,38 @@ public class Dog {
      */
     public boolean isSameAge(Dog otherDog) {
         return this.age == otherDog.getAge();
+    }
+
+    /**
+     * Method to get the minimum age of a user's dream dog
+     * @return the minimum age
+     */
+    public int getMinAge() {
+        return minAge;
+    }
+
+    /**
+     * Method to get the maximum age of a user's dream dog
+     * @return the maximum age
+     */
+    public int getMaxAge() {
+        return maxAge;
+    }
+
+    /**
+     * Method to set the minimum age of a user's dream dog
+     * @param minAge an int representing the minimum age
+     */
+    public void setMinAge(int minAge) {
+        this.minAge = minAge;
+    }
+
+    /**
+     * Method to set the maximum age of a user's dream dog
+     * @param maxAge an int representing the maximum age
+     */
+    public void setMaxAge(int maxAge) {
+        this.maxAge = maxAge;
     }
 
     /**

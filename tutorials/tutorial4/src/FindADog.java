@@ -5,6 +5,7 @@
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.*;
@@ -18,7 +19,7 @@ public class FindADog {
 
         // load dog data from file
         AllDogs allDogs = loadDogsFromFile("allDogs.txt");
-        Dog dreamDog = getUserSearchCriteria();
+        Dog dreamDog = getUserSearchCriteria(allDogs.getAvailableBreeds());
 
         // find a dog that matches the user's dream dog
         Dog foundDog = allDogs.searchDog(dreamDog);
@@ -96,12 +97,12 @@ public class FindADog {
 
     /**
      * A method to get user input for their preferred dog
-     *
+     * @param availableBreeds a Set of Strings representing the available dog breeds
      * @return a Map of the user's adoption request details
      */
     // rebuild using Java Swing
-    public static Dog getUserSearchCriteria() {
-        String breed = JOptionPane.showInputDialog("What breed of dog are you looking for?");
+    public static Dog getUserSearchCriteria(Set<String> availableBreeds) {
+        String breed = (String) JOptionPane.showInputDialog(null, "Please select your preferred breed: ", null, JOptionPane.QUESTION_MESSAGE, null, availableBreeds.toArray(), availableBreeds.toArray()[0].toString());
         if (breed == null) {
             System.out.println("User cancelled the adoption");
             System.exit(0);
@@ -149,7 +150,7 @@ public class FindADog {
             System.out.println("User cancelled the adoption");
             System.exit(0);
         }
-        String phoneNumber = "";
+        String phoneNumber;
         do {
             phoneNumber = JOptionPane.showInputDialog("What is your phone number?");
             if (phoneNumber == null) {
@@ -160,7 +161,7 @@ public class FindADog {
                 JOptionPane.showMessageDialog(null, "Please enter a valid phone number");
             }
         } while (!isValidPhoneNumber(phoneNumber));
-        String emailAddress = "";
+        String emailAddress;
         do {
             emailAddress = JOptionPane.showInputDialog("What is your email address?");
             if (emailAddress == null) {
