@@ -17,6 +17,7 @@ class Dog {
     + setDesexedStatus(boolean): void
     + isSameBreed(Dog): boolean
     + isSameSex(Dog): boolean
+    + isSameAge(Dog): boolean
     + isAgeInRange(int, int): boolean
     + isSameDesexedStatus(Dog): boolean
 }
@@ -38,10 +39,10 @@ class AllDogs {
 }
 
 class FindADog {
-    + loadDogsFromFile(String): allDogs
+    + loadDogsFromFile(String): AllDogs
     + getUserSearchCriteria(): Dog
     + getUserContactDetails(): Person
-    + writeAdoptionRequest(): void
+    + writeAdoptionRequest(Dog, Person): void
     + main(String[] args): void
 }
   

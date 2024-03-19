@@ -1,54 +1,55 @@
+/**
+ * @author Daniel Gooden (dan.gooden.dev@gmail.com)
+ * created for COSC120 Tutorial 4
+ */
+
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import javax.swing.*;
 
 /**
- * This class is used to create an adoption request object
+ * This class is used to guide the user through adopting a dog from a shelter database
  */
 public class FindADog {
 
     public static void main(String[] args) {
-        FindADog adoptionRequest = new FindADog();
-        Map<Integer, Dog> dogMap = adoptionRequest.loadDogData("allDogs.txt");
 
-        // update desexed status for a dog
-        Dog dog = dogMap.get(989343556);
-        dog.setDesexedStatus(true);
+        // load dog data from file
+        AllDogs allDogs = loadDogsFromFile("allDogs.txt");
+        Dog dreamDog = getUserSearchCriteria();
 
-        // get user input
-        Map<String, String> userRequest = adoptionRequest.getUserInput();
+        // find a dog that matches the user's dream dog
+        Dog foundDog = allDogs.searchDog(dreamDog);
 
-        // find dogs with matching breed
-        Map<Integer, Dog> matchingBreed = adoptionRequest.findMatchingBreed(dogMap, userRequest);
-        System.out.println("Dogs with matching breed: ");
-        adoptionRequest.printDogDetails(matchingBreed);
+        if (foundDog == null) {
+            JOptionPane.showMessageDialog(null, "Sorry, no dogs match your criteria");
+            System.exit(0);
+        }
 
-        // find dogs with matching breed in the age range
-        Map<Integer, Dog> matchingAge = adoptionRequest.findMatchingAge(matchingBreed, userRequest);
-        System.out.println("Dogs with matching breed and age: ");
-        adoptionRequest.printDogDetails(matchingAge);
+        boolean adopt = yesNoBoolean(JOptionPane.showInputDialog("Would you like to adopt " + foundDog.getName() + " (" + foundDog.getMicrochipNumber() + ")?"));
+        if (!adopt) {
+            JOptionPane.showMessageDialog(null, "Thank you for using the FindADog program");
+            System.exit(0);
+        }
 
-        // find dogs with matching breed, age, and sex
-        Map<Integer, Dog> matchingSex = adoptionRequest.findMatchingSex(matchingAge, userRequest);
-        System.out.println("Dogs with matching breed, age, and sex: ");
-        adoptionRequest.printDogDetails(matchingSex);
+        Person newOwner = getUserContactDetails();
+        writeAdoptionToFile(newOwner, foundDog);
 
-        // find dogs with matching breed, age, sex, and desexed status
-        Map<Integer, Dog> matchingDesexed = adoptionRequest.findMatchingDesexed(matchingSex, userRequest);
-        System.out.println("Dogs with matching breed, age, sex, and desexed status: ");
-        adoptionRequest.printDogDetails(matchingDesexed);
+        JOptionPane.showMessageDialog(null, "Thank you! Your adoption request has been submitted. One of our friendly staff will be in touch shortly.");
 
         System.exit(0);
     }
+
     /**
      * A method to load dog data from a file
      * The key/value pair is microchip/dog
+     *
      * @param fileName a String representing the name of the file to load the data from
      * @return a Map of Dog objects
      * @throws Exception if there is an error loading the data
      */
-    public Map<Integer, Dog> loadDogData(String fileName) {
-        Map<Integer, Dog> dogMap = new HashMap<>();
+    public static AllDogs loadDogsFromFile(String fileName) {
+        AllDogs allDogs = new AllDogs();
         try {
             // code to load dog data from a file
             Path path = Path.of(fileName);
@@ -74,7 +75,7 @@ public class FindADog {
 
                 // create a new Dog object
                 Dog newDog = new Dog(name, microchipNumber, breed, sex, desexed, age);
-                dogMap.put(microchipNumber, newDog);
+                allDogs.addDog(newDog);
             }
 
         } catch (Exception e) {
@@ -83,152 +84,63 @@ public class FindADog {
             System.exit(0);
         }
         System.out.println("Dog data loaded successfully");
-        return dogMap;
+        return allDogs;
     }
 
     /**
      * A method to get user input for their preferred dog
+     *
      * @return a Map of the user's adoption request details
      */
-    public Map <String, String> getUserInput() {
-        Scanner keyboard = new Scanner(System.in);
-        System.out.println("Please enter the desired dog breed: ");
-        String desiredBreed = keyboard.nextLine().toLowerCase().trim();
+    // rebuild using Java Swing
+    public static Dog getUserSearchCriteria() {
+        String breed = null;
+        String sex = null;
+        boolean desexed = false;
+        int age = 0;
 
-        String desiredSex = "";
-        while (!desiredSex.equals("male") && !desiredSex.equals("female")) {
-            System.out.println("What is your preferred sex? (male/female): ");
-            desiredSex = keyboard.nextLine();
-            desiredSex = desiredSex.toLowerCase().trim();
+        try {
+            breed = JOptionPane.showInputDialog("What breed of dog are you looking for?");
+            sex = JOptionPane.showInputDialog("Do you want a male or female dog?");
+            desexed = yesNoBoolean(JOptionPane.showInputDialog("Do you want a desexed dog? (yes/no)"));
+            age = Integer.parseInt(JOptionPane.showInputDialog("What age do you want the dog to be?"));
 
-            if (!desiredSex.equals("male") && !desiredSex.equals("female")) {
-                System.out.println("Please enter a valid sex.");
-            }
-
+        } catch (NullPointerException e) {
+            System.out.println("User cancelled the search");
+            System.exit(0);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid age entered");
+            System.exit(0);
         }
-
-        int minAge = -1;
-        while (minAge < 0 || minAge > 20) {
-            System.out.println("Minimum age in years (min 0 years): ");
-            minAge = keyboard.nextInt();
-            // capture keyboard return carriage
-            keyboard.nextLine();
-            if (minAge < 0 || minAge > 20) {
-                System.out.println("Invalid value for minimum age: " + minAge);
-            }
-
-        }
-
-        int maxAge = -1;
-        while (maxAge < 0 || maxAge > 20 || minAge > maxAge) {
-            System.out.println("Maximum age in years (max 20 years): ");
-            maxAge = keyboard.nextInt();
-            // capture keyboard return carriage
-            keyboard.nextLine();
-            if (maxAge < 0 || maxAge > 20) {
-                System.out.println("Invalid value for maximum age: " + maxAge);
-            }
-            if (minAge > maxAge) {
-                System.out.println("Maximum age must be greater than minimum age.");
-            }
-        }
-
-        String desexed = "";
-
-        while (!desexed.equals("yes") && !desexed.equals("no")) {
-            System.out.println("Do you want the dog to be desexed? (yes/no): ");
-            desexed = keyboard.nextLine();
-            desexed = desexed.toLowerCase().trim();
-            if (!desexed.equals("yes") && !desexed.equals("no")) {
-                System.out.println("Please enter a valid response.");
-            }
-        }
-        keyboard.close();
-        // return the user's adoption request
-        Map <String, String> userRequest = new HashMap<>();
-        userRequest.put("desiredBreed", desiredBreed);
-        userRequest.put("desiredSex", desiredSex);
-        userRequest.put("maxAge", String.valueOf(maxAge));
-        userRequest.put("minAge", String.valueOf(minAge));
-        userRequest.put("desexed", desexed);
-        return userRequest;
+        return new Dog("", -1, breed, sex, desexed, age);
     }
 
     /**
-     * A method to find dogs that match the user's breed preference
-     * @param dogMap a Map of Dog objects
-     * @param userRequest a Map of the user's adoption request details
-     * @return a Set of Dog objects that match the user's breed preference
+     * A method to get user input for their contact details
+     * @return a Person object of the user's contact details
      */
-    public Map<Integer, Dog> findMatchingBreed(Map<Integer, Dog> dogMap, Map<String, String> userRequest) {
-        Map<Integer, Dog> matchingDogs = new HashMap<>();
-        String desiredBreed = userRequest.get("desiredBreed");
-        // create dummy dog object to access the isSameBreed method
-        Dog dummyDog = new Dog("", 0, desiredBreed, "", false, 0);
-        // iterate through the dog map and add dogs with matching breed to the set
-        for (Dog dog : dogMap.values()) {
-            if (dummyDog.isSameBreed(dog)) {
-                matchingDogs.put(dog.getMicrochipNumber(), dog);
-            }
-        }
-        return matchingDogs;
-    }
 
-    /**
-     * A method to find dogs that match the user's sex preference
-     * @param dogMap a Map of Dog objects
-     * @param userRequest a Map of the user's adoption request details
-     * @return a Set of Dog objects that match the user's sex preference
-     */
-    public Map<Integer, Dog> findMatchingSex(Map<Integer, Dog> dogMap, Map<String, String> userRequest) {
-        Map<Integer, Dog> matchingDogs = new HashMap<>();
-        String desiredSex = userRequest.get("desiredSex");
-        // create dummy dog object to access the isSameSex method
-        Dog dummyDog = new Dog("", 0, "", desiredSex, false, 0);
-        // iterate through the dog map and add dogs with matching sex
-        for (Dog dog : dogMap.values()) {
-            if (dummyDog.isSameSex(dog)) {
-                matchingDogs.put(dog.getMicrochipNumber(), dog);
-            }
+    public static Person getUserContactDetails() {
+        String name = JOptionPane.showInputDialog("What is your name?");
+        if (name == null) {
+            System.out.println("User cancelled the adoption");
+            System.exit(0);
         }
-        return matchingDogs;
-    }
 
-    /**
-     * A method to find dogs that match the user's age preference
-     * @param dogMap a Map of Dog objects
-     * @param userRequest a Map of the user's adoption request details
-     * @return a Set of Dog objects that match the user's age preference
-     */
-    public Map<Integer, Dog> findMatchingAge(Map<Integer, Dog> dogMap, Map<String, String> userRequest) {
-        Map<Integer, Dog> matchingDogs = new HashMap<>();
-        int minAge = Integer.parseInt(userRequest.get("minAge"));
-        int maxAge = Integer.parseInt(userRequest.get("maxAge"));
-        for (Dog dog : dogMap.values()) {
-            if (dog.isAgeInRange(minAge, maxAge)) {
-                matchingDogs.put(dog.getMicrochipNumber(), dog);
-            }
+        String phoneNumber = JOptionPane.showInputDialog("What is your phone number?");
+        if (phoneNumber == null) {
+            System.out.println("User cancelled the adoption");
+            System.exit(0);
         }
-        return matchingDogs;
-    }
 
-    /**
-     * A method to find dogs that match the user's desexed preference
-     * @param dogMap a Map of Dog objects
-     * @param userRequest a Map of the user's adoption request details
-     * @return a Set of Dog objects that match the user's desexed preference
-     */
-    public Map<Integer, Dog> findMatchingDesexed(Map<Integer, Dog> dogMap, Map<String, String> userRequest) {
-        Map<Integer, Dog> matchingDogs = new HashMap<>();
-        boolean userValue = yesNoBoolean(userRequest.get("desexed"));
-        for (Dog dog : dogMap.values()) {
-            if (dog.getDesexedStatus() ==  userValue){
-                matchingDogs.put(dog.getMicrochipNumber(), dog);
-            }
+        String emailAddress = JOptionPane.showInputDialog("What is your email address?");
+        if (emailAddress == null) {
+            System.out.println("User cancelled the adoption");
+            System.exit(0);
         }
-        return matchingDogs;
-    }
 
+        return new Person(name, phoneNumber, emailAddress);
+    }
 
     /**
      * A method to convert yes or no string to a boolean
@@ -249,13 +161,23 @@ public class FindADog {
     }
 
     /**
-     * A method to print the details of a set of dogs
-     * @param dogs a Set of Dog objects
+     * A method to write the adoption request to a file
+     * @param newOwner a Person object representing the new owner
+     * @param dog      a Dog object representing the dog being adopted
      */
-    private void printDogDetails(Map<Integer, Dog> dogs) {
-        for (Dog dog : dogs.values()) {
-            System.out.println(dog.getName() + " (" + dog.getMicrochipNumber() + ") is a " + dog.getAge() + " year old " + dog.getBreed() + " " + dog.getSex() + ". Desexed: " + dog.getDesexedStatus() + ".");
+    public static void writeAdoptionToFile(Person newOwner, Dog dog) {
+        try {
+            // code to write the adoption request to a file
+            String fileName = newOwner.getFirstName() + "_" + newOwner.getLastName() + "_adoption_request.txt";
+
+            Path path = Path.of(fileName);
+            String adoptionRequest = newOwner.getName() + " wishes to adopt " + dog.getName() + " (" + dog.getMicrochipNumber() + "). Their phone number is " + newOwner.getPhoneNumber() + " and their email address is " + newOwner.getEmail();
+            Files.writeString(path, adoptionRequest);
+        } catch (Exception e) {
+            System.out.println("Error writing adoption request to file: " + e.getMessage());
+            e.printStackTrace();
+            System.exit(0);
         }
-        System.out.println();
+        System.out.println("Adoption request written to file successfully");
     }
 }

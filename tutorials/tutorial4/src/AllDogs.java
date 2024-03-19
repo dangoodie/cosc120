@@ -13,7 +13,7 @@ public class AllDogs {
 
     public Dog searchDog(Dog dog) {
         for (Dog d : dogs) {
-            if (d.equals(dog)) {
+            if (d.isSameBreed(dog) && d.isSameSex(dog) && d.isSameDesexedStatus(dog) && d.isSameAge(dog)) {
                 return d;
             }
         }

@@ -104,6 +104,15 @@ public class Dog {
     }
 
     /**
+     * Method to compare this Dog's age to another Dog's age
+     * @param otherDog a Dog object representing the other dog
+     * @return a boolean representing whether the dogs are the same age
+     */
+    public boolean isSameAge(Dog otherDog) {
+        return this.age == otherDog.getAge();
+    }
+
+    /**
      * Method to test whether this Dog's age falls within a specified age range
      * @param min an int representing the minimum age
      * @param max an int representing the maximum age
