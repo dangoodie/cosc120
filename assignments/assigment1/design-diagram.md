@@ -4,9 +4,9 @@
 class Coffee {
     - Int id
     - String name
-    - String price
-    - String minPrice
-    - String maxPrice
+    - Double price
+    - Double minPrice
+    - Double maxPrice
     - Int numberOfShots
     - boolean sugar
     - Set<String> milkOptions
@@ -22,6 +22,8 @@ class Coffee {
     + getDescription(): String
     + getMinPrice(): String
     + getMaxPrice(): String
+    + setMinPrice(String): void
+    + setMaxPrice(String): void
     + isInPriceRange(String, String): boolean
 }
 
@@ -33,7 +35,7 @@ class Geek {
 }
 
 class Order {
-    - Person person
+    - Geek geek
     - Coffee coffeeOrder
     - String name
     - String orderNumber
@@ -44,7 +46,7 @@ class Order {
     + getName(): String
     + getOrderNumber(): String
     + getMilkSelection(): String
-    + getExtrasSelection(): String    
+    + getExtrasSelection(): Set<String>    
 }
 
 class Menu {
@@ -55,13 +57,21 @@ class Menu {
 }
 
 class MenuSearcher {
-    - Menu menu
-    + loadMenuFromFile(String): void
+    + main(String[]): void
+    + loadMenuFromFile(String): Menu
     + userInputSelection(): Coffee
     + searchMenu(Coffee): Set<Coffee>
     + getUserInfo(): Person
     + writeOrderToFile(Order): void
-    + main(String[]): void
+}
+
+enum MilkOptions {
+    WHOLE
+    SKIM
+    SOY
+    ALMOND
+    OAT
+    NONE
 }
 
 ```
