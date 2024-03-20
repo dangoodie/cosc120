@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * A class to store all the dogs in the shelter
@@ -29,13 +27,18 @@ public class AllDogs {
      * @param dog a Dog object
      * @return a Dog object
      */
-    public Dog searchDog(Dog dog) {
+    public Map<Integer, Dog> searchDogs(Dog dog) {
+        Map<Integer, Dog> foundDogs = new HashMap<>();
         for (Dog d : dogs) {
-            if (d.isSameBreed(dog) && d.isSameSex(dog) && d.isSameDesexedStatus(dog) && d.isSameAge(dog)) {
-                return d;
+            if (d.isSameBreed(dog) && d.isSameSex(dog) && d.isSameDesexedStatus(dog) && d.isAgeInRange(dog.getMinAge(), dog.getMaxAge())) {
+                foundDogs.put(d.getMicrochipNumber(), d);
             }
         }
-        return null;
+        if (foundDogs.isEmpty()) {
+            return null;
+        } else {
+            return foundDogs;
+        }
     }
 
     /**
@@ -43,7 +46,7 @@ public class AllDogs {
      * @return an ArrayList of Dog objects
      */
     public Set<String> getAvailableBreeds() {
-        Set<String> breeds = new HashSet<String>();
+        Set<String> breeds = new HashSet<>();
 
         for (Dog d : dogs) {
             String[] breedName = d.getBreed().split(" ");

@@ -5,6 +5,8 @@
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,16 +24,22 @@ public class FindADog {
         Dog dreamDog = getUserSearchCriteria(allDogs.getAvailableBreeds());
 
         // find a dog that matches the user's dream dog
-        Dog foundDog = allDogs.searchDog(dreamDog);
+        Map<Integer, Dog> foundDogs = allDogs.searchDogs(dreamDog);
 
-        if (foundDog == null) {
+        if (foundDogs == null) {
             JOptionPane.showMessageDialog(null, "Sorry, no dogs match your criteria");
             System.exit(0);
         }
 
+        // convert the Map to a Set for the JOptionPane
+        Set <String> foundDogNamesAndNumbers = new HashSet<>();
+        for (Dog dog : foundDogs.values()) {
+            foundDogNamesAndNumbers.add(dog.getName() + " (" + dog.getMicrochipNumber() + ") is a " + dog.getAge() + " year old " + dog.getGender() + " " + dog.getBreed() + " dog. Desexed: " + dog.getDesexedStatus());
+        }
+        String selectedDog = null;
         try {
-            int result = JOptionPane.showConfirmDialog(null, "We found a dog that matches your criteria: " + foundDog.getName() + " (" + foundDog.getMicrochipNumber() + "). Would you like to adopt this dog?");
-            if (result != JOptionPane.YES_OPTION) {
+            selectedDog = (String) JOptionPane.showInputDialog(null, "Please select a dog to adopt: ", null, JOptionPane.QUESTION_MESSAGE, null, foundDogNamesAndNumbers.toArray(), foundDogNamesAndNumbers.toArray()[0]);
+            if (selectedDog == null) {
                 JOptionPane.showMessageDialog(null, "Thank you for using the FindADog program");
                 System.exit(0);
             }
@@ -40,9 +48,15 @@ public class FindADog {
             System.exit(0);
         }
 
+        // get the dog object from the selected dog microchip number
+        String selectedDogNumber = selectedDog.substring(selectedDog.indexOf("(") + 1, selectedDog.indexOf(")"));
+        Dog foundDog = foundDogs.get(Integer.parseInt(selectedDogNumber));
+
+        // get the user's contact details
         Person newOwner = getUserContactDetails();
         writeAdoptionToFile(newOwner, foundDog);
 
+        // display a message to the user to confirm their adoption request has been submitted
         JOptionPane.showMessageDialog(null, "Thank you! Your adoption request has been submitted. One of our friendly staff will be in touch shortly.");
 
         System.exit(0);
@@ -120,23 +134,44 @@ public class FindADog {
             System.exit(0);
         }
 
-        int age = -1;
+        int minAge = -1;
         do {
-            String ageInput = JOptionPane.showInputDialog("What age of dog are you looking for? (0 to 20)");
+            String ageInput = JOptionPane.showInputDialog("What is the minimum age of the dog are you looking for? (0 to 20)");
             if (ageInput == null) {
                 System.out.println("User cancelled the adoption");
                 System.exit(0);
             }
             try {
-                age = Integer.parseInt(ageInput);
+                minAge = Integer.parseInt(ageInput);
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(null, "Please enter a valid age");
             }
-        } while (age < 0 || age > 20);
+        } while (minAge < 0 || minAge > 20);
 
+        int maxAge = -1;
+        do {
+            String ageInput = JOptionPane.showInputDialog("What is the maximum age of the dog are you looking for? (0 to 20)");
+            if (ageInput == null) {
+                System.out.println("User cancelled the adoption");
+                System.exit(0);
+            }
+            try {
+                maxAge = Integer.parseInt(ageInput);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid age");
+            }
+            if (maxAge < minAge) {
+                JOptionPane.showMessageDialog(null, "The maximum age must be greater than or equal to the minimum age");
+                maxAge = -1;
+            }
 
+        } while (maxAge < 0 || maxAge > 20);
 
-        return new Dog("", -1, breed, gender, desexed, age);
+        Dog dreamDog = new Dog("", -1, breed, gender, desexed, -1);
+        dreamDog.setMinAge(minAge);
+        dreamDog.setMaxAge(maxAge);
+
+        return dreamDog;
     }
 
     /**
