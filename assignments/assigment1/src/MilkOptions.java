@@ -1,3 +1,5 @@
+import java.util.Set;
+
 public enum MilkOptions {
     FULL_CREAM, SKIM, SOY, ALMOND, OAT, NONE;
 
@@ -11,5 +13,21 @@ public enum MilkOptions {
             case OAT -> "Oat";
             case NONE -> "None";
         };
+    }
+
+    public static MilkOptions fromString(String milkOption) {
+        return switch (milkOption) {
+            case "Full-cream" -> FULL_CREAM;
+            case "Skim" -> SKIM;
+            case "Soy" -> SOY;
+            case "Almond" -> ALMOND;
+            case "Oat" -> OAT;
+            case "None" -> NONE;
+            default -> throw new IllegalStateException("Unexpected value: " + milkOption);
+        };
+    }
+
+    public boolean contains(MilkOptions milkOptions) {
+        return this.toString().contains(milkOptions.toString());
     }
 }

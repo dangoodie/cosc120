@@ -63,6 +63,8 @@ class MenuSearcher {
     + searchMenu(Coffee): Set<Coffee>
     + getUserInfo(): Person
     + writeOrderToFile(Order): void
+    - parseOptions(String): Set<String>
+    - descriptionBuilder(List<String>): String
 }
 
 enum MilkOptions {
@@ -72,6 +74,18 @@ enum MilkOptions {
     ALMOND
     OAT
     NONE
+    +toString(): String
+}
+
+enum Extras {
+    CHOCOLATE_POWDER
+    CINNAMON
+    VANILLA_SYRUP
+    WHIPPED_CREAM
+    VANILLA_ICE_CREAM
+    CHOCOLATE_SYRUP
+    CARAMEL_SYRUP
+    +toString(): String
 }
 
 ```

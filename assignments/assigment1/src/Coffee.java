@@ -8,11 +8,11 @@ public class Coffee {
     private Double maxPrice;
     private final int numberOfShots;
     private final boolean sugar;
-    private final Set<String> milkOptions;
+    private final Set<MilkOptions> milkOptions;
     private final Set<String> extras;
     private final String description;
 
-    public Coffee(int id, String name, Double price, int numberOfShots, boolean sugar, Set<String> milkOptions, Set<String> extras, String description) {
+    public Coffee(int id, String name, Double price, int numberOfShots, boolean sugar, Set<MilkOptions> milkOptions, Set<String> extras, String description) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -51,7 +51,7 @@ public class Coffee {
         return sugar;
     }
 
-    public Set<String> getMilkOptions() {
+    public Set<MilkOptions> getMilkOptions() {
         return milkOptions;
     }
 
@@ -73,5 +73,13 @@ public class Coffee {
 
     public boolean isInPriceRange(Double minPrice, Double maxPrice) {
         return this.price >= minPrice && this.price <= maxPrice;
+    }
+
+    public boolean hasExtra(Set<String> extras) {
+        return this.extras.containsAll(extras);
+    }
+
+    public boolean hasMilkOption(Set<MilkOptions> milkOption) {
+        return milkOptions.contains(milkOption);
     }
 }

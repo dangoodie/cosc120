@@ -23,17 +23,19 @@ public class Menu {
 
     public Set<Coffee> findDreamCoffees(Coffee dreamCoffee) {
         Set<Coffee> dreamCoffees = new HashSet<>();
+
+
         for (Coffee coffee : coffees) {
-            if (
-                coffee.getPrice() >= dreamCoffee.getMinPrice() &&
-                coffee.getNumberOfShots() == dreamCoffee.getNumberOfShots() &&
-                coffee.hasSugar() == dreamCoffee.hasSugar() &&
-                coffee.getMilkOptions().containsAll(dreamCoffee.getMilkOptions()) &&
-                dreamCoffee.getMilkOptions().containsAll(coffee.getMilkOptions()) &&
-                coffee.getExtras().containsAll(dreamCoffee.getExtras()) &&
-                dreamCoffee.getExtras().containsAll(coffee.getExtras())) {
+            if (coffee.getNumberOfShots() == dreamCoffee.getNumberOfShots() &&
+                    coffee.hasSugar() == dreamCoffee.hasSugar() &&
+                    coffee.hasMilkOption(dreamCoffee.getMilkOptions()) &&
+                    coffee.hasExtra(dreamCoffee.getExtras()))
+                    {
                 dreamCoffees.add(coffee);
             }
+        }
+        if (dreamCoffees.isEmpty()) {
+            return null;
         }
         return dreamCoffees;
     }
