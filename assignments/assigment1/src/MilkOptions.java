@@ -27,7 +27,4 @@ public enum MilkOptions {
         };
     }
 
-    public boolean contains(MilkOptions milkOptions) {
-        return this.toString().contains(milkOptions.toString());
-    }
 }

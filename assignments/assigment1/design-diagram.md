@@ -34,21 +34,6 @@ class Geek {
     + getPhoneNumber(): String
 }
 
-class Order {
-    - Geek geek
-    - Coffee coffeeOrder
-    - String name
-    - String orderNumber
-    - String milkSelection
-    - String extrasSelection
-    + selectMilkOption(Set<String> milkOptions): String
-    + selectExtras(Set<String> extras): String
-    + getName(): String
-    + getOrderNumber(): String
-    + getMilkSelection(): String
-    + getExtrasSelection(): Set<String>    
-}
-
 class Menu {
     - Set<Coffee> allCoffees
     + getAllCoffees(): Set<Coffee>
@@ -61,8 +46,8 @@ class MenuSearcher {
     + loadMenuFromFile(String): Menu
     + userInputSelection(): Coffee
     + searchMenu(Coffee): Set<Coffee>
-    + getUserInfo(): Person
-    + writeOrderToFile(Order): void
+    + getUserInfo(): Geek
+    + writeOrderToFile(Geek, Coffee): void
     - parseOptions(String): Set<String>
     - descriptionBuilder(List<String>): String
 }

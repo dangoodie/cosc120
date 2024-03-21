@@ -17,7 +17,7 @@ public class MenuSearcher {
       // Print out the menu
         Set<Coffee> coffees = menu.getAllCoffees();
         for (Coffee coffee : coffees) {
-            System.out.println(coffee.getName() + " - " + coffee.getMilkOptions());
+            System.out.println(coffee.getName() + " - " + coffee.getExtras());
         }
     }
 
@@ -53,9 +53,19 @@ public class MenuSearcher {
 
                 Set<String> extras = parseOptions(coffeeData.get(6));
 
+                // Convert the strings to Set<Extras>
+                Set<Extras> extrasSet = new HashSet<>();
+                if (extras.isEmpty()) {
+                    extrasSet.add(Extras.NONE);
+                } else {
+                    for (String extra : extras) {
+                        extrasSet.add(Extras.fromString(extra));
+                    }
+                }
+
                 String description = descriptionBuilder(coffeeData);
 
-                coffees.add(new Coffee(id, name, price, numberOfShots, sugar, milkOptionsSet, extras, description));
+                coffees.add(new Coffee(id, name, price, numberOfShots, sugar, milkOptionsSet, extrasSet, description));
             }
 
         } catch (IOException e) {
@@ -88,8 +98,13 @@ public class MenuSearcher {
         if (field.equals("[]")) {
             return new HashSet<>();
         }
+
         field = field.substring(1, field.length() - 1); // Remove the surrounding brackets
         String[] options = field.split(",");
+        for (int i = 0; i < options.length; i++) {
+            options[i] = options[i].trim();
+        }
+
         return new HashSet<>(Arrays.asList(options));
     }
 
