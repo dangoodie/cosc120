@@ -58,17 +58,18 @@ public class MenuSearcher {
 
         // Option to select zero or more extras
         Set<Extras> selectedCoffeeExtras = selectedCoffee.getExtras();
+        Set<Extras> selectedExtras = new HashSet<>();
         while (true) {
             Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra: ", null, JOptionPane.QUESTION_MESSAGE, null, selectedCoffeeExtras.toArray(), selectedCoffeeExtras.toArray()[0]);
             if (selectedExtra == null) {
                 break;
             }
-            selectedCoffeeExtras.add(selectedExtra);
+            selectedExtras.add(selectedExtra);
             if (selectedExtra == Extras.NONE) {
                 break;
             }
         }
-        selectedCoffee.setSelectedExtras(selectedCoffeeExtras);
+        selectedCoffee.setSelectedExtras(selectedExtras);
 
         // Get the geek info
         Geek geek = getGeekInfo();
@@ -280,7 +281,7 @@ public class MenuSearcher {
             if (selectedCoffee.getSelectedExtras().isEmpty()) {
                 orderDetails.append("\tExtras: None\n");
             } else {
-                orderDetails.append("\tExtras: ").append(selectedCoffee.getSelectedExtras().toString()).append("\n");
+                orderDetails.append("\tExtras: ").append(removeArrayBrackets(selectedCoffee.getSelectedExtras().toString())).append("\n");
             }
             Files.writeString(path, orderDetails.toString());
             System.out.println("Order written to file");
@@ -308,11 +309,18 @@ public class MenuSearcher {
             message.append("Ingredients:\n");
             message.append("Number of shots: " + coffee.getNumberOfShots() + "\n");
             message.append("Sugar: " + (coffee.hasSugar() ? "Yes" : "No") + "\n");
-            message.append("Milk options: " + coffee.getMilkOptions().toString() + "\n");
-            message.append("Extra/s: " + coffee.getExtras().toString() + "\n");
-            message.append("Price: $" + coffee.getPrice() + "\n");
+            message.append("Milk options: " + removeArrayBrackets(coffee.getMilkOptions().toString()) + "\n");
+            message.append("Extra/s: " + removeArrayBrackets(coffee.getExtras().toString()) + "\n");
+            message.append("Price: $" + String.format("%.2f", coffee.getPrice()) + "\n");
         }
         return message.toString();
+    }
+
+    private static String removeArrayBrackets(String description) {
+        if (description.startsWith("[") && description.endsWith("]")) {
+            description = description.substring(1, description.length() - 1);
+        }
+        return description;
     }
 }
 

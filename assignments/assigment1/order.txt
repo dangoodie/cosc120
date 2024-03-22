@@ -3,4 +3,4 @@ Order details:
 	Order number: 0450582817
 	Item: Mocha (30213)
 	Milk: Almond
-	Extras: [Whipped Cream, Chocolate Powder, Vanilla Ice Cream, Chocolate Syrup]
+	Extras: Chocolate Powder, Vanilla Ice Cream
