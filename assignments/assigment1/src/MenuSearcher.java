@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.*;
 
 public class MenuSearcher {
     public static void main(String[] args) {
@@ -14,42 +15,36 @@ public class MenuSearcher {
         }
         System.out.println("Menu loaded successfully");
 
-
-
-        // Create a dream coffee option to test the search function
-        // Build the user ordering system here
-        MilkOptions selectedMilkOption = MilkOptions.FULL_CREAM;
-        Coffee dreamCoffee = new Coffee(-1, "", 0.0, 2, true, Set.of(selectedMilkOption), Set.of(Extras.CINNAMON), "");
-        dreamCoffee.setMinPrice(2.0);
-        dreamCoffee.setMaxPrice(8.0);
+        Coffee dreamCoffee = getCoffeeOrder();
 
         // Find coffees that match the dream coffee
         Set<Coffee> dreamCoffees = menu.findDreamCoffees(dreamCoffee);
         if (dreamCoffees == null) {
-            System.out.println("No coffees found matching the dream coffee");
-        } else {
-            System.out.println("Coffees found matching the dream coffee:");
-            for (Coffee coffee : dreamCoffees) {
-                System.out.println(coffee.getName());
-            }
+            JOptionPane.showMessageDialog(null, "No coffees found matching the dream coffee", "Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
         }
 
+
+
         // Select a coffee from the menu
-        Coffee selectedCoffee = menu.getCoffeeById(30210);
+        Object[] coffeeArray = dreamCoffees.toArray();
+        Coffee selectedCoffee = (Coffee) JOptionPane.showInputDialog(null, "Select coffee: ", null, JOptionPane.QUESTION_MESSAGE, null, coffeeArray, coffeeArray[0]);
         if (selectedCoffee == null) {
             System.out.println("Error: Coffee not found");
             System.exit(1);
         } else {
             System.out.println("Coffee found: " + selectedCoffee.getName());
         }
-        selectedCoffee.setSelectedMilkOption(selectedMilkOption);
+        selectedCoffee.setSelectedMilkOption(dreamCoffee.getSelectedMilkOption());
+        selectedCoffee.setSelectedExtras(dreamCoffee.getSelectedExtras());
 
         // Get the geek info
         Geek geek = getGeekInfo();
 
         // Write the order to a file
         writeOrderToFile(geek, selectedCoffee);
-
+        JOptionPane.showMessageDialog(null, "Order written to file", "Success", JOptionPane.INFORMATION_MESSAGE);
+        System.exit(0);
     }
 
     public static Menu loadMenuFromFile(String filename) {
@@ -137,6 +132,66 @@ public class MenuSearcher {
         }
 
         return new HashSet<>(Arrays.asList(options));
+    }
+
+    private static Coffee getCoffeeOrder() {
+        // Get the coffee order
+        MilkOptions selectedMilkOption = (MilkOptions) JOptionPane.showInputDialog(null,"Select milk option: ",null,JOptionPane.QUESTION_MESSAGE, null, MilkOptions.values(), MilkOptions.FULL_CREAM);
+        Boolean hasSugar = JOptionPane.showConfirmDialog(null, "Would you like sugar?", "Sugar", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+
+        String numberOfShots;
+        do {
+            numberOfShots = JOptionPane.showInputDialog("How many shots would you like: ");
+            if (numberOfShots == null) {
+                System.exit(0);
+            }
+            if (!numberOfShots.matches("\\d+")) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } while (!numberOfShots.matches("\\d+"));
+        int numberOfShotsInt = Integer.parseInt(numberOfShots);
+
+        // Option to select zero or more extras
+        Set<Extras> selectedExtras = new HashSet<>();
+        Object[] extras = Extras.values();
+        while (true) {
+            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra: ", null, JOptionPane.QUESTION_MESSAGE, null, extras, extras[0]);
+            if (selectedExtra == null) {
+                break;
+            }
+            selectedExtras.add(selectedExtra);
+        }
+
+        // get the price range
+        String minPrice;
+        do {
+            minPrice = JOptionPane.showInputDialog("Enter the minimum price: ");
+            if (minPrice == null) {
+                System.exit(0);
+            }
+            if (!minPrice.matches("\\d+(\\.\\d+)?")) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } while (!minPrice.matches("\\d+(\\.\\d+)?"));
+
+        String maxPrice;
+        do {
+            maxPrice = JOptionPane.showInputDialog("Enter the maximum price: ");
+            if (maxPrice == null) {
+                System.exit(0);
+            }
+            if (!maxPrice.matches("\\d+(\\.\\d+)?")) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } while (!maxPrice.matches("\\d+(\\.\\d+)?"));
+
+        Coffee dreamCoffee = new Coffee(0, "Dream Coffee", 0.0, numberOfShotsInt, hasSugar, Set.of(selectedMilkOption), selectedExtras, "");
+        dreamCoffee.setSelectedMilkOption(selectedMilkOption);
+        dreamCoffee.setSelectedExtras(selectedExtras);
+        dreamCoffee.setMinPrice(Double.parseDouble(minPrice));
+        dreamCoffee.setMaxPrice(Double.parseDouble(maxPrice));
+        return dreamCoffee;
+
     }
 
     private static Geek getGeekInfo() {
