@@ -20,23 +20,55 @@ public class MenuSearcher {
         // Find coffees that match the dream coffee
         Set<Coffee> dreamCoffees = menu.findDreamCoffees(dreamCoffee);
         if (dreamCoffees == null) {
-            JOptionPane.showMessageDialog(null, "No coffees found matching the dream coffee", "Error", JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
+            JOptionPane.showMessageDialog(null, "No coffees found matching your ideal coffee", "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            // Show a message dialog showing the coffees found
+            String message = buildFoundCoffees(dreamCoffees);
+            JOptionPane.showMessageDialog(null, message, "Coffees found", JOptionPane.INFORMATION_MESSAGE);
         }
 
+        // Build array of coffee names with their IDs from all coffees
+        Set<Coffee> allCoffees = menu.getAllCoffees();
+        Object[] coffeeArray = new Object[allCoffees.size()];
+        for (int i = 0; i < allCoffees.size(); i++) {
+            Coffee coffee = (Coffee) allCoffees.toArray()[i];
+            coffeeArray[i] = coffee.getName() + " (" + coffee.getId() + ")";
+        }
 
-
-        // Select a coffee from the menu
-        Object[] coffeeArray = dreamCoffees.toArray();
-        Coffee selectedCoffee = (Coffee) JOptionPane.showInputDialog(null, "Select coffee: ", null, JOptionPane.QUESTION_MESSAGE, null, coffeeArray, coffeeArray[0]);
-        if (selectedCoffee == null) {
+       String selectedCoffeeString = (String) JOptionPane.showInputDialog(null, "Select coffee: ", null, JOptionPane.QUESTION_MESSAGE, null, coffeeArray, coffeeArray[0]);
+        if (selectedCoffeeString == null) {
             System.out.println("Error: Coffee not found");
             System.exit(1);
-        } else {
-            System.out.println("Coffee found: " + selectedCoffee.getName());
         }
-        selectedCoffee.setSelectedMilkOption(dreamCoffee.getSelectedMilkOption());
-        selectedCoffee.setSelectedExtras(dreamCoffee.getSelectedExtras());
+
+        // extract the coffee ID from the selected coffee
+        int selectedCoffeeId = Integer.parseInt(selectedCoffeeString.substring(selectedCoffeeString.indexOf("(") + 1, selectedCoffeeString.indexOf(")")));
+        Coffee selectedCoffee = menu.getCoffeeById(selectedCoffeeId);
+
+        Set<MilkOptions> selectedCoffeeMilkOptions = selectedCoffee.getMilkOptions();
+
+        // offer milk selection based on the selected coffee
+        MilkOptions selectedMilkOption = (MilkOptions) JOptionPane.showInputDialog(null, "Select milk option: ", null, JOptionPane.QUESTION_MESSAGE, null, selectedCoffeeMilkOptions.toArray(), selectedCoffeeMilkOptions.toArray()[0]);
+        if (selectedMilkOption == null) {
+            // Display a message and exit if the user cancels the dialog
+            JOptionPane.showMessageDialog(null, "No milk option selected", "Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
+        selectedCoffee.setSelectedMilkOption(selectedMilkOption);
+
+        // Option to select zero or more extras
+        Set<Extras> selectedCoffeeExtras = selectedCoffee.getExtras();
+        while (true) {
+            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra: ", null, JOptionPane.QUESTION_MESSAGE, null, selectedCoffeeExtras.toArray(), selectedCoffeeExtras.toArray()[0]);
+            if (selectedExtra == null) {
+                break;
+            }
+            selectedCoffeeExtras.add(selectedExtra);
+            if (selectedExtra == Extras.NONE) {
+                break;
+            }
+        }
+        selectedCoffee.setSelectedExtras(selectedCoffeeExtras);
 
         // Get the geek info
         Geek geek = getGeekInfo();
@@ -108,13 +140,15 @@ public class MenuSearcher {
 
         for (int j = 7; j < coffeeData.size(); j++) {
             descriptionBuilder.append(coffeeData.get(j).trim());
-            if (j < coffeeData.size() - 1) descriptionBuilder.append(", ");
-            descriptionBuilder.append(coffeeData.get(j).trim());
+            if (j != coffeeData.size() - 1) {
+                descriptionBuilder.append(", ");
+            }
         }
         String description = descriptionBuilder.toString();
         if (description.startsWith("[") && description.endsWith("]")) {
             description = description.substring(1, description.length() - 1);
         }
+        System.out.println(description);
         return description;
     }
 
@@ -137,8 +171,15 @@ public class MenuSearcher {
     private static Coffee getCoffeeOrder() {
         // Get the coffee order
         MilkOptions selectedMilkOption = (MilkOptions) JOptionPane.showInputDialog(null,"Select milk option: ",null,JOptionPane.QUESTION_MESSAGE, null, MilkOptions.values(), MilkOptions.FULL_CREAM);
+        if (selectedMilkOption == null) {
+            // Display a message and exit if the user cancels the dialog
+            JOptionPane.showMessageDialog(null, "No milk option selected", "Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
         Boolean hasSugar = JOptionPane.showConfirmDialog(null, "Would you like sugar?", "Sugar", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
-
+        if (hasSugar == null) {
+            System.exit(0);
+        }
         String numberOfShots;
         do {
             numberOfShots = JOptionPane.showInputDialog("How many shots would you like: ");
@@ -160,6 +201,9 @@ public class MenuSearcher {
                 break;
             }
             selectedExtras.add(selectedExtra);
+            if (selectedExtra == Extras.NONE) {
+                break;
+            }
         }
 
         // get the price range
@@ -195,8 +239,31 @@ public class MenuSearcher {
     }
 
     private static Geek getGeekInfo() {
-        String name = "John Doe";
-        String phoneNumber = "04757575";
+        String name;
+        while (true) {
+            name = JOptionPane.showInputDialog("Enter your name: ");
+            if (name == null) {
+                System.exit(0);
+            }
+            if (name.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Please enter a name", "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                break;
+            }
+        }
+
+        String phoneNumber;
+        while (true) {
+            phoneNumber = JOptionPane.showInputDialog("Enter your phone number: ");
+            if (phoneNumber == null) {
+                System.exit(0);
+            }
+            if (!isValidPhoneNumber(phoneNumber)) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid phone number", "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                break;
+            }
+        }
         return new Geek(name, phoneNumber);
     }
 
@@ -204,12 +271,18 @@ public class MenuSearcher {
         // Write Geek info and coffee order to file
         try {
             Path path = Path.of("order.txt");
-            Files.writeString(path,
-                    "Order details:\n" +
-                            "\tName: " + geek.getName() + "\n" +
-                            "\tOrder number: " + geek.getPhoneNumber() + "\n" +
-                            "\tItem: " + selectedCoffee.getName() + " (" + selectedCoffee.getId() + ")\n" +
-                            "\tMilk: " + selectedCoffee.getSelectedMilkOption() + "\n");
+
+            StringBuilder orderDetails = new StringBuilder("Order details:\n");
+            orderDetails.append("\tName: ").append(geek.getName()).append("\n");
+            orderDetails.append("\tOrder number: ").append(geek.getPhoneNumber()).append("\n");
+            orderDetails.append("\tItem: ").append(selectedCoffee.getName()).append(" (").append(selectedCoffee.getId()).append(")\n");
+            orderDetails.append("\tMilk: ").append(selectedCoffee.getSelectedMilkOption()).append("\n");
+            if (selectedCoffee.getSelectedExtras().isEmpty()) {
+                orderDetails.append("\tExtras: None\n");
+            } else {
+                orderDetails.append("\tExtras: ").append(selectedCoffee.getSelectedExtras().toString()).append("\n");
+            }
+            Files.writeString(path, orderDetails.toString());
             System.out.println("Order written to file");
         } catch (IOException e) {
             System.out.println("Error writing file: " + e.getMessage());
@@ -221,9 +294,26 @@ public class MenuSearcher {
      * @param phoneNumber a String representing the phone number
      * @return a boolean indicating whether the phone number is valid
      */
-    public static boolean isValidPhoneNumber(String phoneNumber) {
+    private static boolean isValidPhoneNumber(String phoneNumber) {
         Pattern pattern = Pattern.compile("^0\\d{9}$");
         Matcher matcher = pattern.matcher(phoneNumber);
         return matcher.matches();
     }
+
+    private static String buildFoundCoffees(Set<Coffee> dreamCoffees) {
+        StringBuilder message = new StringBuilder("Coffees found matching your order:\n");
+        for (Coffee coffee : dreamCoffees) {
+            message.append(coffee.getName() + " (" + coffee.getId() + ")\n");
+            message.append(coffee.getDescription() + "\n");
+            message.append("Ingredients:\n");
+            message.append("Number of shots: " + coffee.getNumberOfShots() + "\n");
+            message.append("Sugar: " + (coffee.hasSugar() ? "Yes" : "No") + "\n");
+            message.append("Milk options: " + coffee.getMilkOptions().toString() + "\n");
+            message.append("Extra/s: " + coffee.getExtras().toString() + "\n");
+            message.append("Price: $" + coffee.getPrice() + "\n");
+        }
+        return message.toString();
+    }
 }
+
+

@@ -1,5 +1,6 @@
 Order details:
-	Name: John Doe
-	Order number: 04757575
-	Item: Cappuccino (30210)
-	Milk: Full-cream
+	Name: Daniel Gooden
+	Order number: 0450582817
+	Item: Mocha (30213)
+	Milk: Almond
+	Extras: [Whipped Cream, Chocolate Powder, Vanilla Ice Cream, Chocolate Syrup]
