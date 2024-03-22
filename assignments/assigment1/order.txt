@@ -1,0 +1,5 @@
+Order details:
+	Name: John Doe
+	Order number: 04757575
+	Item: Cappuccino (30210)
+	Milk: Full-cream

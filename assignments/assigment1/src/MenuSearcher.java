@@ -14,11 +14,40 @@ public class MenuSearcher {
 
 
 
-      // Print out the menu
-        Set<Coffee> coffees = menu.getAllCoffees();
-        for (Coffee coffee : coffees) {
-            System.out.println(coffee.getName() + " - " + coffee.getExtras());
+        // Create a dream coffee option to test the search function
+        // Build the user ordering system here
+        MilkOptions selectedMilkOption = MilkOptions.FULL_CREAM;
+        Coffee dreamCoffee = new Coffee(-1, "", 0.0, 2, true, Set.of(selectedMilkOption), Set.of(Extras.CINNAMON), "");
+        dreamCoffee.setMinPrice(2.0);
+        dreamCoffee.setMaxPrice(8.0);
+
+        // Find coffees that match the dream coffee
+        Set<Coffee> dreamCoffees = menu.findDreamCoffees(dreamCoffee);
+        if (dreamCoffees == null) {
+            System.out.println("No coffees found matching the dream coffee");
+        } else {
+            System.out.println("Coffees found matching the dream coffee:");
+            for (Coffee coffee : dreamCoffees) {
+                System.out.println(coffee.getName());
+            }
         }
+
+        // Select a coffee from the menu
+        Coffee selectedCoffee = menu.getCoffeeById(30210);
+        if (selectedCoffee == null) {
+            System.out.println("Error: Coffee not found");
+            System.exit(1);
+        } else {
+            System.out.println("Coffee found: " + selectedCoffee.getName());
+        }
+        selectedCoffee.setSelectedMilkOption(selectedMilkOption);
+
+        // Get the geek info
+        Geek geek = getGeekInfo();
+
+        // Write the order to a file
+        writeOrderToFile(geek, selectedCoffee);
+
     }
 
     public static Menu loadMenuFromFile(String filename) {
@@ -108,4 +137,25 @@ public class MenuSearcher {
         return new HashSet<>(Arrays.asList(options));
     }
 
+    private static Geek getGeekInfo() {
+        String name = "John Doe";
+        String phoneNumber = "04757575";
+        return new Geek(name, phoneNumber);
+    }
+
+    private static void writeOrderToFile(Geek geek, Coffee selectedCoffee) {
+        // Write Geek info and coffee order to file
+        try {
+            Path path = Path.of("order.txt");
+            Files.writeString(path,
+                    "Order details:\n" +
+                            "\tName: " + geek.getName() + "\n" +
+                            "\tOrder number: " + geek.getPhoneNumber() + "\n" +
+                            "\tItem: " + selectedCoffee.getName() + " (" + selectedCoffee.getId() + ")\n" +
+                            "\tMilk: " + selectedCoffee.getSelectedMilkOption() + "\n");
+            System.out.println("Order written to file");
+        } catch (IOException e) {
+            System.out.println("Error writing file: " + e.getMessage());
+        }
+    }
 }

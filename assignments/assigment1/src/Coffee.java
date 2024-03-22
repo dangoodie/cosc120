@@ -10,6 +10,7 @@ public class Coffee {
     private final boolean sugar;
     private final Set<MilkOptions> milkOptions;
     private final Set<Extras> extras;
+    private MilkOptions selectedMilkOption;
     private final String description;
 
     public Coffee(int id, String name, Double price, int numberOfShots, boolean sugar, Set<MilkOptions> milkOptions, Set<Extras> extras, String description) {
@@ -75,11 +76,18 @@ public class Coffee {
         return this.price >= minPrice && this.price <= maxPrice;
     }
 
+    public void setSelectedMilkOption(MilkOptions selectedMilkOption) {
+        this.selectedMilkOption = selectedMilkOption;
+    }
+
+    public MilkOptions getSelectedMilkOption() {
+        return selectedMilkOption;
+    }
     public boolean hasExtra(Set<Extras> extras) {
         return this.extras.containsAll(extras);
     }
 
     public boolean hasMilkOption(Set<MilkOptions> milkOption) {
-        return milkOptions.contains(milkOption);
+        return this.milkOptions.containsAll(milkOption);
     }
 }

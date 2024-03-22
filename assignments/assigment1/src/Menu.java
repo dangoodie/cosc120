@@ -29,7 +29,9 @@ public class Menu {
             if (coffee.getNumberOfShots() == dreamCoffee.getNumberOfShots() &&
                     coffee.hasSugar() == dreamCoffee.hasSugar() &&
                     coffee.hasMilkOption(dreamCoffee.getMilkOptions()) &&
-                    coffee.hasExtra(dreamCoffee.getExtras()))
+                    coffee.hasExtra(dreamCoffee.getExtras()) &&
+                    coffee.isInPriceRange(dreamCoffee.getMinPrice(), dreamCoffee.getMaxPrice())
+            )
                     {
                 dreamCoffees.add(coffee);
             }
