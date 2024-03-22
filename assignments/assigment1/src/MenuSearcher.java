@@ -2,6 +2,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MenuSearcher {
     public static void main(String[] args) {
@@ -157,5 +159,16 @@ public class MenuSearcher {
         } catch (IOException e) {
             System.out.println("Error writing file: " + e.getMessage());
         }
+    }
+
+    /**
+     * A method to validate a phone number
+     * @param phoneNumber a String representing the phone number
+     * @return a boolean indicating whether the phone number is valid
+     */
+    public static boolean isValidPhoneNumber(String phoneNumber) {
+        Pattern pattern = Pattern.compile("^0\\d{9}$");
+        Matcher matcher = pattern.matcher(phoneNumber);
+        return matcher.matches();
     }
 }
