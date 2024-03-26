@@ -24,7 +24,6 @@ public class Menu {
     public Set<Coffee> findDreamCoffees(Coffee dreamCoffee) {
         Set<Coffee> dreamCoffees = new HashSet<>();
 
-
         for (Coffee coffee : coffees) {
             if (coffee.getNumberOfShots() == dreamCoffee.getNumberOfShots() &&
                     coffee.hasSugar() == dreamCoffee.hasSugar() &&

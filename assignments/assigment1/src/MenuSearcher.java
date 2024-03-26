@@ -146,10 +146,8 @@ public class MenuSearcher {
             }
         }
         String description = descriptionBuilder.toString();
-        if (description.startsWith("[") && description.endsWith("]")) {
-            description = description.substring(1, description.length() - 1);
-        }
-        System.out.println(description);
+        description = removeArrayBrackets(description);
+
         return description;
     }
 
@@ -302,7 +300,7 @@ public class MenuSearcher {
     }
 
     private static String buildFoundCoffees(Set<Coffee> dreamCoffees) {
-        StringBuilder message = new StringBuilder("Coffees found matching your order:\n");
+        StringBuilder message = new StringBuilder("Coffees found matching your order:\n\n");
         for (Coffee coffee : dreamCoffees) {
             message.append(coffee.getName() + " (" + coffee.getId() + ")\n");
             message.append(coffee.getDescription() + "\n");
@@ -312,6 +310,7 @@ public class MenuSearcher {
             message.append("Milk options: " + removeArrayBrackets(coffee.getMilkOptions().toString()) + "\n");
             message.append("Extra/s: " + removeArrayBrackets(coffee.getExtras().toString()) + "\n");
             message.append("Price: $" + String.format("%.2f", coffee.getPrice()) + "\n");
+            message.append("\n");
         }
         return message.toString();
     }

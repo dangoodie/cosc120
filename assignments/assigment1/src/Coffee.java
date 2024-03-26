@@ -85,7 +85,12 @@ public class Coffee {
         return selectedMilkOption;
     }
     public boolean hasExtra(Set<Extras> extras) {
-        return this.extras.containsAll(extras);
+        for (Extras extra : extras) {
+            if (this.extras.contains(extra)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean hasMilkOption(MilkOptions milkOption) {
@@ -98,10 +103,6 @@ public class Coffee {
 
     public Set<Extras> getSelectedExtras() {
         return selectedExtras;
-    }
-
-    public boolean hasExtra(Extras extra) {
-        return this.extras.contains(extra);
     }
 
     public boolean hasMilkOption(Set<MilkOptions> milkOptions) {

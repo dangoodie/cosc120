@@ -1,6 +1,6 @@
 Order details:
 	Name: Daniel Gooden
 	Order number: 0450582817
-	Item: Mocha (30213)
-	Milk: Almond
-	Extras: Chocolate Powder, Vanilla Ice Cream
+	Item: Espresso (30212)
+	Milk: None
+	Extras: None
