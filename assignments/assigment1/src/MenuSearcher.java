@@ -1,3 +1,8 @@
+/**
+ * @author Daniel Gooden (dgooden@myune.edu.au | dan.gooden.dev@gmail.com)
+ * created for COSC120 Assignment 1
+ */
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -6,9 +11,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.*;
 
+/**
+ * A class that represents a menu searcher object.
+ * The menu searcher allows the user to search for coffees based on their preferences and order a coffee.
+ * This class contains the main method.
+ */
 public class MenuSearcher {
 
+    /**
+     * The main method of the program.
+     * This method loads the menu from a file, gets the user's coffee order, finds coffees that match the order,
+     * allows the user to select a coffee, milk option, and extras, gets the user's geek info, and writes the order to a file.
+     * @param args the command line arguments
+     */
     public static void main(String[] args) {
+        // Load the menu from a file
         Menu menu = loadMenuFromFile("menu.txt");
         if (menu == null) {
             System.out.println("Error loading menu");
@@ -16,71 +33,28 @@ public class MenuSearcher {
         }
         System.out.println("Menu loaded successfully");
 
-        Coffee dreamCoffee = getCoffeeOrder();
+        // Get the user's dream coffee order
+        Coffee dreamCoffee = getDreamCoffee();
 
-        // Find coffees that match the dream coffee
-        Set<Coffee> dreamCoffees = menu.findDreamCoffees(dreamCoffee);
-        if (dreamCoffees == null) {
-            JOptionPane.showMessageDialog(null, "No coffees found matching your ideal coffee", "Error", JOptionPane.ERROR_MESSAGE);
-        } else {
-            // Show a message dialog showing the coffees found
-            String message = buildFoundCoffees(dreamCoffees);
-            JOptionPane.showMessageDialog(null, message, "Coffees found", JOptionPane.INFORMATION_MESSAGE);
-        }
-
-        // Build array of coffee names with their IDs from all coffees
-        Set<Coffee> allCoffees = menu.getAllCoffees();
-        Object[] coffeeArray = new Object[allCoffees.size()];
-        for (int i = 0; i < allCoffees.size(); i++) {
-            Coffee coffee = (Coffee) allCoffees.toArray()[i];
-            coffeeArray[i] = coffee.getName() + " (" + coffee.getId() + ")";
-        }
-
-       String selectedCoffeeString = (String) JOptionPane.showInputDialog(null, "Select coffee: ", null, JOptionPane.QUESTION_MESSAGE, null, coffeeArray, coffeeArray[0]);
-        if (selectedCoffeeString == null) {
-            System.out.println("Error: Coffee not found");
-            System.exit(1);
-        }
-
-        // extract the coffee ID from the selected coffee
-        int selectedCoffeeId = Integer.parseInt(selectedCoffeeString.substring(selectedCoffeeString.indexOf("(") + 1, selectedCoffeeString.indexOf(")")));
-        Coffee selectedCoffee = menu.getCoffeeById(selectedCoffeeId);
-
-        Set<MilkOptions> selectedCoffeeMilkOptions = selectedCoffee.getMilkOptions();
-
-        // offer milk selection based on the selected coffee
-        MilkOptions selectedMilkOption = (MilkOptions) JOptionPane.showInputDialog(null, "Select milk option: ", null, JOptionPane.QUESTION_MESSAGE, null, selectedCoffeeMilkOptions.toArray(), selectedCoffeeMilkOptions.toArray()[0]);
-        if (selectedMilkOption == null) {
-            // Display a message and exit if the user cancels the dialog
-            JOptionPane.showMessageDialog(null, "No milk option selected", "Error", JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
-        }
-        selectedCoffee.setSelectedMilkOption(selectedMilkOption);
-
-        // Option to select zero or more extras
-        Set<Extras> selectedCoffeeExtras = selectedCoffee.getExtras();
-        Set<Extras> selectedExtras = new HashSet<>();
-        while (true) {
-            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra: ", null, JOptionPane.QUESTION_MESSAGE, null, selectedCoffeeExtras.toArray(), selectedCoffeeExtras.toArray()[0]);
-            if (selectedExtra == null) {
-                break;
-            }
-            selectedExtras.add(selectedExtra);
-            if (selectedExtra == Extras.NONE) {
-                break;
-            }
-        }
-        selectedCoffee.setSelectedExtras(selectedExtras);
+        // Get the user's final coffee order
+        Coffee coffeeOrder = getCoffeeOrder(menu, dreamCoffee);
 
         // Get the geek info
         Geek geek = getGeekInfo();
 
         // Write the order to a file
-        writeOrderToFile(geek, selectedCoffee);
+        writeOrderToFile(geek, coffeeOrder);
         JOptionPane.showMessageDialog(null, "Order written to file", "Success", JOptionPane.INFORMATION_MESSAGE);
         System.exit(0);
     }
 
+    // Utility methods
+    /**
+     * A method to load the menu from a file.
+     * Adapted from the UNE COSC120 Topic 4.2 SeekAGeek.java loadGeeks() method.
+     * @param filename a String representing the name of the file to load the menu from
+     * @return a Menu object representing the menu loaded from the file
+     */
     private static Menu loadMenuFromFile(String filename) {
         Set<Coffee> coffees = new HashSet<>();
 
@@ -138,6 +112,11 @@ public class MenuSearcher {
         return new Menu(coffees);
     }
 
+    /**
+     * A method to build the description field from the coffee data.
+     * @param coffeeData a List of Strings representing the coffee data
+     * @return a String representing the description field
+     */
     private static String descriptionBuilder(List<String> coffeeData) {
         StringBuilder descriptionBuilder = new StringBuilder();
 
@@ -153,7 +132,11 @@ public class MenuSearcher {
         return description;
     }
 
-    // Helper method to parse options fields (milk, extras)
+    /**
+     * A method to parse the milk and extras options from a field.
+     * @param field a String representing the field to parse
+     * @return a Set of Strings representing the options
+     */
     private static Set<String> parseOptions(String field) {
         field = field.trim(); // Remove leading/trailing whitespace
         if (field.equals("[]")) {
@@ -169,7 +152,11 @@ public class MenuSearcher {
         return new HashSet<>(Arrays.asList(options));
     }
 
-    private static Coffee getCoffeeOrder() {
+    /**
+     * A method to get the user's dream coffee order.
+     * @return a Coffee object representing the user's dream coffee order
+     */
+    private static Coffee getDreamCoffee() {
         // Get the coffee order
         MilkOptions selectedMilkOption = (MilkOptions) JOptionPane.showInputDialog(null,"Select milk option: ",null,JOptionPane.QUESTION_MESSAGE, null, MilkOptions.values(), MilkOptions.FULL_CREAM);
         if (selectedMilkOption == null) {
@@ -198,8 +185,11 @@ public class MenuSearcher {
         Set<Extras> selectedExtras = new HashSet<>();
         Object[] extras = Extras.values();
         while (true) {
-            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra: ", null, JOptionPane.QUESTION_MESSAGE, null, extras, extras[0]);
-            if (selectedExtra == null) {
+            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra (Skip to continue): ", null, JOptionPane.QUESTION_MESSAGE, null, extras, extras[0]);
+            if (selectedExtra == null || selectedExtra == Extras.SKIP) {
+                if (selectedExtras.isEmpty()) {
+                    selectedExtras.add(Extras.NONE);
+                }
                 break;
             }
             selectedExtras.add(selectedExtra);
@@ -240,6 +230,87 @@ public class MenuSearcher {
         return dreamCoffee;
     }
 
+    /**
+     * A method to get the user's coffee order.
+     * @param menu a Menu object representing the menu
+     * @param dreamCoffee a Coffee object representing the user's dream coffee order
+     * @return a Coffee object representing the user's final coffee order
+     */
+    private static Coffee getCoffeeOrder(Menu menu, Coffee dreamCoffee) {
+        // Find coffees that match the user's dream coffee
+        Set<Coffee> dreamCoffees = menu.findDreamCoffees(dreamCoffee);
+        if (dreamCoffees == null) {
+            // Display a message if no coffees are found
+            JOptionPane.showMessageDialog(null, "No coffees found matching your ideal coffee", "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            // Show a message dialog showing the coffees found
+            String message = buildFoundCoffees(dreamCoffees);
+            JOptionPane.showMessageDialog(null, message, "Coffees found", JOptionPane.INFORMATION_MESSAGE);
+        }
+
+        // Build array of coffee names with their IDs from all coffees in the menu
+        Set<Coffee> allCoffees = menu.getAllCoffees();
+        Object[] coffeeArray = new Object[allCoffees.size()];
+        for (int i = 0; i < allCoffees.size(); i++) {
+            Coffee coffee = (Coffee) allCoffees.toArray()[i];
+            coffeeArray[i] = coffee.getName() + " (" + coffee.getId() + ") - $" + coffee.getPrice();
+        }
+
+        // Offer the user the option to select a coffee
+        String selectedCoffeeString = (String) JOptionPane.showInputDialog(null, "Select coffee: ", null, JOptionPane.QUESTION_MESSAGE, null, coffeeArray, coffeeArray[0]);
+        if (selectedCoffeeString == null) {
+            System.out.println("Error: Coffee not found");
+            System.exit(1);
+        }
+
+        // extract the coffee ID from the selected coffee
+        int selectedCoffeeId = -1;
+        for (Coffee coffee : allCoffees) {
+            String coffeeId = String.valueOf(coffee.getId());
+            if (selectedCoffeeString.contains(coffeeId)) {
+                selectedCoffeeId = coffee.getId();
+                break;
+            }
+        }
+        if (selectedCoffeeId == -1) {
+            throw new IllegalArgumentException("Error: Coffee not found");
+        }
+        Coffee selectedCoffee = menu.getCoffeeById(selectedCoffeeId);
+
+        // offer milk selection based on the selected coffee
+        Set<MilkOptions> selectedCoffeeMilkOptions = selectedCoffee.getMilkOptions();
+        MilkOptions selectedMilkOption = (MilkOptions) JOptionPane.showInputDialog(null, "Select milk option: ", null, JOptionPane.QUESTION_MESSAGE, null, selectedCoffeeMilkOptions.toArray(), selectedCoffeeMilkOptions.toArray()[0]);
+        if (selectedMilkOption == null) {
+            // Display a message and exit if the user cancels the dialog
+            JOptionPane.showMessageDialog(null, "No milk option selected", "Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
+        selectedCoffee.setSelectedMilkOption(selectedMilkOption);
+
+        // Option to select zero or more extras
+        Set<Extras> selectedCoffeeExtras = selectedCoffee.getExtras();
+        Set<Extras> selectedExtras = new HashSet<>();
+        while (true) {
+            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra (Skip to continue): ", null, JOptionPane.QUESTION_MESSAGE, null, selectedCoffeeExtras.toArray(), selectedCoffeeExtras.toArray()[0]);
+            if (selectedExtra == null || selectedExtra == Extras.SKIP) {
+                if (selectedExtras.isEmpty()) {
+                    selectedExtras.add(Extras.NONE);
+                }
+                break;
+            }
+            selectedExtras.add(selectedExtra);
+            if (selectedExtra == Extras.NONE) {
+                break;
+            }
+        }
+        selectedCoffee.setSelectedExtras(selectedExtras);
+        return selectedCoffee;
+    }
+
+    /**
+     * A method to get the user's geek info.
+     * @return a Geek object representing the user's geek info
+     */
     private static Geek getGeekInfo() {
         String name;
         while (true) {
@@ -269,6 +340,11 @@ public class MenuSearcher {
         return new Geek(name, phoneNumber);
     }
 
+    /**
+     * A method to write the order to a file.
+     * @param geek a Geek object representing the user's geek info
+     * @param selectedCoffee a Coffee object representing the selected coffee
+     */
     private static void writeOrderToFile(Geek geek, Coffee selectedCoffee) {
         // Write Geek info and coffee order to file
         try {
@@ -293,6 +369,7 @@ public class MenuSearcher {
 
     /**
      * A method to validate a phone number
+     * Sourced from the UNE COSC120 Topic 4.2 SeekAGeek.java isValidPhoneNumber() method.
      * @param phoneNumber a String representing the phone number
      * @return a boolean indicating whether the phone number is valid
      */
@@ -302,6 +379,11 @@ public class MenuSearcher {
         return matcher.matches();
     }
 
+    /**
+     * A method to build a message showing the coffees found.
+     * @param dreamCoffees a Set of Coffee objects representing the coffees found
+     * @return a String representing the message
+     */
     private static String buildFoundCoffees(Set<Coffee> dreamCoffees) {
         StringBuilder message = new StringBuilder("Coffees found matching your order:\n\n");
         for (Coffee coffee : dreamCoffees) {
@@ -318,6 +400,12 @@ public class MenuSearcher {
         return message.toString();
     }
 
+    /**
+     * A method to remove the square brackets from a string.
+     * Useful for the array fields in the Coffee class.
+     * @param description a String representing the description
+     * @return a String representing the description with the square brackets removed
+     */
     private static String removeArrayBrackets(String description) {
         if (description.startsWith("[") && description.endsWith("]")) {
             description = description.substring(1, description.length() - 1);

@@ -1,5 +1,5 @@
 /**
- * @author Daniel Gooden (dgooden@une.edu.au | dan.gooden.dev@gmail.com)
+ * @author Daniel Gooden (dgooden@myune.edu.au | dan.gooden.dev@gmail.com)
  * created for COSC120 Assignment 1
  */
 

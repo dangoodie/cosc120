@@ -1,5 +1,5 @@
 /**
- * @author Daniel Gooden (dgooden@une.edu.au | dan.gooden.dev@gmail.com)
+ * @author Daniel Gooden (dgooden@myune.edu.au | dan.gooden.dev@gmail.com)
  * created for COSC120 Assignment 1
  */
 
@@ -8,7 +8,7 @@
  * Each extra has a string representation and a method to convert a string to an extra.
  */
 public enum Extras {
-    CHOCOLATE_POWDER, CINNAMON, VANILLA_SYRUP, WHIPPED_CREAM, VANILLA_ICE_CREAM, CHOCOLATE_SYRUP, CARAMEL_SYRUP,NONE;
+    SKIP, CHOCOLATE_POWDER, CINNAMON, VANILLA_SYRUP, WHIPPED_CREAM, VANILLA_ICE_CREAM, CHOCOLATE_SYRUP, CARAMEL_SYRUP, NONE;
 
     /**
      * Returns a string representation of the extra.
@@ -17,6 +17,7 @@ public enum Extras {
     @Override
     public String toString() {
         return switch (this) {
+            case SKIP -> "Skip";
             case CHOCOLATE_POWDER -> "Chocolate powder";
             case CINNAMON -> "Cinnamon";
             case VANILLA_SYRUP -> "Vanilla syrup";
@@ -35,6 +36,7 @@ public enum Extras {
      */
     public static Extras fromString(String extra) {
         return switch (extra) {
+            case "Skip" -> SKIP;
             case "Chocolate powder" -> CHOCOLATE_POWDER;
             case "Cinnamon" -> CINNAMON;
             case "Vanilla syrup" -> VANILLA_SYRUP;
