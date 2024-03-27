@@ -232,7 +232,7 @@ public class MenuSearcher {
 
     /**
      * A method to get the user's coffee order.
-     * @param menu a Menu object representing the menu
+     * @param menu a Menu object representing the coffee menu
      * @param dreamCoffee a Coffee object representing the user's dream coffee order
      * @return a Coffee object representing the user's final coffee order
      */
