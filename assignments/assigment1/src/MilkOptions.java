@@ -1,8 +1,19 @@
-import java.util.Set;
+/**
+ * @author Daniel Gooden (dgooden@une.edu.au | dan.gooden.dev@gmail.com)
+ * created for COSC120 Assignment 1
+ */
 
+/**
+    * Enum class for the milk options that can be added to a drink.
+    * Each milk option has a string representation and a method to convert a string to a milk option.
+    */
 public enum MilkOptions {
     FULL_CREAM, SKIM, SOY, ALMOND, OAT, NONE;
 
+    /**
+     * Returns a string representation of the milk option.
+     * @return a string representation of the milk option
+     */
     @Override
     public String toString() {
         return switch (this) {
@@ -15,6 +26,11 @@ public enum MilkOptions {
         };
     }
 
+    /**
+     * Converts a string to a milk option.
+     * @param milkOption the string to convert
+     * @return the milk option
+     */
     public static MilkOptions fromString(String milkOption) {
         return switch (milkOption) {
             case "Full-cream" -> FULL_CREAM;

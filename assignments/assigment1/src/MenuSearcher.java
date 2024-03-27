@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import javax.swing.*;
 
 public class MenuSearcher {
+
     public static void main(String[] args) {
         Menu menu = loadMenuFromFile("menu.txt");
         if (menu == null) {
@@ -80,7 +81,7 @@ public class MenuSearcher {
         System.exit(0);
     }
 
-    public static Menu loadMenuFromFile(String filename) {
+    private static Menu loadMenuFromFile(String filename) {
         Set<Coffee> coffees = new HashSet<>();
 
         try {
@@ -90,7 +91,8 @@ public class MenuSearcher {
 
             for (int i = 1; i < lines.length; i++) {
                 // This regex splits the line by commas, but ignores commas inside square brackets
-                List<String> coffeeData = List.of(lines[i].split(",(?![^\\[]*\\])"));
+                String regex = ",(?![^\\[]*\\])";
+                List<String> coffeeData = List.of(lines[i].split(regex));
 
                 int id = Integer.parseInt(coffeeData.get(0).trim());
                 String name = coffeeData.get(1).trim();
@@ -180,15 +182,16 @@ public class MenuSearcher {
             System.exit(0);
         }
         String numberOfShots;
+        String regexNumShots = "\\d+"; // regex for a number with no decimal point
         do {
             numberOfShots = JOptionPane.showInputDialog("How many shots would you like: ");
             if (numberOfShots == null) {
                 System.exit(0);
             }
-            if (!numberOfShots.matches("\\d+")) {
+            if (!numberOfShots.matches(regexNumShots)) {
                 JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } while (!numberOfShots.matches("\\d+"));
+        } while (!numberOfShots.matches(regexNumShots));
         int numberOfShotsInt = Integer.parseInt(numberOfShots);
 
         // Option to select zero or more extras
@@ -206,16 +209,17 @@ public class MenuSearcher {
         }
 
         // get the price range
+        String regexMinMax = "\\d+(\\.\\d+)?"; // regex for a number with an optional decimal point
         String minPrice;
         do {
             minPrice = JOptionPane.showInputDialog("Enter the minimum price: ");
             if (minPrice == null) {
                 System.exit(0);
             }
-            if (!minPrice.matches("\\d+(\\.\\d+)?")) {
+            if (!minPrice.matches(regexMinMax)) {
                 JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } while (!minPrice.matches("\\d+(\\.\\d+)?"));
+        } while (!minPrice.matches(regexMinMax));
 
         String maxPrice;
         do {
@@ -223,10 +227,10 @@ public class MenuSearcher {
             if (maxPrice == null) {
                 System.exit(0);
             }
-            if (!maxPrice.matches("\\d+(\\.\\d+)?")) {
+            if (!maxPrice.matches(regexMinMax)) {
                 JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } while (!maxPrice.matches("\\d+(\\.\\d+)?"));
+        } while (!maxPrice.matches(regexMinMax));
 
         Coffee dreamCoffee = new Coffee(0, "Dream Coffee", 0.0, numberOfShotsInt, hasSugar, Set.of(selectedMilkOption), selectedExtras, "");
         dreamCoffee.setSelectedMilkOption(selectedMilkOption);
@@ -234,7 +238,6 @@ public class MenuSearcher {
         dreamCoffee.setMinPrice(Double.parseDouble(minPrice));
         dreamCoffee.setMaxPrice(Double.parseDouble(maxPrice));
         return dreamCoffee;
-
     }
 
     private static Geek getGeekInfo() {
