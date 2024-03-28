@@ -185,7 +185,14 @@ public class MenuSearcher {
         Set<Extras> selectedExtras = new HashSet<>();
         Object[] extras = Extras.values();
         while (true) {
-            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra: ", null, JOptionPane.QUESTION_MESSAGE, null, extras, extras[0]);
+            if (selectedExtras.size() > 0) {
+                // Remove the skip option if extras have been selected and the selected extras
+                extras = Arrays.stream(extras).filter(e -> e != Extras.SKIP).toArray();
+                for (Extras extra : selectedExtras) {
+                    extras = Arrays.stream(extras).filter(e -> e != extra).toArray();
+                }
+            }
+            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra (Cancel to continue): ", null, JOptionPane.QUESTION_MESSAGE, null, extras, extras[0]);
             if (selectedExtra == null || selectedExtra == Extras.SKIP) {
                 if (selectedExtras.isEmpty()) {
                     selectedExtras.add(Extras.SKIP);
@@ -253,7 +260,7 @@ public class MenuSearcher {
         Object[] coffeeArray = new Object[allCoffees.size()];
         for (int i = 0; i < allCoffees.size(); i++) {
             Coffee coffee = (Coffee) allCoffees.toArray()[i];
-            coffeeArray[i] = coffee.getName() + " (" + coffee.getId() + ") - $" + coffee.getPrice();
+            coffeeArray[i] = coffee.getName() + " (" + coffee.getId() + ") - $" + String.format("%.02f", coffee.getPrice());
         }
 
         // Offer the user the option to select a coffee
@@ -292,7 +299,7 @@ public class MenuSearcher {
         selectedCoffeeExtras.remove(Extras.SKIP); // remove the skip option (not necessary for the final order)
         Set<Extras> selectedExtras = new HashSet<>();
         while (true) {
-            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra: ", null, JOptionPane.QUESTION_MESSAGE, null, selectedCoffeeExtras.toArray(), selectedCoffeeExtras.toArray()[0]);
+            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra (Cancel to continue): ", null, JOptionPane.QUESTION_MESSAGE, null, selectedCoffeeExtras.toArray(), selectedCoffeeExtras.toArray()[0]);
             if (selectedExtra == null) {
                 if (selectedExtras.isEmpty()) {
                     selectedExtras.add(Extras.NONE);

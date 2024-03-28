@@ -54,7 +54,7 @@ public class Menu {
         // Check if the dream coffee has the skip extra
         // If it does, don't compare extras
         for (Coffee coffee : coffees) {
-            if (dreamCoffee.getExtras().contains(Extras.SKIP)) {
+            if (dreamCoffee.getSelectedExtras().contains(Extras.SKIP)) {
                 if (coffee.getNumberOfShots() == dreamCoffee.getNumberOfShots() &&
                     coffee.hasSugar() == dreamCoffee.hasSugar() &&
                     coffee.hasMilkOption(dreamCoffee.getMilkOptions()) &&
@@ -67,9 +67,9 @@ public class Menu {
             } else if (coffee.getNumberOfShots() == dreamCoffee.getNumberOfShots() &&
                 coffee.hasSugar() == dreamCoffee.hasSugar() &&
                 coffee.hasMilkOption(dreamCoffee.getMilkOptions()) &&
-                coffee.hasExtra(dreamCoffee.getExtras()) &&
+                coffee.hasExtra(dreamCoffee.getSelectedExtras()) &&
                 coffee.isInPriceRange(dreamCoffee.getMinPrice(), dreamCoffee.getMaxPrice())
-                )
+            )
                     {
                 dreamCoffees.add(coffee);
             }
