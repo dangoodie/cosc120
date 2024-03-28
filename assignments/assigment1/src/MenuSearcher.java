@@ -185,10 +185,10 @@ public class MenuSearcher {
         Set<Extras> selectedExtras = new HashSet<>();
         Object[] extras = Extras.values();
         while (true) {
-            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra (Skip to continue): ", null, JOptionPane.QUESTION_MESSAGE, null, extras, extras[0]);
+            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra: ", null, JOptionPane.QUESTION_MESSAGE, null, extras, extras[0]);
             if (selectedExtra == null || selectedExtra == Extras.SKIP) {
                 if (selectedExtras.isEmpty()) {
-                    selectedExtras.add(Extras.NONE);
+                    selectedExtras.add(Extras.SKIP);
                 }
                 break;
             }
@@ -289,10 +289,11 @@ public class MenuSearcher {
 
         // Option to select zero or more extras
         Set<Extras> selectedCoffeeExtras = selectedCoffee.getExtras();
+        selectedCoffeeExtras.remove(Extras.SKIP); // remove the skip option (not necessary for the final order)
         Set<Extras> selectedExtras = new HashSet<>();
         while (true) {
-            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra (Skip to continue): ", null, JOptionPane.QUESTION_MESSAGE, null, selectedCoffeeExtras.toArray(), selectedCoffeeExtras.toArray()[0]);
-            if (selectedExtra == null || selectedExtra == Extras.SKIP) {
+            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra: ", null, JOptionPane.QUESTION_MESSAGE, null, selectedCoffeeExtras.toArray(), selectedCoffeeExtras.toArray()[0]);
+            if (selectedExtra == null) {
                 if (selectedExtras.isEmpty()) {
                     selectedExtras.add(Extras.NONE);
                 }

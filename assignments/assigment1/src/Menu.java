@@ -51,8 +51,20 @@ public class Menu {
     public Set<Coffee> findDreamCoffees(Coffee dreamCoffee) {
         Set<Coffee> dreamCoffees = new HashSet<>();
 
+        // Check if the dream coffee has the skip extra
+        // If it does, don't compare extras
         for (Coffee coffee : coffees) {
-            if (coffee.getNumberOfShots() == dreamCoffee.getNumberOfShots() &&
+            if (dreamCoffee.getExtras().contains(Extras.SKIP)) {
+                if (coffee.getNumberOfShots() == dreamCoffee.getNumberOfShots() &&
+                    coffee.hasSugar() == dreamCoffee.hasSugar() &&
+                    coffee.hasMilkOption(dreamCoffee.getMilkOptions()) &&
+                    coffee.isInPriceRange(dreamCoffee.getMinPrice(), dreamCoffee.getMaxPrice())
+                    )
+                {
+                    dreamCoffees.add(coffee);
+                }
+                // If the dream coffee doesn't have the skip extra, compare all attributes
+            } else if (coffee.getNumberOfShots() == dreamCoffee.getNumberOfShots() &&
                 coffee.hasSugar() == dreamCoffee.hasSugar() &&
                 coffee.hasMilkOption(dreamCoffee.getMilkOptions()) &&
                 coffee.hasExtra(dreamCoffee.getExtras()) &&
