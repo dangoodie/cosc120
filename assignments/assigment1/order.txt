@@ -1,6 +1,6 @@
 Order details:
-	Name: Daniel Gooden
-	Order number: 0458585858
-	Item: Espresso Double (30222)
+	Name: Roger Dodger
+	Order number: 0496969696
+	Item: Affogato (30218)
 	Milk: None
-	Extras: None
+	Extras: Vanilla ice cream
