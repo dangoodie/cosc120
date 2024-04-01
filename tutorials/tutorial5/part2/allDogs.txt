@@ -1,0 +1,25 @@
+name,microchip no,sex,desexed,age(years),breed,purebred,adoption fee
+Frankie,647388745,female,yes,2,Dalmatian,yes,120.00
+Goldo,634928675,male,yes,3,Labrador,no,45.00
+Roughie,344563396,male,yes,3,Jack Russell,yes,60.00
+Chips,028566478,female,no,1,Bulldog,yes,120.00
+Chocco,485738499,male,no,4,pit bull,no,45.00
+Milly,774657483,female,yes,6,rottweiler,yes,50.00
+Flint,883747274,male,yes,1,maremma,yes,120.00
+Rocket,382909983,male,yes,4,labrador,yes,60.00
+Ripper,894475839,male,yes,3,jack russell,no,45.00
+Lucky,902238956,female,yes,5,whippet,yes,60.00
+Zeus,787493833,male,no,8,Rottweiler,no,20.00
+Teddy,456389093,male,yes,3,Pit bull,yes,45.00
+Bubbles,049584857,female,yes,4,German shepard,no,45.00
+Boomer,989343556,male,no,1,chihuahua,yes,120.00
+Casper,778574657,male,yes,2,dalmatian,no,80.00
+Rebel,778475747,female,no,4,golden retriever,yes,60.00
+Bandit,893458787,male,no,1,jack russell,no,60.00
+Evenball,908998763,male,yes,3,maremma,no,60.00
+Pixy,778435462,female,yes,2,chihuahua,no,60.00
+Banshee,334827309,female,yes,4,jack russell,yes,60.00
+Stardust,193838293,female,yes,7,bulldog,no,20.00
+Bullet,897232846,male,no,10,labrador,no,0.00
+Chester,340984457,male,yes,2,rottweiler,yes,80.00
+Hunter,784758394,male,yes,5,jack russell,no,20.00
