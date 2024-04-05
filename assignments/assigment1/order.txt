@@ -1,6 +1,6 @@
 Order details:
-	Name: Roger Dodger
-	Order number: 0496969696
-	Item: Affogato (30218)
-	Milk: None
-	Extras: Vanilla ice cream
+	Name: Daniel Gooden
+	Order number: 0458585858
+	Item: Cappuccino (30210)
+	Milk: Full-cream
+	Extras: Chocolate powder, Cinnamon
