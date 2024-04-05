@@ -19,4 +19,13 @@ public enum DeSexed {
         }
         return prettified;
     }
+
+    public static DeSexed fromString(String deSexed) {
+        deSexed = deSexed.toUpperCase();
+        return switch (deSexed) {
+            case "YES" -> YES;
+            case "NO" -> NO;
+            default -> throw new IllegalArgumentException("Invalid deSexed input: " + deSexed);
+        };
+    }
 }

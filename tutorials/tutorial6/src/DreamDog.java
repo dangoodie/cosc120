@@ -1,5 +1,3 @@
-import java.util.Objects;
-
 public class DreamDog extends DreamPet {
     private final Training training;
     private final int dailyExercise;

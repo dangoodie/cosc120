@@ -11,11 +11,12 @@ public enum Training {
     }
 
     public static Training fromString(String training) {
+        training = training.toUpperCase();
         return switch (training) {
-            case "None" -> NONE;
-            case "Basic" -> BASIC;
-            case "Intermediate" -> INTERMEDIATE;
-            case "Advanced" -> ADVANCED;
+            case "NONE", "NA" -> NONE;
+            case "BASIC" -> BASIC;
+            case "INTERMEDIATE" -> INTERMEDIATE;
+            case "ADVANCED" -> ADVANCED;
             default -> throw new IllegalArgumentException("Invalid training level: " + training);
         };
     }

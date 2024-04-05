@@ -61,6 +61,11 @@ private final int minAge;
                     this.minAge <= otherDreamPet.getMinAge() &&
                     this.maxAge >= otherDreamPet.getMaxAge() &&
                     this.breed.equals(otherDreamPet.getBreed());
+        } else if (otherDreamPet.breed.equals("NA")) {
+            return this.sex == otherDreamPet.getSex() &&
+                    this.deSexed == otherDreamPet.isDeSexed() &&
+                    this.minAge <= otherDreamPet.getMinAge() &&
+                    this.maxAge >= otherDreamPet.getMaxAge();
         } else {
             return this.breed.equals(otherDreamPet.getBreed()) &&
                     this.sex == otherDreamPet.getSex() &&

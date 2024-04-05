@@ -16,4 +16,13 @@ public enum Sex {
             case FEMALE -> "Female";
         };
     }
+    
+    public static Sex fromString(String sex) {
+        sex = sex.toUpperCase();
+        return switch (sex) {
+            case "MALE" -> MALE;
+            case "FEMALE" -> FEMALE;
+            default -> throw new IllegalArgumentException("Invalid sex input: " + sex);
+        };
+    }
 }
