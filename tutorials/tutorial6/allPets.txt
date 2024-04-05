@@ -1,0 +1,44 @@
+type,name,microchip no,sex,desexed,age(years),breed,purebred,adoption fee,hairless,training level,daily exercise (mins)
+dog,Frankie,647388745,female,yes,2,Dalmatian,yes,120.00,no,BASIC,90
+cat,Sprouts,456654567,male,yes,6,angora,no,45.00,no,NA,NA
+dog,Goldo,634928675,male,yes,3,Labrador,no,45.00,no,BASIC,80
+cat,Newton,205734525,male,yes,8,bobtail,no,25.00,no,NA,NA
+cat,Beaker,755938475,female,yes,2,sphynx,yes,150.00,yes,NA,NA
+dog,Roughie,344563396,male,yes,3,Jack Russell,yes,60.00,no,INTERMEDIATE,45
+cat,Bella,253435745,female,yes,2,birman,no,90.00,no,NA,NA
+cat,Nala,285764765,female,yes,3,bengal,no,70.00,no,NA,NA
+dog,Chips,028566478,female,no,1,Bulldog,yes,120.00,no,NONE,50
+cat,Smoker,789098567,male,no,5,bombay,yes,90.00,no,NA,NA
+dog,Chocco,485738499,male,no,4,pit bull,no,45.00,no,INTERMEDIATE,90
+dog,Milly,774657483,female,yes,6,rottweiler,yes,50.00,no,BASIC,90
+dog,Flint,883747274,male,yes,1,maremma,yes,120.00,no,NONE,60
+dog,Rocket,382909983,male,yes,4,labrador,yes,60.00,no,ADVANCED,70
+dog,Ripper,894475839,male,yes,5,jack russell,no,45.00,no,INTERMEDIATE,45
+cat,Fluffs,132432399,female,yes,4,russian blue,no,80.00,no,NA,NA
+dog,Lucky,902238956,female,yes,5,whippet,yes,60.00,no,INTERMEDIATE,60
+dog,Zeus,787493833,male,no,8,Rottweiler,no,20.00,no,BASIC,60
+dog,Teddy,456389093,male,yes,3,Pit bull,yes,45.00,no,BASIC,90
+dog,Bubbles,049584857,female,yes,4,German shepard,no,45.00,no,BASIC,90
+cat,Yoda,307986756,male,yes,6,donskoy,yes,180.00,yes,NA,NA
+dog,Boomer,989343556,male,no,1,chihuahua,yes,120.00,no,ADVANCED,30
+cat,Willow,432543654,female,no,1,persian,no,80.00,no,NA,NA
+cat,Hipchee,543654675,male,yes,2,sphynx,yes,120.00,yes,NA,NA
+dog,Casper,778574657,male,yes,2,dalmatian,no,80.00,no,INTERMEDIATE,90
+dog,Rebel,778475747,female,no,4,golden retriever,yes,60.00,no,INTERMEDIATE,90
+dog,Bandit,893458787,male,no,1,jack russell,no,60.00,no,INTERMEDIATE,45
+dog,Evenball,908998763,male,yes,3,maremma,no,60.00,no,BASIC,60
+cat,Simba,960587678,male,yes,3,burmese,no,60.00,no,NA,NA
+cat,Pabu,346656563,male,no,4,bambino,yes,120.00,yes,NA,NA
+dog,Pixy,778435462,female,yes,2,chihuahua,no,60.00,no,INTERMEDIATE,30
+dog,Banshee,334827309,female,yes,4,jack russell,yes,60.00,no,INTERMEDIATE,45
+cat,Sassy,347536967,female,no,1,ragdoll,no,80.00,no,NA,NA
+dog,Stardust,193838293,female,yes,7,bulldog,no,20.00,no,BASIC,30
+cat,Evie,564789098,female,yes,3,siamese,yes,150.00,no,NA,NA
+cat,Missy,789098785,female,no,3,ragdoll,yes,180.00,no,NA,NA
+dog,Bullet,897232846,male,no,10,labrador,no,0.00,no,BASIC,20
+cat,Tigger,147876365,male,yes,2,sphynx,yes,120.00,yes,NA,NA
+dog,Chester,340984457,male,yes,2,rottweiler,yes,80.00,no,INTERMEDIATE,120
+dog,Hunter,784758394,male,yes,5,jack russell,no,20.00,no,BASIC,35
+cat,Luna,495848332,female,yes,2,persian,no,60.00,no,NA,NA
+cat,Leo,394856283,male,yes,1,maine coon,no,120.00,no,NA,NA
+cat,Goryangi,432874342,female,yes,5,tortoiseshell,no,45.00,no,NA,NA
