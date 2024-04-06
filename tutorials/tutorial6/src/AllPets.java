@@ -37,7 +37,9 @@ public class AllPets {
     public List<Pet> findMatch(DreamPet petCriteria) {
         List<Pet> compatiblePets = new ArrayList<>();
         for (Pet p : allPets) {
-            if (p.getGenericFeatures().compareDreamPets(petCriteria)) {
+            if (p.getGenericFeatures().compareDreamPets(petCriteria) &&
+                    p.getAge() >= petCriteria.getMinAge() &&
+                    p.getAge() <= petCriteria.getMaxAge()){
                 compatiblePets.add(p);
             }
         }

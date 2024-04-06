@@ -48,31 +48,24 @@ private final int minAge;
     // methods
 
     public String getDreamPetDescription() {
-        return sex.toString() + " " + breed + ".\n" +
-                "> Purebred: " + purebred.toString() + ".\n" +
-                "> De-sexed: " + deSexed.toString() + ".\n";
+        return "> De-sexed: " + deSexed.toString() + ".\n";
     }
-
+    // this is fucked. needs refactoring.
     public boolean compareDreamPets(DreamPet otherDreamPet) {
         // if the user doesn't care about purebred
         if (otherDreamPet.getPurebred() == Purebred.NA) {
             return this.sex == otherDreamPet.getSex() &&
                     this.deSexed == otherDreamPet.isDeSexed() &&
-                    this.minAge <= otherDreamPet.getMinAge() &&
-                    this.maxAge >= otherDreamPet.getMaxAge() &&
                     this.breed.equals(otherDreamPet.getBreed());
         } else if (otherDreamPet.breed.equals("NA")) {
             return this.sex == otherDreamPet.getSex() &&
                     this.deSexed == otherDreamPet.isDeSexed() &&
-                    this.minAge <= otherDreamPet.getMinAge() &&
-                    this.maxAge >= otherDreamPet.getMaxAge();
+                    this.purebred == otherDreamPet.getPurebred();
         } else {
             return this.breed.equals(otherDreamPet.getBreed()) &&
                     this.sex == otherDreamPet.getSex() &&
                     this.deSexed == otherDreamPet.isDeSexed() &&
-                    this.purebred == otherDreamPet.getPurebred() &&
-                    this.minAge <= otherDreamPet.getMinAge() &&
-                    this.maxAge >= otherDreamPet.getMaxAge();
+                    this.purebred == otherDreamPet.getPurebred();
         }
     }
 }

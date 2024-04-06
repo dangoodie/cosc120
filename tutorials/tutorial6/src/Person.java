@@ -10,4 +10,17 @@
  * @param phoneNumber  the program user's 10-digit phone number
  * @param emailAddress the program user's email address
  */
-public record Person(String name, String phoneNumber, String emailAddress) {}
+public record Person(String name, String phoneNumber, String emailAddress) {
+    // getters
+    public String getName() {
+        return name;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+}

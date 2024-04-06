@@ -20,10 +20,20 @@ public class FindAPet {
         allPets = loadPets();
 
         JOptionPane.showMessageDialog(null, "Welcome to Pinkman's Pets Pet Finder!\n\tTo start, click OK.", appName, JOptionPane.QUESTION_MESSAGE, icon);
+        String type = (String) JOptionPane.showInputDialog(null, "Would you like to find a cat or a dog?", appName, JOptionPane.QUESTION_MESSAGE, icon, new String[]{"Cat", "Dog"}, null);
+        if (type == null) System.exit(0);
 
+        DreamPet dreamPet = getUserCriteria(type);
+        Pet pet = processSearchResults(dreamPet);
+        if (pet == null) {
+            JOptionPane.showMessageDialog(null, "An error occurred. Please try again.", appName, JOptionPane.ERROR_MESSAGE, icon);
+            System.exit(1);
+        }
 
-
-
+        Person person = getUserDetails();
+        writeAdoptionRequestToFile(person, pet);
+        JOptionPane.showMessageDialog(null, "Thank you for using Pinkman's Pets Pet Finder!\n\tYour adoption request has been saved.", appName, JOptionPane.INFORMATION_MESSAGE, icon);
+        System.exit(0);
     }
 
     /**
@@ -51,7 +61,7 @@ public class FindAPet {
                 Sex sex = Sex.fromString(petDetails[3]);
                 DeSexed deSexed = DeSexed.fromString(petDetails[4]);
                 int age = Integer.parseInt(petDetails[5]);
-                String breed = petDetails[6];
+                String breed = petDetails[6].toLowerCase().trim();
                 Purebred purebred = Purebred.fromString(petDetails[7]);
                 Double adoptionFee = Double.parseDouble(petDetails[8]);
                 Hair hairless = Hair.fromString(petDetails[9]);
@@ -67,7 +77,7 @@ public class FindAPet {
                 Sex sex = Sex.fromString(petDetails[3]);
                 DeSexed deSexed = DeSexed.fromString(petDetails[4]);
                 int age = Integer.parseInt(petDetails[5]);
-                String breed = petDetails[6];
+                String breed = petDetails[6].trim().toLowerCase();
                 Purebred purebred = Purebred.fromString(petDetails[7]);
                 Double adoptionFee = Double.parseDouble(petDetails[8]);
                 Training trainingLevel = Training.fromString(petDetails[10]);
@@ -150,20 +160,30 @@ public class FindAPet {
         String breed = (String) JOptionPane.showInputDialog(null, "Please select a breed", appName, JOptionPane.QUESTION_MESSAGE, icon, allPets.getAllBreeds(type).toArray(), null);
         if (breed == null) System.exit(0);
 
-        Purebred purebred = (Purebred) JOptionPane.showInputDialog(null, "Would you like a purebred?", appName, JOptionPane.QUESTION_MESSAGE, icon, Purebred.values(), null);
-        if (purebred == null) System.exit(0);
-
         Sex sex = (Sex) JOptionPane.showInputDialog(null, "Please select a gender", appName, JOptionPane.QUESTION_MESSAGE, icon, Sex.values(), null);
         if (sex == null) System.exit(0);
 
         DeSexed deSexed = (DeSexed) JOptionPane.showInputDialog(null, "Would you like a de-sexed " + type + "?", appName, JOptionPane.QUESTION_MESSAGE, icon, DeSexed.values(), null);
         if (deSexed == null) System.exit(0);
 
-        int minAge = Integer.parseInt(JOptionPane.showInputDialog(null, "Please enter the minimum age", appName, JOptionPane.QUESTION_MESSAGE));
-        if (minAge == 0) System.exit(0);
+        Purebred purebred = (Purebred) JOptionPane.showInputDialog(null, "Would you like a purebred?", appName, JOptionPane.QUESTION_MESSAGE, icon, Purebred.values(), null);
+        if (purebred == null) System.exit(0);
 
-        int maxAge = Integer.parseInt(JOptionPane.showInputDialog(null, "Please enter the maximum age", appName, JOptionPane.QUESTION_MESSAGE));
-        if (maxAge == 0) System.exit(0);
+        int minAge = -1, maxAge = -1;
+        while (minAge == -1) {
+            try {
+                minAge = Integer.parseInt(JOptionPane.showInputDialog(null, "Please enter the minimum age", appName, JOptionPane.QUESTION_MESSAGE));
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid number", appName, JOptionPane.ERROR_MESSAGE, icon);
+            }
+        }
+        while (maxAge == -1) {
+            try {
+                maxAge = Integer.parseInt(JOptionPane.showInputDialog(null, "Please enter the maximum age", appName, JOptionPane.QUESTION_MESSAGE));
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid number", appName, JOptionPane.ERROR_MESSAGE, icon);
+            }
+        }
 
         DreamPet dreamPet = null;
 
@@ -178,6 +198,49 @@ public class FindAPet {
         }
 
         return dreamPet;
-       
+
+    }
+
+    public static Pet processSearchResults(DreamPet dreamPet) {
+        List<Pet> compatiblePets = allPets.findMatch(dreamPet);
+        if (compatiblePets.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Sorry, no pets match your criteria.", appName, JOptionPane.INFORMATION_MESSAGE, icon);
+            System.exit(0);
+        }
+
+        String messageText = "Matches found! The following pets match your criteria:\n\n";
+        for (Pet p : compatiblePets) {
+            messageText += p.getPetDescription() + "\n";
+        }
+
+        Set<String> petDropdown = new HashSet<>();
+        for (Pet p : compatiblePets) {
+            String selection = p.getName() + " (" + p.getMicrochipNumber() + ")";
+            petDropdown.add(selection);
+        }
+
+        String selection = (String) JOptionPane.showInputDialog(null, messageText, appName, JOptionPane.QUESTION_MESSAGE, icon, petDropdown.toArray(), null);
+        if (selection == null) System.exit(0);
+
+        long microchipNumber = Long.parseLong(selection.substring(selection.indexOf("(") + 1, selection.indexOf(")")));
+
+        for (Pet p : compatiblePets) {
+            if (p.getMicrochipNumber() == microchipNumber) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    public static void writeAdoptionRequestToFile(Person person, Pet pet) {
+        String adoptionRequest = person.getName() + "," + person.getPhoneNumber() + "," + person.getEmailAddress() + "," + pet.getName() + "," + pet.getMicrochipNumber();
+        String name = person.getName().trim().replace(" ", "_");
+        String fileName = "./" + name + "_adoption_requests.txt";
+        try {
+            Files.writeString(Paths.get(fileName), adoptionRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 }

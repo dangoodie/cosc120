@@ -36,17 +36,14 @@ public record Pet(String name, long microchipNumber, int age, Double adoptionFee
     }
 
     public String getPetDescription() {
-        return "Name: " + name + "\n" +
-                "Microchip Number: " + microchipNumber + "\n" +
-                "Age: " + age + "\n" +
-                "Adoption Fee: " + adoptionFee + "\n";
-    }
-
-    public boolean comparePets(Pet otherPet) {
-        return name.equals(otherPet.getName()) &&
-                microchipNumber == otherPet.getMicrochipNumber() &&
-                age == otherPet.getAge() &&
-                adoptionFee.equals(otherPet.getAdoptionFee()) &&
-                genericFeatures.compareDreamPets(otherPet.genericFeatures); // <- this is better I think
+        StringBuilder sb = new StringBuilder();
+        sb.append(name).append(" (").append(getMicrochipNumber()).append(") is a ").append(age).append(" year old ").append(genericFeatures.getSex()).append(" ");
+        if (getGenericFeatures().getPurebred().equals(Purebred.YES)) {
+            sb.append("purebred ");
+        }
+        sb.append(getGenericFeatures().getBreed()).append(".\n");
+        sb.append(getGenericFeatures().getDreamPetDescription());
+        sb.append("> Adoption fee: $").append(adoptionFee).append(".\n\n");
+        return sb.toString();
     }
 }

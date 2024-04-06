@@ -20,4 +20,13 @@ public enum Training {
             default -> throw new IllegalArgumentException("Invalid training level: " + training);
         };
     }
+
+    public String getTrainingLevel() {
+        return switch (this) {
+            case NONE -> "no training at all";
+            case BASIC -> "sit, stay, lay down on instruction";
+            case INTERMEDIATE -> "play fetch, and will stop barking if instructed";
+            case ADVANCED -> "perform tricks - handshake, play dead, jump over a bar";
+        };
+    }
 }

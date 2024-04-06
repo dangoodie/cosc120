@@ -22,7 +22,7 @@ public class DreamDog extends DreamPet {
     @Override
     public String getDreamPetDescription() {
         return super.getDreamPetDescription() +
-                "> Training: " + training.toString() + ".\n" +
+                "> Training: " + training.getTrainingLevel() + ".\n" +
                 "> Daily exercise: " + dailyExercise + " minutes.\n";
     }
 
@@ -30,9 +30,7 @@ public class DreamDog extends DreamPet {
     public boolean compareDreamPets(DreamPet otherDreamPet) {
         if (otherDreamPet instanceof DreamDog) {
             DreamDog otherDreamDog = (DreamDog) otherDreamPet;
-            return super.compareDreamPets(otherDreamDog) &&
-                    this.training == otherDreamDog.getTraining() &&
-                    this.dailyExercise == otherDreamDog.getDailyExercise();
+            return super.compareDreamPets(otherDreamDog);
         }
         return false;
     }

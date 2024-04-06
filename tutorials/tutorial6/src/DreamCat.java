@@ -20,8 +20,7 @@ public class DreamCat extends DreamPet{
 
     @Override
     public boolean compareDreamPets(DreamPet otherDreamPet) {
-        if (otherDreamPet instanceof DreamCat) {
-            DreamCat otherDreamCat = (DreamCat) otherDreamPet;
+        if (otherDreamPet instanceof DreamCat otherDreamCat) {
             return super.compareDreamPets(otherDreamCat) &&
                     this.hair == otherDreamCat.getHair();
         }
