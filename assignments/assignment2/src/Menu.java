@@ -3,80 +3,60 @@
  * created for COSC120 Assignment 1
  */
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
- * A class that represents a menu object, which contains a set of coffee objects.
+ * A class that represents a menu object, which contains a set of drink objects.
  */
 public class Menu {
-    private final Set<Coffee> coffees;
+    private final Set<Drink> drinks;
 
     /**
      * Constructor used to create a Menu object
-     * @param coffees a Set of Coffee objects representing the coffees available on the menu
+     * @param drinks a Set of drink objects representing the drinks available on the menu
      */
-    public Menu(Set<Coffee> coffees) {
-        this.coffees = coffees;
+    public Menu(Set<Drink> drinks) {
+        this.drinks = drinks;
     }
 
     //getters
     /**
-     * Returns a set of all the coffees on the menu.
-     * @return a set of all the coffees on the menu
+     * Returns a set of all the drink on the menu.
+     * @return a set of all the drinks on the menu
      */
-    public Set<Coffee> getAllCoffees() {
-        return coffees;
+    public Set<Drink> getMenu() {
+        return drinks;
     }
 
     /**
-     * Returns a coffee object with the given id.
+     * Returns a drink object with the given id.
      * @param id the id of the coffee to return
-     * @return the coffee object with the given id
+     * @return the drink object with the given id
      */
-    public Coffee getCoffeeById(int id) {
-        for (Coffee coffee : coffees) {
-            if (coffee.getId() == id) {
-                return coffee;
+    public Drink getDrinkById(int id) {
+        for (Drink drink : drinks) {
+            if (drink.getId() == id) {
+                return drink;
             }
         }
         return null;
     }
 
     /**
-     * Returns a set of coffee objects that match the given dream coffee.
-     * @param dreamCoffee the coffee to match
-     * @return a set of coffee objects that match the given dream coffee
+     * Returns a set of drink objects that match the given dream drink.
+     * @param dreamDrink the drink to match
+     * @return a set of drink objects that match the given dream drink
      */
-    public Set<Coffee> findDreamCoffees(Coffee dreamCoffee) {
-        Set<Coffee> dreamCoffees = new HashSet<>();
-
-        // Check if the dream coffee has the skip extra
-        // If it does, don't compare extras
-        for (Coffee coffee : coffees) {
-            if (dreamCoffee.getSelectedExtras().contains(Extras.SKIP)) {
-                if (coffee.getNumberOfShots() == dreamCoffee.getNumberOfShots() &&
-                    coffee.hasSugar() == dreamCoffee.hasSugar() &&
-                    coffee.hasMilkOption(dreamCoffee.getMilkOptions()) &&
-                    coffee.isInPriceRange(dreamCoffee.getMinPrice(), dreamCoffee.getMaxPrice())
-                    )
-                {
-                    dreamCoffees.add(coffee);
-                }
-                // If the dream coffee doesn't have the skip extra, compare all attributes
-            } else if (coffee.getNumberOfShots() == dreamCoffee.getNumberOfShots() &&
-                coffee.hasSugar() == dreamCoffee.hasSugar() &&
-                coffee.hasMilkOption(dreamCoffee.getMilkOptions()) &&
-                coffee.hasExtra(dreamCoffee.getSelectedExtras()) &&
-                coffee.isInPriceRange(dreamCoffee.getMinPrice(), dreamCoffee.getMaxPrice())
-            )
-                    {
-                dreamCoffees.add(coffee);
-            }
+    public List<Drink> findDreamDrink(DreamDrink dreamDrink){
+        List<Drink> matches = new ArrayList<>();
+        for(Drink drink: drinks){
+            // If the drink is not a match, break out of the loop
+            if(!dreamDrink.matches(drink.getGenericFeatures())) break;
+            // If the price is not within the min and max price, break out of the loop
+            if(drink.getPrice() < dreamDrink.getMinPrice() || drink.getPrice() > dreamDrink.getMaxPrice()) break;
+            // If it reaches this point, the drink is a match. Add it to the list of matches
+            matches.add(drink);
         }
-        if (dreamCoffees.isEmpty()) {
-            return null;
-        }
-        return dreamCoffees;
+        return matches;
     }
 }

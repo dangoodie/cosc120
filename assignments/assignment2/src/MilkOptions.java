@@ -3,6 +3,9 @@
  * created for COSC120 Assignment 1
  */
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
     * Enum class for the milk options that can be added to a drink.
     * Each milk option has a string representation and a method to convert a string to a milk option.
@@ -44,6 +47,14 @@ public enum MilkOptions {
             case "NONE" -> NONE;
             default -> throw new IllegalStateException("Unexpected value: " + milkOption);
         };
+    }
+
+    public static Set<MilkOptions> fromStringSet(Set<String> milkOptions) {
+        Set<MilkOptions> milkOptionsSet = new HashSet<>();
+        for (String milkOption : milkOptions) {
+            milkOptionsSet.add(fromString(milkOption));
+        }
+        return milkOptionsSet;
     }
 
 }

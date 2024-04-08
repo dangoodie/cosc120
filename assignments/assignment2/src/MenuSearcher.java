@@ -1,6 +1,6 @@
 /**
  * @author Daniel Gooden (dgooden@myune.edu.au | dan.gooden.dev@gmail.com)
- * created for COSC120 Assignment 1
+ * created for COSC120 Assignment 2
  */
 
 import java.io.IOException;
@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.swing.*;
 
 /**
@@ -17,6 +18,11 @@ import javax.swing.*;
  * This class contains the main method.
  */
 public class MenuSearcher {
+    private static final String MENU_FILE = "menu.txt";
+    private static Menu menu;
+    private static final String appName = "The Caffeinated Geek";
+    private static final String iconPath = "the_caffeinated_geek.png";
+    private static final ImageIcon icon = new ImageIcon(iconPath);
 
     /**
      * The main method of the program.
@@ -32,7 +38,23 @@ public class MenuSearcher {
             System.exit(1);
         }
         System.out.println("Menu loaded successfully");
+        System.out.println("Printing the menu now");
+        Set<Drink> allDrinks = menu.getMenu().stream().sorted(Comparator.comparing(Drink::name)).collect(Collectors.toCollection(LinkedHashSet::new));
 
+        for (Drink drink : allDrinks) {
+            System.out.println("ID: " + drink.id());
+            System.out.println("Name: " + drink.name());
+            System.out.println("Price: " + drink.price());
+            System.out.println("Description: " + drink.description());
+
+            Map<Criteria, Object> criteria = drink.getGenericFeatures().getAllCriteria();
+            for (Criteria criterion : criteria.keySet()) {
+                System.out.println(criterion + ": " + criteria.get(criterion));
+            }
+            System.out.println("-------------------------------------------------");
+        }
+
+        /*
         // Get the user's dream coffee order
         Coffee dreamCoffee = getDreamCoffee();
 
@@ -45,6 +67,7 @@ public class MenuSearcher {
         // Write the order to a file
         writeOrderToFile(geek, coffeeOrder);
         JOptionPane.showMessageDialog(null, "Order written to file", "Success", JOptionPane.INFORMATION_MESSAGE);
+        */
         System.exit(0);
     }
 
@@ -56,7 +79,7 @@ public class MenuSearcher {
      * @return a Menu object representing the menu loaded from the file
      */
     private static Menu loadMenuFromFile(String filename) {
-        Set<Coffee> coffees = new HashSet<>();
+        Set<Drink> menu = new HashSet<>();
 
         try {
             Path path = Path.of(filename);
@@ -66,72 +89,84 @@ public class MenuSearcher {
             for (int i = 1; i < lines.length; i++) {
                 // This regex splits the line by commas, but ignores commas inside square brackets
                 String regex = ",(?![^\\[]*\\])";
-                List<String> coffeeData = List.of(lines[i].split(regex));
+                List<String> drinkData = List.of(lines[i].split(regex));
 
-                int id = Integer.parseInt(coffeeData.get(0).trim());
-                String name = coffeeData.get(1).trim();
-                Double price = Double.parseDouble(coffeeData.get(2).trim());
-                int numberOfShots = Integer.parseInt(coffeeData.get(3).trim());
-                boolean sugar = coffeeData.get(4).trim().equalsIgnoreCase("yes");
+                DrinkType type = DrinkType.fromString(drinkData.getFirst().trim());
 
-                Set<String> milkOptions = parseOptions(coffeeData.get(5));
-
-                // Convert the strings to Set<MilkOptions>
-                Set<MilkOptions> milkOptionsSet = new HashSet<>();
-                if (milkOptions.isEmpty()) {
-                    milkOptionsSet.add(MilkOptions.NONE);
-                } else {
-                    for (String option : milkOptions) {
-                        milkOptionsSet.add(MilkOptions.fromString(option));
-                    }
+                // build type functions
+                if (type == DrinkType.TEA) {
+                    Drink drink = handleTea(drinkData);
+                    menu.add(drink);
                 }
 
-                Set<String> extras = parseOptions(coffeeData.get(6));
-
-                // Convert the strings to Set<Extras>
-                Set<Extras> extrasSet = new HashSet<>();
-                if (extras.isEmpty()) {
-                    extrasSet.add(Extras.NONE);
-                } else {
-                    for (String extra : extras) {
-                        extrasSet.add(Extras.fromString(extra));
-                    }
+                if (type == DrinkType.COFFEE) {
+                    Drink drink = handleCoffee(drinkData);
+                    menu.add(drink);
                 }
-
-                String description = descriptionBuilder(coffeeData);
-
-                coffees.add(new Coffee(id, name, price, numberOfShots, sugar, milkOptionsSet, extrasSet, description));
             }
-
         } catch (IOException e) {
             System.out.println("Error reading file: " + e.getMessage());
         }
-        if (coffees.isEmpty()) {
+        if (menu.isEmpty()) {
             return null;
         }
-        return new Menu(coffees);
+        return new Menu(menu);
     }
 
     /**
-     * A method to build the description field from the coffee data.
-     * @param coffeeData a List of Strings representing the coffee data
-     * @return a String representing the description field
+     * A method to handle the tea type drinks.
+     * @param drinkData a List of Strings representing the drink data
+     * @return a Drink object representing the tea drink
      */
-    private static String descriptionBuilder(List<String> coffeeData) {
-        StringBuilder descriptionBuilder = new StringBuilder();
 
-        for (int j = 7; j < coffeeData.size(); j++) {
-            descriptionBuilder.append(coffeeData.get(j).trim());
-            if (j != coffeeData.size() - 1) {
-                descriptionBuilder.append(", ");
-            }
-        }
-        String description = descriptionBuilder.toString();
-        description = removeArrayBrackets(description);
+    private static Drink handleTea(List<String> drinkData) {
+        // common features
+        int id = Integer.parseInt(drinkData.get(1).trim());
+        String name = drinkData.get(2).trim();
+        Double price = Double.parseDouble(drinkData.get(3).trim());
+        String description = drinkData.get(10).trim().replace("[", "").replace("]", "");
+        Set<MilkOptions> milkOptions = MilkOptions.fromStringSet(parseOptions(drinkData.get(8)));
+        Set<Extras> extras = Extras.fromStringSet(parseOptions(drinkData.get(9)));
+        Boolean sugar = drinkData.get(7).trim().equalsIgnoreCase("YES");
 
-        return description;
+        // tea specific features
+        Temperature temperature = Temperature.fromString(drinkData.get(5));
+        int steepTime = Integer.parseInt(drinkData.get(6).trim());
+
+
+        Map<Criteria, Object> criteriaObjectMap = new LinkedHashMap<>();
+        criteriaObjectMap.put(Criteria.SUGAR, sugar);
+        criteriaObjectMap.put(Criteria.MILK_TYPE, milkOptions);
+        criteriaObjectMap.put(Criteria.EXTRAS, extras);
+        criteriaObjectMap.put(Criteria.TEMPERATURE, temperature);
+        criteriaObjectMap.put(Criteria.STEEP_TIME, steepTime);
+
+        DreamDrink dreamDrink = new DreamDrink(criteriaObjectMap);
+        return new Drink(id, name, price, description, dreamDrink);
     }
 
+    private static Drink handleCoffee(List<String> drinkData) {
+        // common features
+        int id = Integer.parseInt(drinkData.get(1).trim());
+        String name = drinkData.get(2).trim();
+        Double price = Double.parseDouble(drinkData.get(3).trim());
+        String description = drinkData.get(10).trim().replace("[", "").replace("]", "");
+        Set<MilkOptions> milkOptions = MilkOptions.fromStringSet(parseOptions(drinkData.get(8)));
+        Set<Extras> extras = Extras.fromStringSet(parseOptions(drinkData.get(9)));
+        Boolean sugar = drinkData.get(7).trim().equalsIgnoreCase("YES");
+
+        // coffee specific features
+        int numberOfShots = Integer.parseInt(drinkData.get(4).trim());
+
+        Map<Criteria, Object> criteriaObjectMap = new LinkedHashMap<>();
+        criteriaObjectMap.put(Criteria.SUGAR, sugar);
+        criteriaObjectMap.put(Criteria.MILK_TYPE, milkOptions);
+        criteriaObjectMap.put(Criteria.EXTRAS, extras);
+        criteriaObjectMap.put(Criteria.NUM_OF_SHOTS, numberOfShots);
+
+        DreamDrink dreamDrink = new DreamDrink(criteriaObjectMap);
+        return new Drink(id, name, price, description, dreamDrink);
+    }
     /**
      * A method to parse the milk and extras options from a field.
      * @param field a String representing the field to parse
@@ -153,167 +188,18 @@ public class MenuSearcher {
     }
 
     /**
-     * A method to get the user's dream coffee order.
-     * @return a Coffee object representing the user's dream coffee order
+     * A method to get the user's dream drink order.
+     * @return a Dream drink object representing the user's dream drink order
      */
-    private static Coffee getDreamCoffee() {
-        // Get the coffee order
-        MilkOptions selectedMilkOption = (MilkOptions) JOptionPane.showInputDialog(null,"Select milk option: ",null,JOptionPane.QUESTION_MESSAGE, null, MilkOptions.values(), MilkOptions.FULL_CREAM);
-        if (selectedMilkOption == null) {
-            // Display a message and exit if the user cancels the dialog
-            JOptionPane.showMessageDialog(null, "No milk option selected", "Error", JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
-        }
-        Boolean hasSugar = JOptionPane.showConfirmDialog(null, "Would you like sugar?", "Sugar", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
-        if (hasSugar == null) {
-            System.exit(0);
-        }
-        String numberOfShots;
-        String regexNumShots = "\\d+"; // regex for a number with no decimal point
-        do {
-            numberOfShots = JOptionPane.showInputDialog("How many shots would you like: ");
-            if (numberOfShots == null) {
-                System.exit(0);
-            }
-            if (!numberOfShots.matches(regexNumShots)) {
-                JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } while (!numberOfShots.matches(regexNumShots));
-        int numberOfShotsInt = Integer.parseInt(numberOfShots);
 
-        // Option to select zero or more extras
-        Set<Extras> selectedExtras = new HashSet<>();
-        Object[] extras = Extras.values();
-        while (true) {
-            if (selectedExtras.size() > 0) {
-                // Remove the skip option if extras have been selected and the selected extras
-                extras = Arrays.stream(extras).filter(e -> e != Extras.SKIP).toArray();
-                for (Extras extra : selectedExtras) {
-                    extras = Arrays.stream(extras).filter(e -> e != extra).toArray();
-                }
-            }
-            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra (Cancel to continue): ", null, JOptionPane.QUESTION_MESSAGE, null, extras, extras[0]);
-            if (selectedExtra == null || selectedExtra == Extras.SKIP) {
-                if (selectedExtras.isEmpty()) {
-                    selectedExtras.add(Extras.SKIP);
-                }
-                break;
-            }
-            selectedExtras.add(selectedExtra);
-            if (selectedExtra == Extras.NONE) {
-                break;
-            }
-        }
-
-        // get the price range
-        String regexMinMax = "\\d+(\\.\\d+)?"; // regex for a number with an optional decimal point
-        String minPrice;
-        do {
-            minPrice = JOptionPane.showInputDialog("Enter the minimum price: ");
-            if (minPrice == null) {
-                System.exit(0);
-            }
-            if (!minPrice.matches(regexMinMax)) {
-                JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } while (!minPrice.matches(regexMinMax));
-
-        String maxPrice;
-        do {
-            maxPrice = JOptionPane.showInputDialog("Enter the maximum price: ");
-            if (maxPrice == null) {
-                System.exit(0);
-            }
-            if (!maxPrice.matches(regexMinMax)) {
-                JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } while (!maxPrice.matches(regexMinMax));
-
-        Coffee dreamCoffee = new Coffee(0, "Dream Coffee", 0.0, numberOfShotsInt, hasSugar, Set.of(selectedMilkOption), selectedExtras, "");
-        dreamCoffee.setSelectedMilkOption(selectedMilkOption);
-        dreamCoffee.setSelectedExtras(selectedExtras);
-        dreamCoffee.setMinPrice(Double.parseDouble(minPrice));
-        dreamCoffee.setMaxPrice(Double.parseDouble(maxPrice));
-        return dreamCoffee;
-    }
+    // create here
 
     /**
-     * A method to get the user's coffee order.
+     * A method to get the user's final drink order.
      * @param menu a Menu object representing the coffee menu
-     * @param dreamCoffee a Coffee object representing the user's dream coffee order
+     * @param dreamDrink a Coffee object representing the user's dream coffee order
      * @return a Coffee object representing the user's final coffee order
      */
-    private static Coffee getCoffeeOrder(Menu menu, Coffee dreamCoffee) {
-        // Find coffees that match the user's dream coffee
-        Set<Coffee> dreamCoffees = menu.findDreamCoffees(dreamCoffee);
-        if (dreamCoffees == null) {
-            // Display a message if no coffees are found
-            JOptionPane.showMessageDialog(null, "No coffees found matching your ideal coffee", "Error", JOptionPane.ERROR_MESSAGE);
-        } else {
-            // Show a message dialog showing the coffees found
-            String message = buildFoundCoffees(dreamCoffees);
-            JOptionPane.showMessageDialog(null, message, "Coffees found", JOptionPane.INFORMATION_MESSAGE);
-        }
-
-        // Build array of coffee names with their IDs from all coffees in the menu
-        Set<Coffee> allCoffees = menu.getAllCoffees();
-        Object[] coffeeArray = new Object[allCoffees.size()];
-        for (int i = 0; i < allCoffees.size(); i++) {
-            Coffee coffee = (Coffee) allCoffees.toArray()[i];
-            coffeeArray[i] = coffee.getName() + " (" + coffee.getId() + ") - $" + String.format("%.02f", coffee.getPrice());
-        }
-
-        // Offer the user the option to select a coffee
-        String selectedCoffeeString = (String) JOptionPane.showInputDialog(null, "Select coffee: ", null, JOptionPane.QUESTION_MESSAGE, null, coffeeArray, coffeeArray[0]);
-        if (selectedCoffeeString == null) {
-            System.out.println("Error: Coffee not found");
-            System.exit(1);
-        }
-
-        // extract the coffee ID from the selected coffee
-        int selectedCoffeeId = -1;
-        for (Coffee coffee : allCoffees) {
-            String coffeeId = String.valueOf(coffee.getId());
-            if (selectedCoffeeString.contains(coffeeId)) {
-                selectedCoffeeId = coffee.getId();
-                break;
-            }
-        }
-        if (selectedCoffeeId == -1) {
-            throw new IllegalArgumentException("Error: Coffee not found");
-        }
-        Coffee selectedCoffee = menu.getCoffeeById(selectedCoffeeId);
-
-        // offer milk selection based on the selected coffee
-        Set<MilkOptions> selectedCoffeeMilkOptions = selectedCoffee.getMilkOptions();
-        MilkOptions selectedMilkOption = (MilkOptions) JOptionPane.showInputDialog(null, "Select milk option: ", null, JOptionPane.QUESTION_MESSAGE, null, selectedCoffeeMilkOptions.toArray(), selectedCoffeeMilkOptions.toArray()[0]);
-        if (selectedMilkOption == null) {
-            // Display a message and exit if the user cancels the dialog
-            JOptionPane.showMessageDialog(null, "No milk option selected", "Error", JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
-        }
-        selectedCoffee.setSelectedMilkOption(selectedMilkOption);
-
-        // Option to select zero or more extras
-        Set<Extras> selectedCoffeeExtras = selectedCoffee.getExtras();
-        selectedCoffeeExtras.remove(Extras.SKIP); // remove the skip option (not necessary for the final order)
-        Set<Extras> selectedExtras = new HashSet<>();
-        while (true) {
-            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra (Cancel to continue): ", null, JOptionPane.QUESTION_MESSAGE, null, selectedCoffeeExtras.toArray(), selectedCoffeeExtras.toArray()[0]);
-            if (selectedExtra == null) {
-                if (selectedExtras.isEmpty()) {
-                    selectedExtras.add(Extras.NONE);
-                }
-                break;
-            }
-            selectedExtras.add(selectedExtra);
-            if (selectedExtra == Extras.NONE) {
-                break;
-            }
-        }
-        selectedCoffee.setSelectedExtras(selectedExtras);
-        return selectedCoffee;
-    }
 
     /**
      * A method to get the user's geek info.
@@ -353,27 +239,6 @@ public class MenuSearcher {
      * @param geek a Geek object representing the user's geek info
      * @param selectedCoffee a Coffee object representing the selected coffee
      */
-    private static void writeOrderToFile(Geek geek, Coffee selectedCoffee) {
-        // Write Geek info and coffee order to file
-        try {
-            Path path = Path.of("order.txt");
-
-            StringBuilder orderDetails = new StringBuilder("Order details:\n");
-            orderDetails.append("\tName: ").append(geek.getName()).append("\n");
-            orderDetails.append("\tOrder number: ").append(geek.getPhoneNumber()).append("\n");
-            orderDetails.append("\tItem: ").append(selectedCoffee.getName()).append(" (").append(selectedCoffee.getId()).append(")\n");
-            orderDetails.append("\tMilk: ").append(selectedCoffee.getSelectedMilkOption()).append("\n");
-            if (selectedCoffee.getSelectedExtras().isEmpty()) {
-                orderDetails.append("\tExtras: None\n");
-            } else {
-                orderDetails.append("\tExtras: ").append(removeArrayBrackets(selectedCoffee.getSelectedExtras().toString())).append("\n");
-            }
-            Files.writeString(path, orderDetails.toString());
-            System.out.println("Order written to file");
-        } catch (IOException e) {
-            System.out.println("Error writing file: " + e.getMessage());
-        }
-    }
 
     /**
      * A method to validate a phone number
@@ -392,21 +257,6 @@ public class MenuSearcher {
      * @param dreamCoffees a Set of Coffee objects representing the coffees found
      * @return a String representing the message
      */
-    private static String buildFoundCoffees(Set<Coffee> dreamCoffees) {
-        StringBuilder message = new StringBuilder("Coffees found matching your order:\n\n");
-        for (Coffee coffee : dreamCoffees) {
-            message.append(coffee.getName() + " (" + coffee.getId() + ")\n");
-            message.append(coffee.getDescription() + "\n");
-            message.append("Ingredients:\n");
-            message.append("Number of shots: " + coffee.getNumberOfShots() + "\n");
-            message.append("Sugar: " + (coffee.hasSugar() ? "Yes" : "No") + "\n");
-            message.append("Milk options: " + removeArrayBrackets(coffee.getMilkOptions().toString()) + "\n");
-            message.append("Extra/s: " + removeArrayBrackets(coffee.getExtras().toString()) + "\n");
-            message.append("Price: $" + String.format("%.2f", coffee.getPrice()) + "\n");
-            message.append("\n");
-        }
-        return message.toString();
-    }
 
     /**
      * A method to remove the square brackets from a string.
@@ -414,12 +264,7 @@ public class MenuSearcher {
      * @param description a String representing the description
      * @return a String representing the description with the square brackets removed
      */
-    private static String removeArrayBrackets(String description) {
-        if (description.startsWith("[") && description.endsWith("]")) {
-            description = description.substring(1, description.length() - 1);
-        }
-        return description;
-    }
+
 }
 
 

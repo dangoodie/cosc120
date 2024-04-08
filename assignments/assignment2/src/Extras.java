@@ -3,6 +3,9 @@
  * created for COSC120 Assignment 1
  */
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Enum class for the extras that can be added to a drink.
  * Each extra has a string representation and a method to convert a string to an extra.
@@ -78,5 +81,13 @@ public enum Extras {
             case "NONE" -> NONE;
             default -> throw new IllegalStateException("Unexpected value: " + extra);
         };
+    }
+
+    public static Set<Extras> fromStringSet(Set<String> extras) {
+        Set<Extras> extrasSet = new HashSet<>();
+        for (String extra : extras) {
+            extrasSet.add(fromString(extra));
+        }
+        return extrasSet;
     }
 }
