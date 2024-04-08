@@ -1,8 +1,8 @@
 public class DreamCat extends DreamPet{
     private final Hair hair;
 
-    public DreamCat(int minAge, int max, String breed, Sex sex, DeSexed deSexed, Purebred purebred, Hair hair) {
-        super(minAge, max, breed, sex, deSexed, purebred);
+    public DreamCat(int minAge, int maxAge, String breed, Sex sex, DeSexed deSexed, Purebred purebred, Hair hair) {
+        super(minAge, maxAge, breed, sex, deSexed, purebred);
         this.hair = hair;
     }
 

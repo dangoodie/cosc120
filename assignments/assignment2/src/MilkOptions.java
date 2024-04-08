@@ -8,7 +8,7 @@
     * Each milk option has a string representation and a method to convert a string to a milk option.
     */
 public enum MilkOptions {
-    FULL_CREAM, SKIM, SOY, ALMOND, OAT, NONE;
+    FULL_CREAM, SKIM, SOY, ALMOND, OAT, COCONUT, NONE;
 
     /**
      * Returns a string representation of the milk option.
@@ -22,6 +22,7 @@ public enum MilkOptions {
             case SOY -> "Soy";
             case ALMOND -> "Almond";
             case OAT -> "Oat";
+            case COCONUT -> "Coconut";
             case NONE -> "None";
         };
     }
@@ -32,13 +33,15 @@ public enum MilkOptions {
      * @return the milk option
      */
     public static MilkOptions fromString(String milkOption) {
+        milkOption = milkOption.strip().toUpperCase();
         return switch (milkOption) {
-            case "Full-cream" -> FULL_CREAM;
-            case "Skim" -> SKIM;
-            case "Soy" -> SOY;
-            case "Almond" -> ALMOND;
-            case "Oat" -> OAT;
-            case "None" -> NONE;
+            case "FULL-CREAM" -> FULL_CREAM;
+            case "SKIM" -> SKIM;
+            case "SOY" -> SOY;
+            case "ALMOND" -> ALMOND;
+            case "OAT" -> OAT;
+            case "COCONUT" -> COCONUT;
+            case "NONE" -> NONE;
             default -> throw new IllegalStateException("Unexpected value: " + milkOption);
         };
     }
