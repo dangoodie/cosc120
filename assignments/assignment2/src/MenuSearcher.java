@@ -209,6 +209,106 @@ public class MenuSearcher {
         }
         criteria.put(Criteria.DRINK_TYPE, drinkType);
 
+        if (drinkType == DrinkType.COFFEE) {
+            int numberOfShots = -1;
+            while (numberOfShots < 0) {
+                String numberOfShotsString = JOptionPane.showInputDialog("Enter the number of shots: ");
+                if (numberOfShotsString == null) {
+                    System.exit(0);
+                }
+                try {
+                    numberOfShots = Integer.parseInt(numberOfShotsString);
+                    break;
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                if (numberOfShots < 0) {
+                    JOptionPane.showMessageDialog(null, "Please enter a positive number", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+
+            criteria.put(Criteria.NUM_OF_SHOTS, numberOfShots);
+        }
+
+        if (drinkType == DrinkType.TEA) {
+            Temperature temperature = (Temperature) JOptionPane.showInputDialog(null, "What temperature would you like?", "Temperature", JOptionPane.QUESTION_MESSAGE, icon, Temperature.values(), Temperature.SKIP);
+            if (temperature == null) {
+                System.exit(0);
+            }
+            if (temperature != Temperature.SKIP) {
+                criteria.put(Criteria.TEMPERATURE, temperature);
+            }
+
+            int steepTime = -1;
+            Set<String> steepTimeOptions = Set.of("Skip", "1", "2", "3", "4", "5", "6", "7", "8");
+            String steepTimeString = null;
+            while (steepTime < 0) {
+                steepTimeString = (String) JOptionPane.showInputDialog(null, "Enter the steep time (minutes): ", "Steep Time", JOptionPane.QUESTION_MESSAGE, icon, steepTimeOptions.toArray(), steepTimeOptions.toArray()[0]);
+                if (steepTimeString == null) {
+                    System.exit(0);
+                }
+                if (steepTimeString.equalsIgnoreCase("SKIP")) break;
+                try {
+                    steepTime = Integer.parseInt(steepTimeString);
+                    break;
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                if (steepTime < 0) {
+                    JOptionPane.showMessageDialog(null, "Please enter a positive number", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            if (!steepTimeString.equalsIgnoreCase("SKIP")) {
+                criteria.put(Criteria.STEEP_TIME, steepTime);
+            }
+        }
+
+        MilkOptions milkOptions = (MilkOptions) JOptionPane.showInputDialog(null, "What type of milk would you like?", "Milk Options", JOptionPane.QUESTION_MESSAGE, icon, MilkOptions.values(), MilkOptions.NONE);
+        if (milkOptions == null) {
+            System.exit(0);
+        }
+        if (milkOptions != MilkOptions.SKIP) {
+            criteria.put(Criteria.MILK_TYPE, Set.of(milkOptions));
+        }
+
+        Set<String> sugarOptions = Set.of("Yes", "No", "Skip");
+        String sugar = (String) JOptionPane.showInputDialog(null, "Would you like sugar?", "Sugar", JOptionPane.QUESTION_MESSAGE, icon, sugarOptions.toArray(), sugarOptions.toArray()[0]);
+        if (sugar == null) {
+            System.exit(0);
+        }
+        if (!sugar.equalsIgnoreCase("SKIP")) {
+            criteria.put(Criteria.SUGAR, sugar.equalsIgnoreCase("Yes"));
+        }
+
+        Set<Extras> extras = findExtras(drinkType);
+        extras.add(Extras.NONE);
+        extras.add(Extras.SKIP);
+
+        Set<Extras> selectedExtras = new HashSet<>();
+
+        while (true) {
+            if (selectedExtras.size() > 0) {
+                extras.remove(Extras.NONE);
+            }
+            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select an extra", "Extras", JOptionPane.QUESTION_MESSAGE, icon, extras.toArray(), extras.toArray()[0]);
+            if (selectedExtra == null) {
+                System.exit(0);
+            }
+
+            if (selectedExtra == Extras.SKIP || selectedExtra == Extras.NONE) {
+                if (selectedExtras.size() == 0) {
+                    selectedExtras.add(selectedExtra);
+                }
+                break;
+            }
+            selectedExtras.add(selectedExtra);
+            extras.remove(selectedExtra);
+        }
+
+        if (!selectedExtras.contains(Extras.SKIP)) {
+            criteria.put(Criteria.EXTRAS, selectedExtras);
+        }
+
         // Get min and max price
         int minPrice = -1;
         while (minPrice < 0) {
@@ -243,89 +343,6 @@ public class MenuSearcher {
                 JOptionPane.showMessageDialog(null, "Please enter a number greater than or equal to the minimum price", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
-
-        MilkOptions milkOptions = (MilkOptions) JOptionPane.showInputDialog(null, "What type of milk would you like?", "Milk Options", JOptionPane.QUESTION_MESSAGE, icon, MilkOptions.values(), MilkOptions.NONE);
-        if (milkOptions == null) {
-            System.exit(0);
-        }
-        criteria.put(Criteria.MILK_TYPE, Set.of(milkOptions));
-
-        Boolean sugar = JOptionPane.showConfirmDialog(null, "Would you like sugar?", "Sugar", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
-        criteria.put(Criteria.SUGAR, sugar);
-
-        if (drinkType == DrinkType.COFFEE) {
-            int numberOfShots = -1;
-            while (numberOfShots < 0) {
-                String numberOfShotsString = JOptionPane.showInputDialog("Enter the number of shots: ");
-                if (numberOfShotsString == null) {
-                    System.exit(0);
-                }
-                try {
-                    numberOfShots = Integer.parseInt(numberOfShotsString);
-                    break;
-                } catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-                if (numberOfShots < 0) {
-                    JOptionPane.showMessageDialog(null, "Please enter a positive number", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-
-            criteria.put(Criteria.NUM_OF_SHOTS, numberOfShots);
-        }
-
-        if (drinkType == DrinkType.TEA) {
-            Temperature temperature = (Temperature) JOptionPane.showInputDialog(null, "What temperature would you like?", "Temperature", JOptionPane.QUESTION_MESSAGE, icon, Temperature.values(), Temperature.ONE_HUNDRED);
-            if (temperature == null) {
-                System.exit(0);
-            }
-            criteria.put(Criteria.TEMPERATURE, temperature);
-
-            int steepTime = -1;
-            while (steepTime < 0) {
-                String steepTimeString = JOptionPane.showInputDialog("Enter the steep time: ");
-                if (steepTimeString == null) {
-                    System.exit(0);
-                }
-                try {
-                    steepTime = Integer.parseInt(steepTimeString);
-                    break;
-                } catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-                if (steepTime < 0) {
-                    JOptionPane.showMessageDialog(null, "Please enter a positive number", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-            criteria.put(Criteria.STEEP_TIME, steepTime);
-        }
-
-        Set<Extras> extras = findExtras(drinkType);
-        extras.add(Extras.NONE);
-        extras.add(Extras.SKIP);
-
-        Set<Extras> selectedExtras = new HashSet<>();
-
-        while (true) {
-            if (selectedExtras.size() > 0) {
-                extras.remove(Extras.NONE);
-            }
-            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select an extra", "Extras", JOptionPane.QUESTION_MESSAGE, icon, extras.toArray(), extras.toArray()[0]);
-            if (selectedExtra == null) {
-                System.exit(0);
-            }
-
-            if (selectedExtra == Extras.SKIP || selectedExtra == Extras.NONE) {
-                if (selectedExtras.size() == 0) {
-                    selectedExtras.add(selectedExtra);
-                }
-                break;
-            }
-            selectedExtras.add(selectedExtra);
-            extras.remove(selectedExtra);
-        }
-
-        criteria.put(Criteria.EXTRAS, selectedExtras);
 
         return new DreamDrink(minPrice, maxPrice, criteria);
     }
