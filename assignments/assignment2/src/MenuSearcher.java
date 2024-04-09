@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.lang.model.element.Name;
 import javax.swing.*;
 
 /**
@@ -39,27 +40,23 @@ public class MenuSearcher {
         }
         System.out.println("Menu loaded successfully");
 
-        JOptionPane.showMessageDialog(null, "Welcome to " + appName, "Welcome", JOptionPane.INFORMATION_MESSAGE, icon);
+        JOptionPane.showMessageDialog(null, "Welcome to " + appName, appName, JOptionPane.INFORMATION_MESSAGE, icon);
 
 
         // Get the user's dream drink order
         DreamDrink dreamDrink = getDreamDrink();
 
-        // DEBUG
-        System.out.println("Min price: " + dreamDrink.getMinPrice());
-        System.out.println("Max price: " + dreamDrink.getMaxPrice());
-        System.out.println("Drink type: " + dreamDrink.getCriteria(Criteria.DRINK_TYPE));
-        System.out.println("Milk type: " + dreamDrink.getCriteria(Criteria.MILK_TYPE));
-        System.out.println("Sugar: " + dreamDrink.getCriteria(Criteria.SUGAR));
-        System.out.println("Extras: " + dreamDrink.getCriteria(Criteria.EXTRAS));
-        if (dreamDrink.getCriteria(Criteria.DRINK_TYPE) == DrinkType.COFFEE) {
-            System.out.println("Number of shots: " + dreamDrink.getCriteria(Criteria.NUM_OF_SHOTS));
+        // Find the coffees that match the user's dream drink order
+        List<Drink> matches = menu.findDreamDrink(dreamDrink);
+        if (!matches.isEmpty()) {
+            String message = buildMessage(matches);
+            JOptionPane.showMessageDialog(null, message, appName, JOptionPane.INFORMATION_MESSAGE);
         } else {
-            System.out.println("Temperature: " + dreamDrink.getCriteria(Criteria.TEMPERATURE));
-            System.out.println("Steep time: " + dreamDrink.getCriteria(Criteria.STEEP_TIME));
+            JOptionPane.showMessageDialog(null, "No matches!", appName, JOptionPane.INFORMATION_MESSAGE);
         }
 
-        /*/home/squid/repos/cosc120/assignments/assigment1
+
+        /*
         // Get the user's final coffee order
         Coffee coffeeOrder = getCoffeeOrder(menu, dreamCoffee);
 
@@ -202,7 +199,7 @@ public class MenuSearcher {
      * @return a Dream drink object representing the user's dream drink order
      */
 
-    static DreamDrink getDreamDrink() {
+    private static DreamDrink getDreamDrink() {
         Map<Criteria, Object> criteria = new HashMap<>();
 
         // Get the user's dream drink order
@@ -251,7 +248,7 @@ public class MenuSearcher {
         if (milkOptions == null) {
             System.exit(0);
         }
-        criteria.put(Criteria.MILK_TYPE, milkOptions);
+        criteria.put(Criteria.MILK_TYPE, Set.of(milkOptions));
 
         Boolean sugar = JOptionPane.showConfirmDialog(null, "Would you like sugar?", "Sugar", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
         criteria.put(Criteria.SUGAR, sugar);
@@ -346,6 +343,26 @@ public class MenuSearcher {
             }
         }
         return extras;
+    }
+
+    /**
+     * A method to build a message showing the drinks found.
+     * @param matches a List of Drink objects representing the drinks found
+     * @return a String representing the message
+     */
+    private static String buildMessage(List<Drink> matches) {
+        StringBuilder message = new StringBuilder();
+        message.append("Drinks found:\n");
+        for (Drink drink : matches) {
+            message.append("Name: ").append(drink.getName()).append("\n");
+            message.append("Price: $").append(drink.getPrice()).append("\n");
+            message.append("Description: ").append(drink.getDescription()).append("\n");
+            for (Criteria criteria : drink.getGenericFeatures().getAllCriteria().keySet()) {
+                message.append(criteria).append(": ").append(drink.getGenericFeatures().getCriteria(criteria)).append("\n");
+            }
+            message.append("\n");
+        }
+        return message.toString();
     }
 
     /**

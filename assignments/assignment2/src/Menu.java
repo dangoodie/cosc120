@@ -51,9 +51,9 @@ public class Menu {
         List<Drink> matches = new ArrayList<>();
         for(Drink drink: drinks){
             // If the drink is not a match, break out of the loop
-            if(!dreamDrink.matches(drink.getGenericFeatures())) break;
+            if(!dreamDrink.matches(drink.getGenericFeatures())) continue;
             // If the price is not within the min and max price, break out of the loop
-            if(drink.getPrice() < dreamDrink.getMinPrice() || drink.getPrice() > dreamDrink.getMaxPrice()) break;
+            if(drink.getPrice() < dreamDrink.getMinPrice() || drink.getPrice() > dreamDrink.getMaxPrice()) continue;
             // If it reaches this point, the drink is a match. Add it to the list of matches
             matches.add(drink);
         }

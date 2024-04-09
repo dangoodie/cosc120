@@ -77,7 +77,7 @@ public enum Extras {
             case "CHOCOLATE SHAVINGS" -> CHOCOLATE_SHAVINGS;
             case "CREAM" -> CREAM;
             case "ICE" -> ICE;
-            case "NONE" -> NONE;
+            case "NONE", "" -> NONE;
             default -> throw new IllegalStateException("Unexpected value: " + extra);
         };
     }

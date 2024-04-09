@@ -44,7 +44,7 @@ public enum MilkOptions {
             case "ALMOND" -> ALMOND;
             case "OAT" -> OAT;
             case "COCONUT" -> COCONUT;
-            case "NONE" -> NONE;
+            case "NONE","" -> NONE;
             default -> throw new IllegalStateException("Unexpected value: " + milkOption);
         };
     }
