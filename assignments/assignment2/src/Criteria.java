@@ -1,6 +1,6 @@
 public enum Criteria {
     // generic
-    MILK_TYPE, SUGAR, EXTRAS,
+    DRINK_TYPE, MILK_TYPE, SUGAR, EXTRAS,
     // coffee
     NUM_OF_SHOTS,
     // tea
@@ -8,6 +8,7 @@ public enum Criteria {
 
     public String toString() {
         return switch (this) {
+            case DRINK_TYPE -> "Drink type";
             case MILK_TYPE -> "Milk type";
             case SUGAR -> "Sugar";
             case EXTRAS -> "Extras";

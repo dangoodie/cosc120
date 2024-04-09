@@ -6,10 +6,10 @@ public class DreamDrink {
     private final Map<Criteria,Object> criteria;
 
     public DreamDrink(int minPrice, int maxPrice, Map<Criteria,Object> criteria) {
-        this.minPrice = minPrice;
-        this.maxPrice = maxPrice;
         if(criteria==null) this.criteria=new HashMap<>();
         else this.criteria = new HashMap<>(criteria);
+        this.minPrice = minPrice;
+        this.maxPrice = maxPrice;
     }
 
     public DreamDrink(Map<Criteria,Object> criteria) {
@@ -38,7 +38,6 @@ public class DreamDrink {
 
 
     // methods
-
     public boolean matches(DreamDrink realDrink) {
         for(Criteria key : realDrink.getAllCriteria().keySet()) {
             //AS PREVIOUSLY DONE: if the real drink and user have the same key, compare the values
@@ -65,6 +64,4 @@ public class DreamDrink {
         }
         return true;
     }
-
-
 }

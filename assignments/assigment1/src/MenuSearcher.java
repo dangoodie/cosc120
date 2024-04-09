@@ -194,10 +194,7 @@ public class MenuSearcher {
             }
             Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select extra (Cancel to continue): ", null, JOptionPane.QUESTION_MESSAGE, null, extras, extras[0]);
             if (selectedExtra == null || selectedExtra == Extras.SKIP) {
-                if (selectedExtras.isEmpty()) {
-                    selectedExtras.add(Extras.SKIP);
-                }
-                break;
+
             }
             selectedExtras.add(selectedExtra);
             if (selectedExtra == Extras.NONE) {

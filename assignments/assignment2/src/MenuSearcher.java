@@ -32,32 +32,34 @@ public class MenuSearcher {
      */
     public static void main(String[] args) {
         // Load the menu from a file
-        Menu menu = loadMenuFromFile("menu.txt");
+        menu = loadMenuFromFile("menu.txt");
         if (menu == null) {
             System.out.println("Error loading menu");
             System.exit(1);
         }
         System.out.println("Menu loaded successfully");
-        System.out.println("Printing the menu now");
-        Set<Drink> allDrinks = menu.getMenu().stream().sorted(Comparator.comparing(Drink::name)).collect(Collectors.toCollection(LinkedHashSet::new));
 
-        for (Drink drink : allDrinks) {
-            System.out.println("ID: " + drink.id());
-            System.out.println("Name: " + drink.name());
-            System.out.println("Price: " + drink.price());
-            System.out.println("Description: " + drink.description());
+        JOptionPane.showMessageDialog(null, "Welcome to " + appName, "Welcome", JOptionPane.INFORMATION_MESSAGE, icon);
 
-            Map<Criteria, Object> criteria = drink.getGenericFeatures().getAllCriteria();
-            for (Criteria criterion : criteria.keySet()) {
-                System.out.println(criterion + ": " + criteria.get(criterion));
-            }
-            System.out.println("-------------------------------------------------");
+
+        // Get the user's dream drink order
+        DreamDrink dreamDrink = getDreamDrink();
+
+        // DEBUG
+        System.out.println("Min price: " + dreamDrink.getMinPrice());
+        System.out.println("Max price: " + dreamDrink.getMaxPrice());
+        System.out.println("Drink type: " + dreamDrink.getCriteria(Criteria.DRINK_TYPE));
+        System.out.println("Milk type: " + dreamDrink.getCriteria(Criteria.MILK_TYPE));
+        System.out.println("Sugar: " + dreamDrink.getCriteria(Criteria.SUGAR));
+        System.out.println("Extras: " + dreamDrink.getCriteria(Criteria.EXTRAS));
+        if (dreamDrink.getCriteria(Criteria.DRINK_TYPE) == DrinkType.COFFEE) {
+            System.out.println("Number of shots: " + dreamDrink.getCriteria(Criteria.NUM_OF_SHOTS));
+        } else {
+            System.out.println("Temperature: " + dreamDrink.getCriteria(Criteria.TEMPERATURE));
+            System.out.println("Steep time: " + dreamDrink.getCriteria(Criteria.STEEP_TIME));
         }
 
-        /*
-        // Get the user's dream coffee order
-        Coffee dreamCoffee = getDreamCoffee();
-
+        /*/home/squid/repos/cosc120/assignments/assigment1
         // Get the user's final coffee order
         Coffee coffeeOrder = getCoffeeOrder(menu, dreamCoffee);
 
@@ -135,6 +137,7 @@ public class MenuSearcher {
 
 
         Map<Criteria, Object> criteriaObjectMap = new LinkedHashMap<>();
+        criteriaObjectMap.put(Criteria.DRINK_TYPE, DrinkType.TEA); // Add the drink type (tea)
         criteriaObjectMap.put(Criteria.SUGAR, sugar);
         criteriaObjectMap.put(Criteria.MILK_TYPE, milkOptions);
         criteriaObjectMap.put(Criteria.EXTRAS, extras);
@@ -144,6 +147,12 @@ public class MenuSearcher {
         DreamDrink dreamDrink = new DreamDrink(criteriaObjectMap);
         return new Drink(id, name, price, description, dreamDrink);
     }
+
+    /**
+     * A method to handle the coffee type drinks.
+     * @param drinkData a List of Strings representing the drink data
+     * @return a Drink object representing the coffee drink
+     */
 
     private static Drink handleCoffee(List<String> drinkData) {
         // common features
@@ -159,6 +168,7 @@ public class MenuSearcher {
         int numberOfShots = Integer.parseInt(drinkData.get(4).trim());
 
         Map<Criteria, Object> criteriaObjectMap = new LinkedHashMap<>();
+        criteriaObjectMap.put(Criteria.DRINK_TYPE, DrinkType.COFFEE); // Add the drink type (coffee)
         criteriaObjectMap.put(Criteria.SUGAR, sugar);
         criteriaObjectMap.put(Criteria.MILK_TYPE, milkOptions);
         criteriaObjectMap.put(Criteria.EXTRAS, extras);
@@ -168,7 +178,7 @@ public class MenuSearcher {
         return new Drink(id, name, price, description, dreamDrink);
     }
     /**
-     * A method to parse the milk and extras options from a field.
+     * A method to parse the array of options from a field.
      * @param field a String representing the field to parse
      * @return a Set of Strings representing the options
      */
@@ -192,7 +202,151 @@ public class MenuSearcher {
      * @return a Dream drink object representing the user's dream drink order
      */
 
-    // create here
+    static DreamDrink getDreamDrink() {
+        Map<Criteria, Object> criteria = new HashMap<>();
+
+        // Get the user's dream drink order
+        DrinkType drinkType = (DrinkType) JOptionPane.showInputDialog(null, "What type of drink would you like? (Coffee/Tea)", "Drink Type", JOptionPane.QUESTION_MESSAGE, icon, DrinkType.values(), DrinkType.COFFEE);
+        if (drinkType == null) {
+            System.exit(0);
+        }
+        criteria.put(Criteria.DRINK_TYPE, drinkType);
+
+        // Get min and max price
+        int minPrice = -1;
+        while (minPrice < 0) {
+            String minPriceString = JOptionPane.showInputDialog("Enter the minimum price: ");
+            if (minPriceString == null) {
+                System.exit(0);
+            }
+            try {
+                minPrice = Integer.parseInt(minPriceString);
+                break;
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            if (minPrice < 0) {
+                JOptionPane.showMessageDialog(null, "Please enter a positive number", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        int maxPrice = -1;
+        while (maxPrice < minPrice) {
+            String maxPriceString = JOptionPane.showInputDialog("Enter the maximum price: ");
+            if (maxPriceString == null) {
+                System.exit(0);
+            }
+            try {
+                maxPrice = Integer.parseInt(maxPriceString);
+                break;
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            if (maxPrice < minPrice) {
+                JOptionPane.showMessageDialog(null, "Please enter a number greater than or equal to the minimum price", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        MilkOptions milkOptions = (MilkOptions) JOptionPane.showInputDialog(null, "What type of milk would you like?", "Milk Options", JOptionPane.QUESTION_MESSAGE, icon, MilkOptions.values(), MilkOptions.NONE);
+        if (milkOptions == null) {
+            System.exit(0);
+        }
+        criteria.put(Criteria.MILK_TYPE, milkOptions);
+
+        Boolean sugar = JOptionPane.showConfirmDialog(null, "Would you like sugar?", "Sugar", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+        criteria.put(Criteria.SUGAR, sugar);
+
+        if (drinkType == DrinkType.COFFEE) {
+            int numberOfShots = -1;
+            while (numberOfShots < 0) {
+                String numberOfShotsString = JOptionPane.showInputDialog("Enter the number of shots: ");
+                if (numberOfShotsString == null) {
+                    System.exit(0);
+                }
+                try {
+                    numberOfShots = Integer.parseInt(numberOfShotsString);
+                    break;
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                if (numberOfShots < 0) {
+                    JOptionPane.showMessageDialog(null, "Please enter a positive number", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+
+            criteria.put(Criteria.NUM_OF_SHOTS, numberOfShots);
+        }
+
+        if (drinkType == DrinkType.TEA) {
+            Temperature temperature = (Temperature) JOptionPane.showInputDialog(null, "What temperature would you like?", "Temperature", JOptionPane.QUESTION_MESSAGE, icon, Temperature.values(), Temperature.ONE_HUNDRED);
+            if (temperature == null) {
+                System.exit(0);
+            }
+            criteria.put(Criteria.TEMPERATURE, temperature);
+
+            int steepTime = -1;
+            while (steepTime < 0) {
+                String steepTimeString = JOptionPane.showInputDialog("Enter the steep time: ");
+                if (steepTimeString == null) {
+                    System.exit(0);
+                }
+                try {
+                    steepTime = Integer.parseInt(steepTimeString);
+                    break;
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                if (steepTime < 0) {
+                    JOptionPane.showMessageDialog(null, "Please enter a positive number", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            criteria.put(Criteria.STEEP_TIME, steepTime);
+        }
+
+        Set<Extras> extras = findExtras(drinkType);
+        extras.add(Extras.NONE);
+        extras.add(Extras.SKIP);
+
+        Set<Extras> selectedExtras = new HashSet<>();
+
+        while (true) {
+            if (selectedExtras.size() > 0) {
+                extras.remove(Extras.NONE);
+            }
+            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select an extra", "Extras", JOptionPane.QUESTION_MESSAGE, icon, extras.toArray(), extras.toArray()[0]);
+            if (selectedExtra == null) {
+                System.exit(0);
+            }
+
+            if (selectedExtra == Extras.SKIP || selectedExtra == Extras.NONE) {
+                if (selectedExtras.size() == 0) {
+                    selectedExtras.add(selectedExtra);
+                }
+                break;
+            }
+            selectedExtras.add(selectedExtra);
+            extras.remove(selectedExtra);
+        }
+
+        criteria.put(Criteria.EXTRAS, selectedExtras);
+
+        return new DreamDrink(minPrice, maxPrice, criteria);
+    }
+
+    /**
+     * A method to find the extras that are available for a drink of a given type
+     * @param drinkType a DrinkType object representing the type of drink
+     * @return a Set of Extras objects representing the extras available for the drink
+     */
+    private static Set<Extras> findExtras(DrinkType drinkType) {
+        Set<Extras> extras = new HashSet<>();
+        for (Drink drink : menu.getMenu()) {
+            if (drink.getGenericFeatures().getCriteria(Criteria.DRINK_TYPE) == drinkType) {
+                extras.addAll((Set<Extras>) drink.getGenericFeatures().getCriteria(Criteria.EXTRAS));
+            }
+        }
+        return extras;
+    }
 
     /**
      * A method to get the user's final drink order.
@@ -258,12 +412,6 @@ public class MenuSearcher {
      * @return a String representing the message
      */
 
-    /**
-     * A method to remove the square brackets from a string.
-     * Useful for the array fields in the Coffee class.
-     * @param description a String representing the description
-     * @return a String representing the description with the square brackets removed
-     */
 
 }
 
