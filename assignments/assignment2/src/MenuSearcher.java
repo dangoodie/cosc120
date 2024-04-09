@@ -355,7 +355,7 @@ public class MenuSearcher {
         message.append("Drinks found:\n");
         for (Drink drink : matches) {
             message.append("Name: ").append(drink.getName()).append("\n");
-            message.append("Price: $").append(drink.getPrice()).append("\n");
+            message.append("Price: $").append(String.format("%.2f", drink.getPrice())).append("\n");
             message.append("Description: ").append(drink.getDescription()).append("\n");
             for (Criteria criteria : drink.getGenericFeatures().getAllCriteria().keySet()) {
                 message.append(criteria).append(": ").append(drink.getGenericFeatures().getCriteria(criteria)).append("\n");
