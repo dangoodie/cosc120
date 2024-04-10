@@ -4,6 +4,8 @@
  */
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -22,6 +24,7 @@ public enum Extras {
     public String toString() {
         return switch (this) {
             case SKIP -> "Skip";
+            case NONE -> "None";
             case CHOCOLATE_POWDER -> "Chocolate powder";
             case CINNAMON -> "Cinnamon";
             case VANILLA_SYRUP -> "Vanilla syrup";
@@ -43,7 +46,6 @@ public enum Extras {
             case CHOCOLATE_SHAVINGS -> "Chocolate shavings";
             case CREAM -> "Cream";
             case ICE -> "Ice";
-            case NONE -> "None";
         };
     }
 
@@ -56,6 +58,7 @@ public enum Extras {
         extra = extra.strip().toUpperCase();
         return switch (extra) {
             case "SKIP" -> SKIP;
+            case "NONE", "" -> NONE;
             case "CHOCOLATE POWDER" -> CHOCOLATE_POWDER;
             case "CINNAMON" -> CINNAMON;
             case "VANILLA SYRUP" -> VANILLA_SYRUP;
@@ -77,13 +80,12 @@ public enum Extras {
             case "CHOCOLATE SHAVINGS" -> CHOCOLATE_SHAVINGS;
             case "CREAM" -> CREAM;
             case "ICE" -> ICE;
-            case "NONE", "" -> NONE;
             default -> throw new IllegalStateException("Unexpected value: " + extra);
         };
     }
 
-    public static Set<Extras> fromStringSet(Set<String> extras) {
-        Set<Extras> extrasSet = new HashSet<>();
+    public static List<Extras> fromStringList(List<String> extras) {
+        List<Extras> extrasSet = new LinkedList<>();
         for (String extra : extras) {
             extrasSet.add(fromString(extra));
         }

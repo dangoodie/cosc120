@@ -1,0 +1,6 @@
+Order details:
+	Name: Wesley Hahn
+	Order number: 0495698754
+	Item: Cappuccino (30210)
+	Milk: [Soy]
+	Extras: [Cinnamon]

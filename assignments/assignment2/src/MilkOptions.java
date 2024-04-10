@@ -4,6 +4,8 @@
  */
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -51,8 +53,8 @@ public enum MilkOptions {
         };
     }
 
-    public static Set<MilkOptions> fromStringSet(Set<String> milkOptions) {
-        Set<MilkOptions> milkOptionsSet = new HashSet<>();
+    public static List<MilkOptions> fromStringList(List<String> milkOptions) {
+        List<MilkOptions> milkOptionsSet = new LinkedList<>();
         for (String milkOption : milkOptions) {
             milkOptionsSet.add(fromString(milkOption));
         }

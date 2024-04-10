@@ -122,8 +122,8 @@ public class MenuSearcher {
         String name = drinkData.get(2).trim();
         Double price = Double.parseDouble(drinkData.get(3).trim());
         String description = drinkData.get(10).trim().replace("[", "").replace("]", "");
-        Set<MilkOptions> milkOptions = MilkOptions.fromStringSet(parseOptions(drinkData.get(8)));
-        Set<Extras> extras = Extras.fromStringSet(parseOptions(drinkData.get(9)));
+        List<MilkOptions> milkOptions = MilkOptions.fromStringList(parseOptions(drinkData.get(8)));
+        List<Extras> extras = Extras.fromStringList(parseOptions(drinkData.get(9)));
         Boolean sugar = drinkData.get(7).trim().equalsIgnoreCase("YES");
 
         // tea specific features
@@ -155,8 +155,8 @@ public class MenuSearcher {
         String name = drinkData.get(2).trim();
         Double price = Double.parseDouble(drinkData.get(3).trim());
         String description = drinkData.get(10).trim().replace("[", "").replace("]", "");
-        Set<MilkOptions> milkOptions = MilkOptions.fromStringSet(parseOptions(drinkData.get(8)));
-        Set<Extras> extras = Extras.fromStringSet(parseOptions(drinkData.get(9)));
+        List<MilkOptions> milkOptions = MilkOptions.fromStringList(parseOptions(drinkData.get(8)));
+        List<Extras> extras = Extras.fromStringList(parseOptions(drinkData.get(9)));
         Boolean sugar = drinkData.get(7).trim().equalsIgnoreCase("YES");
 
         // coffee specific features
@@ -177,10 +177,10 @@ public class MenuSearcher {
      * @param field a String representing the field to parse
      * @return a Set of Strings representing the options
      */
-    private static Set<String> parseOptions(String field) {
+    private static List<String> parseOptions(String field) {
         field = field.trim(); // Remove leading/trailing whitespace
         if (field.equals("[]")) {
-            return new HashSet<>();
+            return new LinkedList<>();
         }
 
         field = field.substring(1, field.length() - 1); // Remove the surrounding brackets
@@ -189,7 +189,7 @@ public class MenuSearcher {
             options[i] = options[i].trim();
         }
 
-        return new HashSet<>(Arrays.asList(options));
+        return new LinkedList<>(Arrays.asList(options));
     }
 
     /**
@@ -266,10 +266,10 @@ public class MenuSearcher {
             System.exit(0);
         }
         if (milkOptions != MilkOptions.SKIP) {
-            criteria.put(Criteria.MILK_TYPE, Set.of(milkOptions));
+            criteria.put(Criteria.MILK_TYPE, List.of(milkOptions));
         }
 
-        Set<String> sugarOptions = Set.of("Yes", "No", "Skip");
+        List<String> sugarOptions = List.of("Yes", "No", "Skip");
         String sugar = (String) JOptionPane.showInputDialog(null, "Would you like sugar?", "Sugar", JOptionPane.QUESTION_MESSAGE, icon, sugarOptions.toArray(), sugarOptions.toArray()[0]);
         if (sugar == null) {
             System.exit(0);
@@ -278,7 +278,7 @@ public class MenuSearcher {
             criteria.put(Criteria.SUGAR, sugar.equalsIgnoreCase("Yes"));
         }
 
-        Set<Extras> extras = findExtras(drinkType);
+        List<Extras> extras = findExtras(drinkType);
         extras.add(Extras.NONE);
         extras.add(Extras.SKIP);
 
@@ -347,14 +347,20 @@ public class MenuSearcher {
 
     /**
      * A method to find the extras that are available for a drink of a given type
+     * It checks to make sure that there is no duplication of extras
      * @param drinkType a DrinkType object representing the type of drink
-     * @return a Set of Extras objects representing the extras available for the drink
+     * @return a List of Extras objects representing the extras available for the drink
      */
-    private static Set<Extras> findExtras(DrinkType drinkType) {
-        Set<Extras> extras = new HashSet<>();
+    private static List<Extras> findExtras(DrinkType drinkType) {
+        List<Extras> extras = new LinkedList<>();
         for (Drink drink : menu.getMenu()) {
             if (drink.getGenericFeatures().getCriteria(Criteria.DRINK_TYPE) == drinkType) {
-                extras.addAll((Set<Extras>) drink.getGenericFeatures().getCriteria(Criteria.EXTRAS));
+                List<Extras> e = (List<Extras>) drink.getGenericFeatures().getCriteria(Criteria.EXTRAS);
+                for (Extras extra : e) {
+                    if (!extras.contains(extra)) {
+                        extras.add(extra);
+                    }
+                }
             }
         }
         return extras;
@@ -390,7 +396,7 @@ public class MenuSearcher {
      */
 
     private static Drink getDrinkOrder() {
-        Set<String> drinkOptions = new HashSet<>();
+        List<String> drinkOptions = new LinkedList<>();
         for (Drink drink : menu.getMenu()) {
             drinkOptions.add(drink.getName() + " (" + drink.getId() + ") - $" + String.format("%.2f", drink.getPrice()));
         }
@@ -408,75 +414,19 @@ public class MenuSearcher {
         }
 
         Map<Criteria, Object> criteria = new HashMap<>(drinkOrder.getGenericFeatures().getAllCriteria());
-        if (drinkOrder.genericFeatures().getCriteria(Criteria.DRINK_TYPE) == DrinkType.COFFEE) {
-            int numberOfShots = -1;
-            while (numberOfShots < 0) {
-                String numberOfShotsString = JOptionPane.showInputDialog("Enter the number of shots: ");
-                if (numberOfShotsString == null) {
-                    System.exit(0);
-                }
-                try {
-                    numberOfShots = Integer.parseInt(numberOfShotsString);
-                    break;
-                } catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-                if (numberOfShots < 0) {
-                    JOptionPane.showMessageDialog(null, "Please enter a positive number", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-            criteria.put(Criteria.NUM_OF_SHOTS, numberOfShots);
-        }
 
-        if (drinkOrder.genericFeatures().getCriteria(Criteria.DRINK_TYPE) == DrinkType.TEA) {
-            Temperature temperature = (Temperature) JOptionPane.showInputDialog(null, "What temperature would you like?", "Temperature", JOptionPane.QUESTION_MESSAGE, icon, Temperature.values(), Temperature.SKIP);
-            if (temperature == null) {
-                System.exit(0);
-            }
-            if (temperature != Temperature.SKIP) {
-                criteria.put(Criteria.TEMPERATURE, temperature);
-            }
-
-            int steepTime = -1;
-            Set<String> steepTimeOptions = Set.of("1", "2", "3", "4", "5", "6", "7", "8");
-            String steepTimeString = null;
-            while (steepTime < 0) {
-                steepTimeString = (String) JOptionPane.showInputDialog(null, "Enter the steep time (minutes): ", "Steep Time", JOptionPane.QUESTION_MESSAGE, icon, steepTimeOptions.toArray(), steepTimeOptions.toArray()[0]);
-                if (steepTimeString == null) {
-                    System.exit(0);
-                }
-                try {
-                    steepTime = Integer.parseInt(steepTimeString);
-                    break;
-                } catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-                if (steepTime < 0) {
-                    JOptionPane.showMessageDialog(null, "Please enter a positive number", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-            criteria.put(Criteria.STEEP_TIME, steepTime);
-        }
-
-        List<MilkOptions> milkOptions = new ArrayList<>((Set<MilkOptions>) drinkOrder.getGenericFeatures().getCriteria(Criteria.MILK_TYPE));
+        List<MilkOptions> milkOptions = new LinkedList<>((List<MilkOptions>) drinkOrder.getGenericFeatures().getCriteria(Criteria.MILK_TYPE));
         MilkOptions selectedMilk = (MilkOptions) JOptionPane.showInputDialog(null, "Select a milk option", "Milk Options", JOptionPane.QUESTION_MESSAGE, icon, milkOptions.toArray(), milkOptions.toArray()[0]);
         if (selectedMilk == null) {
             System.exit(0);
         }
-        criteria.put(Criteria.MILK_TYPE, Set.of(selectedMilk));
-
-        List<String> sugarOptions = List.of("Yes", "No");
-        String sugarString = (String) JOptionPane.showInputDialog(null, "Would you like sugar?", "Sugar", JOptionPane.QUESTION_MESSAGE, icon, sugarOptions.toArray(), sugarOptions.toArray()[0]);
-        if (sugarString == null) {
-            System.exit(0);
-        }
-        criteria.put(Criteria.SUGAR, sugarString.equalsIgnoreCase("YES"));
+        criteria.put(Criteria.MILK_TYPE, List.of(selectedMilk));
 
         List<Extras> extras = findExtras(drinkOrder);
         extras.add(Extras.NONE);
         extras.add(Extras.SKIP);
 
-        Set<Extras> selectedExtras = new HashSet<>();
+        List<Extras> selectedExtras = new LinkedList<>();
 
         while (true) {
             if (!selectedExtras.isEmpty()) {
