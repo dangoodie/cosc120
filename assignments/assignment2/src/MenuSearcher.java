@@ -55,18 +55,16 @@ public class MenuSearcher {
             JOptionPane.showMessageDialog(null, "No matches!", appName, JOptionPane.INFORMATION_MESSAGE);
         }
 
-
-        /*
         // Get the user's final coffee order
-        Coffee coffeeOrder = getCoffeeOrder(menu, dreamCoffee);
+        Drink drinkOrder = getDrinkOrder();
 
         // Get the geek info
         Geek geek = getGeekInfo();
 
         // Write the order to a file
-        writeOrderToFile(geek, coffeeOrder);
+        writeOrderToFile(geek, drinkOrder);
         JOptionPane.showMessageDialog(null, "Order written to file", "Success", JOptionPane.INFORMATION_MESSAGE);
-        */
+
         System.exit(0);
     }
 
@@ -362,6 +360,10 @@ public class MenuSearcher {
         return extras;
     }
 
+    private static List<Extras> findExtras(Drink drink) {
+        return (List<Extras>) drink.getGenericFeatures().getCriteria(Criteria.EXTRAS);
+    }
+
     /**
      * A method to build a message showing the drinks found.
      * @param matches a List of Drink objects representing the drinks found
@@ -384,10 +386,121 @@ public class MenuSearcher {
 
     /**
      * A method to get the user's final drink order.
-     * @param menu a Menu object representing the coffee menu
-     * @param dreamDrink a Coffee object representing the user's dream coffee order
      * @return a Coffee object representing the user's final coffee order
      */
+
+    private static Drink getDrinkOrder() {
+        Set<String> drinkOptions = new HashSet<>();
+        for (Drink drink : menu.getMenu()) {
+            drinkOptions.add(drink.getName() + " (" + drink.getId() + ") - $" + String.format("%.2f", drink.getPrice()));
+        }
+
+        String selectedDrink = (String) JOptionPane.showInputDialog(null, "Select a drink", appName, JOptionPane.QUESTION_MESSAGE, icon, drinkOptions.toArray(), drinkOptions.toArray()[0]);
+        if (selectedDrink == null) {
+            System.exit(0);
+        }
+
+        int id = Integer.parseInt(selectedDrink.substring(selectedDrink.indexOf("(") + 1, selectedDrink.indexOf(")")));
+        Drink drinkOrder = menu.getDrinkById(id);
+        if (drinkOrder == null) {
+            JOptionPane.showMessageDialog(null, "Error: Drink not found", "Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
+
+        Map<Criteria, Object> criteria = new HashMap<>(drinkOrder.getGenericFeatures().getAllCriteria());
+        if (drinkOrder.genericFeatures().getCriteria(Criteria.DRINK_TYPE) == DrinkType.COFFEE) {
+            int numberOfShots = -1;
+            while (numberOfShots < 0) {
+                String numberOfShotsString = JOptionPane.showInputDialog("Enter the number of shots: ");
+                if (numberOfShotsString == null) {
+                    System.exit(0);
+                }
+                try {
+                    numberOfShots = Integer.parseInt(numberOfShotsString);
+                    break;
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                if (numberOfShots < 0) {
+                    JOptionPane.showMessageDialog(null, "Please enter a positive number", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            criteria.put(Criteria.NUM_OF_SHOTS, numberOfShots);
+        }
+
+        if (drinkOrder.genericFeatures().getCriteria(Criteria.DRINK_TYPE) == DrinkType.TEA) {
+            Temperature temperature = (Temperature) JOptionPane.showInputDialog(null, "What temperature would you like?", "Temperature", JOptionPane.QUESTION_MESSAGE, icon, Temperature.values(), Temperature.SKIP);
+            if (temperature == null) {
+                System.exit(0);
+            }
+            if (temperature != Temperature.SKIP) {
+                criteria.put(Criteria.TEMPERATURE, temperature);
+            }
+
+            int steepTime = -1;
+            Set<String> steepTimeOptions = Set.of("1", "2", "3", "4", "5", "6", "7", "8");
+            String steepTimeString = null;
+            while (steepTime < 0) {
+                steepTimeString = (String) JOptionPane.showInputDialog(null, "Enter the steep time (minutes): ", "Steep Time", JOptionPane.QUESTION_MESSAGE, icon, steepTimeOptions.toArray(), steepTimeOptions.toArray()[0]);
+                if (steepTimeString == null) {
+                    System.exit(0);
+                }
+                try {
+                    steepTime = Integer.parseInt(steepTimeString);
+                    break;
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                if (steepTime < 0) {
+                    JOptionPane.showMessageDialog(null, "Please enter a positive number", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            criteria.put(Criteria.STEEP_TIME, steepTime);
+        }
+
+        List<MilkOptions> milkOptions = new ArrayList<>((Set<MilkOptions>) drinkOrder.getGenericFeatures().getCriteria(Criteria.MILK_TYPE));
+        MilkOptions selectedMilk = (MilkOptions) JOptionPane.showInputDialog(null, "Select a milk option", "Milk Options", JOptionPane.QUESTION_MESSAGE, icon, milkOptions.toArray(), milkOptions.toArray()[0]);
+        if (selectedMilk == null) {
+            System.exit(0);
+        }
+        criteria.put(Criteria.MILK_TYPE, Set.of(selectedMilk));
+
+        List<String> sugarOptions = List.of("Yes", "No");
+        String sugarString = (String) JOptionPane.showInputDialog(null, "Would you like sugar?", "Sugar", JOptionPane.QUESTION_MESSAGE, icon, sugarOptions.toArray(), sugarOptions.toArray()[0]);
+        if (sugarString == null) {
+            System.exit(0);
+        }
+        criteria.put(Criteria.SUGAR, sugarString.equalsIgnoreCase("YES"));
+
+        List<Extras> extras = findExtras(drinkOrder);
+        extras.add(Extras.NONE);
+        extras.add(Extras.SKIP);
+
+        Set<Extras> selectedExtras = new HashSet<>();
+
+        while (true) {
+            if (!selectedExtras.isEmpty()) {
+                extras.remove(Extras.NONE);
+            }
+            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select an extra", "Extras", JOptionPane.QUESTION_MESSAGE, icon, extras.toArray(), extras.toArray()[0]);
+            if (selectedExtra == null) {
+                System.exit(0);
+            }
+
+            if (selectedExtra == Extras.SKIP || selectedExtra == Extras.NONE) {
+                if (selectedExtras.isEmpty()) {
+                    selectedExtras.add(Extras.NONE);
+                }
+                break;
+            }
+            selectedExtras.add(selectedExtra);
+            extras.remove(selectedExtra);
+        }
+
+        criteria.put(Criteria.EXTRAS, selectedExtras);
+
+        return new Drink(id, drinkOrder.getName(), drinkOrder.getPrice(), drinkOrder.getDescription(), new DreamDrink(criteria));
+    }
 
     /**
      * A method to get the user's geek info.
@@ -425,9 +538,32 @@ public class MenuSearcher {
     /**
      * A method to write the order to a file.
      * @param geek a Geek object representing the user's geek info
-     * @param selectedCoffee a Coffee object representing the selected coffee
+     * @param drinkOrder a Coffee object representing the selected coffee
      */
 
+    private static void writeOrderToFile(Geek geek, Drink drinkOrder) {
+        // Write Geek info and coffee order to file
+        try {
+            Path path = Path.of("order.txt");
+
+            StringBuilder orderDetails = new StringBuilder("Order details:\n");
+            orderDetails.append("\tName: ").append(geek.getName()).append("\n");
+            orderDetails.append("\tOrder number: ").append(geek.getPhoneNumber()).append("\n");
+            orderDetails.append("\tItem: ").append(drinkOrder.getName()).append(" (").append(drinkOrder.getId()).append(")\n");
+            orderDetails.append("\tMilk: ").append(drinkOrder.getGenericFeatures().getCriteria(Criteria.MILK_TYPE)).append("\n");
+            List<Extras> extras = (List<Extras>) drinkOrder.getGenericFeatures().getCriteria(Criteria.EXTRAS);
+            if (extras.contains(Extras.NONE) || extras.isEmpty()){
+                orderDetails.append("\tExtras: None\n");
+            } else {
+                orderDetails.append("\tExtras: ").append(extras).append("\n");
+            }
+            Files.writeString(path, orderDetails.toString());
+            System.out.println("Order written to file");
+        } catch (IOException e) {
+            System.out.println("Error writing file: " + e.getMessage());
+        }
+    }
+    
     /**
      * A method to validate a phone number
      * Sourced from the UNE COSC120 Topic 4.2 SeekAGeek.java isValidPhoneNumber() method.
