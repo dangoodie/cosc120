@@ -1,6 +1,6 @@
 /**
  * @author Daniel Gooden (dgooden@myune.edu.au | dan.gooden.dev@gmail.com)
- * created for COSC120 Assignment 1
+ * created for COSC120 Assignment 2
  */
 
 import java.util.HashSet;

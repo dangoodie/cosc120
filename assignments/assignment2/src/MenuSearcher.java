@@ -9,8 +9,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.lang.model.element.Name;
 import javax.swing.*;
 
 /**
@@ -123,7 +121,7 @@ public class MenuSearcher {
         Double price = Double.parseDouble(drinkData.get(3).trim());
         String description = drinkData.get(10).trim().replace("[", "").replace("]", "");
         List<MilkOptions> milkOptions = MilkOptions.fromStringList(parseOptions(drinkData.get(8)));
-        List<Extras> extras = Extras.fromStringList(parseOptions(drinkData.get(9)));
+        List<String> extras = parseOptions(drinkData.get(9));
         Boolean sugar = drinkData.get(7).trim().equalsIgnoreCase("YES");
 
         // tea specific features
@@ -156,7 +154,7 @@ public class MenuSearcher {
         Double price = Double.parseDouble(drinkData.get(3).trim());
         String description = drinkData.get(10).trim().replace("[", "").replace("]", "");
         List<MilkOptions> milkOptions = MilkOptions.fromStringList(parseOptions(drinkData.get(8)));
-        List<Extras> extras = Extras.fromStringList(parseOptions(drinkData.get(9)));
+        List<String> extras = parseOptions(drinkData.get(9));
         Boolean sugar = drinkData.get(7).trim().equalsIgnoreCase("YES");
 
         // coffee specific features
@@ -278,22 +276,22 @@ public class MenuSearcher {
             criteria.put(Criteria.SUGAR, sugar.equalsIgnoreCase("Yes"));
         }
 
-        List<Extras> extras = findExtras(drinkType);
-        extras.add(Extras.NONE);
-        extras.add(Extras.SKIP);
+        List<String> extras = findExtras(drinkType);
+        extras.add("None");
+        extras.add("Skip");
 
-        Set<Extras> selectedExtras = new HashSet<>();
+        Set<String> selectedExtras = new HashSet<>();
 
         while (true) {
             if (selectedExtras.size() > 0) {
-                extras.remove(Extras.NONE);
+                extras.remove("None");
             }
-            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select an extra", "Extras", JOptionPane.QUESTION_MESSAGE, icon, extras.toArray(), extras.toArray()[0]);
+            String selectedExtra = (String) JOptionPane.showInputDialog(null, "Select an extra", "Extras", JOptionPane.QUESTION_MESSAGE, icon, extras.toArray(), extras.toArray()[0]);
             if (selectedExtra == null) {
                 System.exit(0);
             }
 
-            if (selectedExtra == Extras.SKIP || selectedExtra == Extras.NONE) {
+            if (selectedExtra == "Skip" || selectedExtra == "None") {
                 if (selectedExtras.size() == 0) {
                     selectedExtras.add(selectedExtra);
                 }
@@ -303,7 +301,7 @@ public class MenuSearcher {
             extras.remove(selectedExtra);
         }
 
-        if (!selectedExtras.contains(Extras.SKIP)) {
+        if (!selectedExtras.contains("Skip")) {
             criteria.put(Criteria.EXTRAS, selectedExtras);
         }
 
@@ -348,15 +346,16 @@ public class MenuSearcher {
     /**
      * A method to find the extras that are available for a drink of a given type
      * It checks to make sure that there is no duplication of extras
+     *
      * @param drinkType a DrinkType object representing the type of drink
      * @return a List of Extras objects representing the extras available for the drink
      */
-    private static List<Extras> findExtras(DrinkType drinkType) {
-        List<Extras> extras = new LinkedList<>();
+    private static List<String> findExtras(DrinkType drinkType) {
+        List<String> extras = new LinkedList<>();
         for (Drink drink : menu.getMenu()) {
             if (drink.getGenericFeatures().getCriteria(Criteria.DRINK_TYPE) == drinkType) {
-                List<Extras> e = (List<Extras>) drink.getGenericFeatures().getCriteria(Criteria.EXTRAS);
-                for (Extras extra : e) {
+                List<String> e = (List<String>) drink.getGenericFeatures().getCriteria(Criteria.EXTRAS);
+                for (String extra : e) {
                     if (!extras.contains(extra)) {
                         extras.add(extra);
                     }
@@ -364,10 +363,6 @@ public class MenuSearcher {
             }
         }
         return extras;
-    }
-
-    private static List<Extras> findExtras(Drink drink) {
-        return (List<Extras>) drink.getGenericFeatures().getCriteria(Criteria.EXTRAS);
     }
 
     /**
@@ -422,24 +417,24 @@ public class MenuSearcher {
         }
         criteria.put(Criteria.MILK_TYPE, List.of(selectedMilk));
 
-        List<Extras> extras = findExtras(drinkOrder);
-        extras.add(Extras.NONE);
-        extras.add(Extras.SKIP);
+        List<String> extras = (List<String>) drinkOrder.getGenericFeatures().getCriteria(Criteria.EXTRAS);
+        extras.add("None");
+        extras.add("Skip");
 
-        List<Extras> selectedExtras = new LinkedList<>();
+        List<String> selectedExtras = new LinkedList<>();
 
         while (true) {
             if (!selectedExtras.isEmpty()) {
-                extras.remove(Extras.NONE);
+                extras.remove("None");
             }
-            Extras selectedExtra = (Extras) JOptionPane.showInputDialog(null, "Select an extra", "Extras", JOptionPane.QUESTION_MESSAGE, icon, extras.toArray(), extras.toArray()[0]);
+            String selectedExtra = (String) JOptionPane.showInputDialog(null, "Select an extra", "Extras", JOptionPane.QUESTION_MESSAGE, icon, extras.toArray(), extras.toArray()[0]);
             if (selectedExtra == null) {
                 System.exit(0);
             }
 
-            if (selectedExtra == Extras.SKIP || selectedExtra == Extras.NONE) {
+            if (selectedExtra.equalsIgnoreCase("Skip") || selectedExtra.equalsIgnoreCase("None")) {
                 if (selectedExtras.isEmpty()) {
-                    selectedExtras.add(Extras.NONE);
+                    selectedExtras.add("None");
                 }
                 break;
             }
@@ -501,8 +496,8 @@ public class MenuSearcher {
             orderDetails.append("\tOrder number: ").append(geek.getPhoneNumber()).append("\n");
             orderDetails.append("\tItem: ").append(drinkOrder.getName()).append(" (").append(drinkOrder.getId()).append(")\n");
             orderDetails.append("\tMilk: ").append(drinkOrder.getGenericFeatures().getCriteria(Criteria.MILK_TYPE)).append("\n");
-            List<Extras> extras = (List<Extras>) drinkOrder.getGenericFeatures().getCriteria(Criteria.EXTRAS);
-            if (extras.contains(Extras.NONE) || extras.isEmpty()){
+            List<String> extras = (List<String>) drinkOrder.getGenericFeatures().getCriteria(Criteria.EXTRAS);
+            if (extras.contains("None") || extras.isEmpty()){
                 orderDetails.append("\tExtras: None\n");
             } else {
                 orderDetails.append("\tExtras: ").append(extras).append("\n");
@@ -525,14 +520,6 @@ public class MenuSearcher {
         Matcher matcher = pattern.matcher(phoneNumber);
         return matcher.matches();
     }
-
-    /**
-     * A method to build a message showing the coffees found.
-     * @param dreamCoffees a Set of Coffee objects representing the coffees found
-     * @return a String representing the message
-     */
-
-
 }
 
 
