@@ -31,7 +31,7 @@ public class MenuSearcher {
      */
     public static void main(String[] args) {
         // Load the menu from a file
-        menu = loadMenuFromFile("menu.txt");
+        menu = loadMenuFromFile(MENU_FILE);
         if (menu == null) {
             System.out.println("Error loading menu");
             System.exit(1);
@@ -173,7 +173,7 @@ public class MenuSearcher {
     /**
      * A method to parse the array of options from a field.
      * @param field a String representing the field to parse
-     * @return a Set of Strings representing the options
+     * @return a List of Strings representing the options
      */
     private static List<String> parseOptions(String field) {
         field = field.trim(); // Remove leading/trailing whitespace
@@ -187,7 +187,7 @@ public class MenuSearcher {
             options[i] = options[i].trim();
         }
 
-        return new LinkedList<>(Arrays.asList(options));
+        return new ArrayList<>(Arrays.asList(options));
     }
 
     /**
@@ -236,7 +236,7 @@ public class MenuSearcher {
             }
 
             int steepTime = -1;
-            Set<String> steepTimeOptions = Set.of("Skip", "1", "2", "3", "4", "5", "6", "7", "8");
+            List<String> steepTimeOptions = List.of("Skip", "1", "2", "3", "4", "5", "6", "7", "8");
             String steepTimeString = null;
             while (steepTime < 0) {
                 steepTimeString = (String) JOptionPane.showInputDialog(null, "Enter the steep time (minutes): ", "Steep Time", JOptionPane.QUESTION_MESSAGE, icon, steepTimeOptions.toArray(), steepTimeOptions.toArray()[0]);
@@ -283,7 +283,7 @@ public class MenuSearcher {
         Set<String> selectedExtras = new HashSet<>();
 
         while (true) {
-            if (selectedExtras.size() > 0) {
+            if (!selectedExtras.isEmpty()) {
                 extras.remove("None");
             }
             String selectedExtra = (String) JOptionPane.showInputDialog(null, "Select an extra", "Extras", JOptionPane.QUESTION_MESSAGE, icon, extras.toArray(), extras.toArray()[0]);
@@ -291,8 +291,8 @@ public class MenuSearcher {
                 System.exit(0);
             }
 
-            if (selectedExtra == "Skip" || selectedExtra == "None") {
-                if (selectedExtras.size() == 0) {
+            if (selectedExtra.equalsIgnoreCase("Skip") || selectedExtra.equalsIgnoreCase("None")) {
+                if (selectedExtras.isEmpty()) {
                     selectedExtras.add(selectedExtra);
                 }
                 break;

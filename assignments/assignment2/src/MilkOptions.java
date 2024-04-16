@@ -3,10 +3,8 @@
  * created for COSC120 Assignment 2
  */
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 /**
     * Enum class for the milk options that can be added to a drink.
