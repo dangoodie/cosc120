@@ -353,8 +353,8 @@ public class MenuSearcher {
     private static List<String> findExtras(DrinkType drinkType) {
         List<String> extras = new LinkedList<>();
         for (Drink drink : menu.getMenu()) {
-            if (drink.getGenericFeatures().getCriteria(Criteria.DRINK_TYPE) == drinkType) {
-                List<String> e = (List<String>) drink.getGenericFeatures().getCriteria(Criteria.EXTRAS);
+            if (drink.genericFeatures().getCriteria(Criteria.DRINK_TYPE) == drinkType) {
+                List<String> e = (List<String>) drink.genericFeatures().getCriteria(Criteria.EXTRAS);
                 for (String extra : e) {
                     if (!extras.contains(extra)) {
                         extras.add(extra);
@@ -374,13 +374,7 @@ public class MenuSearcher {
         StringBuilder message = new StringBuilder();
         message.append("Drinks found:\n");
         for (Drink drink : matches) {
-            message.append("Name: ").append(drink.getName()).append("\n");
-            message.append("Price: $").append(String.format("%.2f", drink.getPrice())).append("\n");
-            message.append("Description: ").append(drink.getDescription()).append("\n");
-            for (Criteria criteria : drink.getGenericFeatures().getAllCriteria().keySet()) {
-                message.append(criteria).append(": ").append(drink.getGenericFeatures().getCriteria(criteria)).append("\n");
-            }
-            message.append("\n");
+            message.append(drink.getDrinkDescription());
         }
         return message.toString();
     }
@@ -393,7 +387,7 @@ public class MenuSearcher {
     private static Drink getDrinkOrder() {
         List<String> drinkOptions = new LinkedList<>();
         for (Drink drink : menu.getMenu()) {
-            drinkOptions.add(drink.getName() + " (" + drink.getId() + ") - $" + String.format("%.2f", drink.getPrice()));
+            drinkOptions.add(drink.name() + " (" + drink.id() + ") - $" + String.format("%.2f", drink.price()));
         }
 
         String selectedDrink = (String) JOptionPane.showInputDialog(null, "Select a drink", appName, JOptionPane.QUESTION_MESSAGE, icon, drinkOptions.toArray(), drinkOptions.toArray()[0]);
@@ -408,16 +402,16 @@ public class MenuSearcher {
             System.exit(1);
         }
 
-        Map<Criteria, Object> criteria = new HashMap<>(drinkOrder.getGenericFeatures().getAllCriteria());
+        Map<Criteria, Object> criteria = new HashMap<>(drinkOrder.genericFeatures().getAllCriteria());
 
-        List<MilkOptions> milkOptions = new LinkedList<>((List<MilkOptions>) drinkOrder.getGenericFeatures().getCriteria(Criteria.MILK_TYPE));
+        List<MilkOptions> milkOptions = new LinkedList<>((List<MilkOptions>) drinkOrder.genericFeatures().getCriteria(Criteria.MILK_TYPE));
         MilkOptions selectedMilk = (MilkOptions) JOptionPane.showInputDialog(null, "Select a milk option", "Milk Options", JOptionPane.QUESTION_MESSAGE, icon, milkOptions.toArray(), milkOptions.toArray()[0]);
         if (selectedMilk == null) {
             System.exit(0);
         }
         criteria.put(Criteria.MILK_TYPE, List.of(selectedMilk));
 
-        List<String> extras = (List<String>) drinkOrder.getGenericFeatures().getCriteria(Criteria.EXTRAS);
+        List<String> extras = (List<String>) drinkOrder.genericFeatures().getCriteria(Criteria.EXTRAS);
         extras.add("None");
         extras.add("Skip");
 
@@ -444,7 +438,7 @@ public class MenuSearcher {
 
         criteria.put(Criteria.EXTRAS, selectedExtras);
 
-        return new Drink(id, drinkOrder.getName(), drinkOrder.getPrice(), drinkOrder.getDescription(), new DreamDrink(criteria));
+        return new Drink(id, drinkOrder.name(), drinkOrder.price(), drinkOrder.description(), new DreamDrink(criteria));
     }
 
     /**
@@ -492,11 +486,11 @@ public class MenuSearcher {
             Path path = Path.of("order.txt");
 
             StringBuilder orderDetails = new StringBuilder("Order details:\n");
-            orderDetails.append("\tName: ").append(geek.getName()).append("\n");
-            orderDetails.append("\tOrder number: ").append(geek.getPhoneNumber()).append("\n");
-            orderDetails.append("\tItem: ").append(drinkOrder.getName()).append(" (").append(drinkOrder.getId()).append(")\n");
-            orderDetails.append("\tMilk: ").append(drinkOrder.getGenericFeatures().getCriteria(Criteria.MILK_TYPE)).append("\n");
-            List<String> extras = (List<String>) drinkOrder.getGenericFeatures().getCriteria(Criteria.EXTRAS);
+            orderDetails.append("\tName: ").append(geek.name()).append("\n");
+            orderDetails.append("\tOrder number: ").append(geek.phoneNumber()).append("\n");
+            orderDetails.append("\tItem: ").append(drinkOrder.name()).append(" (").append(drinkOrder.id()).append(")\n");
+            orderDetails.append("\tMilk: ").append(drinkOrder.genericFeatures().getCriteria(Criteria.MILK_TYPE)).append("\n");
+            List<String> extras = (List<String>) drinkOrder.genericFeatures().getCriteria(Criteria.EXTRAS);
             if (extras.contains("None") || extras.isEmpty()){
                 orderDetails.append("\tExtras: None\n");
             } else {

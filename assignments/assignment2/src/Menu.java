@@ -35,7 +35,7 @@ public class Menu {
      */
     public Drink getDrinkById(int id) {
         for (Drink drink : drinks) {
-            if (drink.getId() == id) {
+            if (drink.id() == id) {
                 return drink;
             }
         }
@@ -45,15 +45,15 @@ public class Menu {
     /**
      * Returns a set of drink objects that match the given dream drink.
      * @param dreamDrink the drink to match
-     * @return a set of drink objects that match the given dream drink
+     * @return a list of drink objects that match the given dream drink
      */
     public List<Drink> findDreamDrink(DreamDrink dreamDrink){
         List<Drink> matches = new ArrayList<>();
         for(Drink drink: drinks){
             // If the drink is not a match, break out of the loop
-            if(!dreamDrink.matches(drink.getGenericFeatures())) continue;
+            if(!dreamDrink.matches(drink.genericFeatures())) continue;
             // If the price is not within the min and max price, break out of the loop
-            if(drink.getPrice() < dreamDrink.getMinPrice() || drink.getPrice() > dreamDrink.getMaxPrice()) continue;
+            if(drink.price() < dreamDrink.getMinPrice() || drink.price() > dreamDrink.getMaxPrice()) continue;
             // If it reaches this point, the drink is a match. Add it to the list of matches
             matches.add(drink);
         }

@@ -36,6 +36,14 @@ public class DreamDrink {
         return getAllCriteria().get(key);
     }
 
+    public String getDescription() {
+        StringBuilder sb = new StringBuilder();
+        for(Criteria key : criteria.keySet()) {
+            sb.append(key).append(": ").append(criteria.get(key)).append("\n");
+        }
+        return sb.toString();
+    }
+
 
     // methods
     // this needs some fucking work

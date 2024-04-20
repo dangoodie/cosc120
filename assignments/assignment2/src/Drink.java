@@ -1,5 +1,3 @@
-import java.util.Set;
-
 public record Drink(int id, String name, Double price, String description, DreamDrink genericFeatures) {
 
     public Drink {
@@ -21,23 +19,7 @@ public record Drink(int id, String name, Double price, String description, Dream
 
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public DreamDrink getGenericFeatures() {
-        return genericFeatures;
+    public String getDrinkDescription() {
+        return this.name + "\nPrice: $" + String.format("%.2f", this.price) +"\nDescription: "+ this.description + "\n" + this.genericFeatures.getDescription() + "\n\n";
     }
 }
