@@ -441,13 +441,16 @@ public class MenuSearcher {
             drinkOrder = showFullMenu();
         }
 
-        // Offer the user the option to customise their drink or keep it as their dream drink
-        int customise = JOptionPane.showConfirmDialog(null, "Do you want to customise your drink?", appName, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
+        if (selection != null) { // offer to keep the drink as the dream drink or customise it
+            int customise = JOptionPane.showConfirmDialog(null, "Do you want to keep your previous selections?", appName, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
 
-        if (customise == JOptionPane.YES_OPTION) {
+            if (customise == JOptionPane.NO_OPTION) {
+                drinkOrder = customiseDrink(drinkOrder);
+            } else {
+                drinkOrder = new Drink(drinkOrder.id(), drinkOrder.name(), drinkOrder.price(), drinkOrder.description(), dreamDrink);
+            }
+        } else { // user selected a drink from the full menu
             drinkOrder = customiseDrink(drinkOrder);
-        } else {
-            drinkOrder = new Drink(drinkOrder.id(), drinkOrder.name(), drinkOrder.price(), drinkOrder.description(), dreamDrink);
         }
 
         return drinkOrder;
@@ -463,7 +466,9 @@ public class MenuSearcher {
         }
         criteria.put(Criteria.MILK_TYPE, List.of(selectedMilk));
 
-        List<String> extras = (List<String>) drinkOrder.genericFeatures().getCriteria(Criteria.EXTRAS);
+        DrinkType drinkType = (DrinkType) drinkOrder.genericFeatures().getCriteria(Criteria.DRINK_TYPE);
+
+        List<String> extras = findExtras(drinkType);
         extras.add("None");
         extras.add("Skip");
 
