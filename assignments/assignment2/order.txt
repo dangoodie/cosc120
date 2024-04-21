@@ -1,6 +1,6 @@
 Order details:
 	Name: Daniel Gooden
-	Order number: 0410101010
-	Item: Oolong Latte (94885)
-	Milk: [Oat]
-	Extras: [lemon zest, honey, cream]
+	Order number: 0412121212
+	Item: Cappuccino (30210)
+	Milk: [Soy]
+	Extras: [Cinnamon]

@@ -49,15 +49,30 @@ public class MenuSearcher {
 
         // Find the coffees that match the user's dream drink order
         List<Drink> matches = menu.findDreamDrink(dreamDrink);
+        Drink selection = null;
         if (!matches.isEmpty()) {
             JTextPane message = buildMessage(matches);
-            JOptionPane.showMessageDialog(null, message, appName, JOptionPane.INFORMATION_MESSAGE);
+
+            List<String> matchesMenu = new ArrayList<>();
+            matchesMenu.add("See the full menu");
+            for (Drink drink : matches) {
+                matchesMenu.add(drink.name() + " (" + drink.id() + ") - $" + String.format("%.2f", drink.price()));
+            }
+            String selectionString = (String) JOptionPane.showInputDialog(null, message, appName, JOptionPane.QUESTION_MESSAGE, icon, matchesMenu.toArray(), matchesMenu.get(0));
+            if (selectionString == null) {
+                System.exit(0);
+            }
+
+            if (!selectionString.equalsIgnoreCase("See the full menu")) {
+                selection = menu.getDrinkById(Integer.parseInt(selectionString.substring(selectionString.indexOf("(") + 1, selectionString.indexOf(")"))));
+            }
+
         } else {
             JOptionPane.showMessageDialog(null, "No matches!", appName, JOptionPane.INFORMATION_MESSAGE);
         }
 
         // Get the user's final coffee order
-        Drink drinkOrder = getDrinkOrder();
+        Drink drinkOrder = getDrinkOrder(selection);
 
         // Get the geek info
         Geek geek = getGeekInfo();
@@ -69,7 +84,6 @@ public class MenuSearcher {
         System.exit(0);
     }
 
-    // Utility methods
     /**
      * A method to load the menu from a file.
      * Adapted from the UNE COSC120 Topic 4.2 SeekAGeek.java loadGeeks() method.
@@ -416,7 +430,15 @@ public class MenuSearcher {
      * @return a Coffee object representing the user's final coffee order
      */
 
-    private static Drink getDrinkOrder() {
+    private static Drink getDrinkOrder(Drink selection) {
+
+        if (selection != null) { // user selected a drink from the matches
+            Drink drinkOrder = menu.getDrinkById(selection.id());
+
+            return drinkOrder;
+        }
+
+        // User wants to see the full menu
         List<String> drinkOptions = new LinkedList<>();
         for (Drink drink : menu.getMenu()) {
             drinkOptions.add(drink.name() + " (" + drink.id() + ") - $" + String.format("%.2f", drink.price()));
