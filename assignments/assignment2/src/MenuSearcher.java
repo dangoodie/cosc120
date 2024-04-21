@@ -3,7 +3,6 @@
  * created for COSC120 Assignment 2
  */
 
-import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,36 +42,11 @@ public class MenuSearcher {
 
         JOptionPane.showMessageDialog(null, "Welcome to " + appName, appName, JOptionPane.INFORMATION_MESSAGE, icon);
 
-
         // Get the user's dream drink order
         DreamDrink dreamDrink = getDreamDrink();
 
-        // Find the coffees that match the user's dream drink order
-        List<Drink> matches = menu.findDreamDrink(dreamDrink);
-        Drink selection = null;
-        if (!matches.isEmpty()) {
-            JTextPane message = buildMessage(matches);
-
-            List<String> matchesMenu = new ArrayList<>();
-            matchesMenu.add("See the full menu");
-            for (Drink drink : matches) {
-                matchesMenu.add(drink.name() + " (" + drink.id() + ") - $" + String.format("%.2f", drink.price()));
-            }
-            String selectionString = (String) JOptionPane.showInputDialog(null, message, appName, JOptionPane.QUESTION_MESSAGE, icon, matchesMenu.toArray(), matchesMenu.get(0));
-            if (selectionString == null) {
-                System.exit(0);
-            }
-
-            if (!selectionString.equalsIgnoreCase("See the full menu")) {
-                selection = menu.getDrinkById(Integer.parseInt(selectionString.substring(selectionString.indexOf("(") + 1, selectionString.indexOf(")"))));
-            }
-
-        } else {
-            JOptionPane.showMessageDialog(null, "No matches!", appName, JOptionPane.INFORMATION_MESSAGE);
-        }
-
         // Get the user's final coffee order
-        Drink drinkOrder = getDrinkOrder(selection);
+        Drink drinkOrder = getDrinkOrder(dreamDrink);
 
         // Get the geek info
         Geek geek = getGeekInfo();
@@ -195,7 +169,7 @@ public class MenuSearcher {
     private static List<String> parseOptions(String field) {
         field = field.trim(); // Remove leading/trailing whitespace
         if (field.equals("[]")) {
-            return new LinkedList<>();
+            return new ArrayList<>();
         }
 
         field = field.substring(1, field.length() - 1); // Remove the surrounding brackets
@@ -297,7 +271,7 @@ public class MenuSearcher {
         extras.add("None");
         extras.add("Skip");
 
-        Set<String> selectedExtras = new HashSet<>();
+        List<String> selectedExtras = new ArrayList<>();
 
         while (true) {
             if (!selectedExtras.isEmpty()) {
@@ -368,7 +342,7 @@ public class MenuSearcher {
      * @return a List of Extras objects representing the extras available for the drink
      */
     private static List<String> findExtras(DrinkType drinkType) {
-        List<String> extras = new LinkedList<>();
+        List<String> extras = new ArrayList<>();
         for (Drink drink : menu.getMenu()) {
             if (drink.genericFeatures().getCriteria(Criteria.DRINK_TYPE) == drinkType) {
                 List<String> e = (List<String>) drink.genericFeatures().getCriteria(Criteria.EXTRAS);
@@ -387,7 +361,7 @@ public class MenuSearcher {
      * @param matches a List of Drink objects representing the drinks found
      * @return a String representing the message
      */
-    private static JTextPane buildMessage(List<Drink> matches) {
+    private static JTextPane buildFoundMessage(List<Drink> matches) {
         JTextPane textPane = new JTextPane();
         StyledDocument doc = textPane.getStyledDocument();
 
@@ -430,35 +404,59 @@ public class MenuSearcher {
      * @return a Coffee object representing the user's final coffee order
      */
 
-    private static Drink getDrinkOrder(Drink selection) {
+    private static Drink getDrinkOrder(DreamDrink dreamDrink) {
 
+        // Find the coffees that match the user's dream drink order
+        List<Drink> matches = menu.findDreamDrink(dreamDrink);
+
+        // If there are matches then show the user the matches and let them select a coffee or see the full menu
+        Drink selection = null;
+        if (!matches.isEmpty()) {
+            JTextPane message = buildFoundMessage(matches);
+
+            List<String> matchesMenu = new ArrayList<>();
+            matchesMenu.add("See the full menu");
+            for (Drink drink : matches) {
+                matchesMenu.add(drink.name() + " (" + drink.id() + ") - $" + String.format("%.2f", drink.price()));
+            }
+            String selectionString = (String) JOptionPane.showInputDialog(null, message, appName, JOptionPane.QUESTION_MESSAGE, icon, matchesMenu.toArray(), matchesMenu.get(0));
+            if (selectionString == null) {
+                System.exit(0);
+            }
+
+            if (!selectionString.equalsIgnoreCase("See the full menu")) {
+                Drink drinkSelection = menu.getDrinkById(Integer.parseInt(selectionString.substring(selectionString.indexOf("(") + 1, selectionString.indexOf(")"))));
+                selection = new Drink(drinkSelection.id(), drinkSelection.name(), drinkSelection.price(), drinkSelection.description(), dreamDrink);
+            }
+
+        } else { // No matches found - show a message and let the user see the full menu
+            JOptionPane.showMessageDialog(null, "No matches!", appName, JOptionPane.INFORMATION_MESSAGE);
+        }
+
+        Drink drinkOrder = null;
         if (selection != null) { // user selected a drink from the matches
-            Drink drinkOrder = menu.getDrinkById(selection.id());
+            drinkOrder = menu.getDrinkById(selection.id());
 
-            return drinkOrder;
+        } else {
+            drinkOrder = showFullMenu();
         }
 
-        // User wants to see the full menu
-        List<String> drinkOptions = new LinkedList<>();
-        for (Drink drink : menu.getMenu()) {
-            drinkOptions.add(drink.name() + " (" + drink.id() + ") - $" + String.format("%.2f", drink.price()));
+        // Offer the user the option to customise their drink or keep it as their dream drink
+        int customise = JOptionPane.showConfirmDialog(null, "Do you want to customise your drink?", appName, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
+
+        if (customise == JOptionPane.YES_OPTION) {
+            drinkOrder = customiseDrink(drinkOrder);
+        } else {
+            drinkOrder = new Drink(drinkOrder.id(), drinkOrder.name(), drinkOrder.price(), drinkOrder.description(), dreamDrink);
         }
 
-        String selectedDrink = (String) JOptionPane.showInputDialog(null, "Select a drink", appName, JOptionPane.QUESTION_MESSAGE, icon, drinkOptions.toArray(), drinkOptions.toArray()[0]);
-        if (selectedDrink == null) {
-            System.exit(0);
-        }
+        return drinkOrder;
+    }
 
-        int id = Integer.parseInt(selectedDrink.substring(selectedDrink.indexOf("(") + 1, selectedDrink.indexOf(")")));
-        Drink drinkOrder = menu.getDrinkById(id);
-        if (drinkOrder == null) {
-            JOptionPane.showMessageDialog(null, "Error: Drink not found", "Error", JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
-        }
-
+    private static Drink customiseDrink(Drink drinkOrder) {
         Map<Criteria, Object> criteria = new HashMap<>(drinkOrder.genericFeatures().getAllCriteria());
 
-        List<MilkOptions> milkOptions = new LinkedList<>((List<MilkOptions>) drinkOrder.genericFeatures().getCriteria(Criteria.MILK_TYPE));
+        List<MilkOptions> milkOptions = new ArrayList<>((List<MilkOptions>) drinkOrder.genericFeatures().getCriteria(Criteria.MILK_TYPE));
         MilkOptions selectedMilk = (MilkOptions) JOptionPane.showInputDialog(null, "Select a milk option", "Milk Options", JOptionPane.QUESTION_MESSAGE, icon, milkOptions.toArray(), milkOptions.toArray()[0]);
         if (selectedMilk == null) {
             System.exit(0);
@@ -469,7 +467,7 @@ public class MenuSearcher {
         extras.add("None");
         extras.add("Skip");
 
-        List<String> selectedExtras = new LinkedList<>();
+        List<String> selectedExtras = new ArrayList<>();
 
         while (true) {
             if (!selectedExtras.isEmpty()) {
@@ -491,8 +489,33 @@ public class MenuSearcher {
         }
 
         criteria.put(Criteria.EXTRAS, selectedExtras);
+        return new Drink(drinkOrder.id(), drinkOrder.name(), drinkOrder.price(), drinkOrder.description(), new DreamDrink(criteria));
+    }
 
-        return new Drink(id, drinkOrder.name(), drinkOrder.price(), drinkOrder.description(), new DreamDrink(criteria));
+    /**
+     * Show the full menu to the user
+     * @return a Drink object representing the user's selected drink
+     */
+
+    private static Drink showFullMenu() {
+        // User wants to see the full menu
+        List<String> drinkOptions = new ArrayList<>();
+        for (Drink drink : menu.getMenu()) {
+            drinkOptions.add(drink.name() + " (" + drink.id() + ") - $" + String.format("%.2f", drink.price()));
+        }
+
+        String selectedDrink = (String) JOptionPane.showInputDialog(null, "Select a drink", appName, JOptionPane.QUESTION_MESSAGE, icon, drinkOptions.toArray(), drinkOptions.toArray()[0]);
+        if (selectedDrink == null) {
+            System.exit(0);
+        }
+
+        int id = Integer.parseInt(selectedDrink.substring(selectedDrink.indexOf("(") + 1, selectedDrink.indexOf(")")));
+        Drink drinkOrder = menu.getDrinkById(id);
+        if (drinkOrder == null) {
+            JOptionPane.showMessageDialog(null, "Error: Drink not found", "Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
+        return drinkOrder;
     }
 
     /**

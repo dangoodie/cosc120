@@ -3,4 +3,4 @@ Order details:
 	Order number: 0412121212
 	Item: Cappuccino (30210)
 	Milk: [Soy]
-	Extras: [Cinnamon]
+	Extras: [Caramel syrup, Cinnamon]
