@@ -3,13 +3,16 @@
  * created for COSC120 Assignment 2
  */
 
+import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.*;
+import javax.swing.text.*;
 
 /**
  * A class that represents a menu searcher object.
@@ -47,7 +50,7 @@ public class MenuSearcher {
         // Find the coffees that match the user's dream drink order
         List<Drink> matches = menu.findDreamDrink(dreamDrink);
         if (!matches.isEmpty()) {
-            String message = buildMessage(matches);
+            JTextPane message = buildMessage(matches);
             JOptionPane.showMessageDialog(null, message, appName, JOptionPane.INFORMATION_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(null, "No matches!", appName, JOptionPane.INFORMATION_MESSAGE);
@@ -370,13 +373,42 @@ public class MenuSearcher {
      * @param matches a List of Drink objects representing the drinks found
      * @return a String representing the message
      */
-    private static String buildMessage(List<Drink> matches) {
-        StringBuilder message = new StringBuilder();
-        message.append("Drinks found:\n");
-        for (Drink drink : matches) {
-            message.append(drink.getDrinkDescription());
+    private static JTextPane buildMessage(List<Drink> matches) {
+        JTextPane textPane = new JTextPane();
+        StyledDocument doc = textPane.getStyledDocument();
+
+        // define a bold attribute
+        SimpleAttributeSet bold = new SimpleAttributeSet();
+        StyleConstants.setBold(bold, true);
+
+        // define a bold and italic attribute
+        SimpleAttributeSet boldItalic = new SimpleAttributeSet();
+        StyleConstants.setBold(boldItalic, true);
+        StyleConstants.setItalic(boldItalic, true);
+
+        // define a regular attribute
+        SimpleAttributeSet regular = new SimpleAttributeSet();
+        StyleConstants.setBold(regular, false);
+
+        // Add the message to the text pane
+        try {
+            doc.insertString(doc.getLength(), "Matches found:\n\n", bold);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
         }
-        return message.toString();
+
+        for (Drink drink : matches) {
+           try{
+               // Add title with bold attribute
+               doc.insertString(doc.getLength(), drink.name() + " (" + drink.id() + ")\n", boldItalic);
+
+               // Add description with regular attribute
+               doc.insertString(doc.getLength(), drink.getDrinkDescription() + "\n\n", regular);
+           } catch (BadLocationException e) {
+               e.printStackTrace();
+           }
+        }
+        return textPane;
     }
 
     /**

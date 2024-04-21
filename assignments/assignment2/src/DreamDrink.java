@@ -39,7 +39,16 @@ public class DreamDrink {
     public String getDescription() {
         StringBuilder sb = new StringBuilder();
         for(Criteria key : criteria.keySet()) {
-            sb.append(key).append(": ").append(criteria.get(key)).append("\n");
+            Object items = criteria.get(key);
+            if(items instanceof Collection<?>) { // if the value is a collection
+                sb.append(key).append(": ");
+                for(Object item : (Collection<?>) items) {
+                    sb.append(item).append(", ");
+                }
+                sb.delete(sb.length()-2, sb.length());
+                sb.append("\n");
+            }
+            else sb.append(key).append(": ").append(criteria.get(key)).append("\n"); // if the value is not a collection
         }
         return sb.toString();
     }
