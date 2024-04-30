@@ -11,7 +11,7 @@ import java.util.List;
     * Each milk option has a string representation and a method to convert a string to a milk option.
     */
 public enum MilkOptions {
-   SKIP, FULL_CREAM, SKIM, SOY, ALMOND, OAT, COCONUT, NONE;
+    FULL_CREAM, SKIM, SOY, ALMOND, OAT, COCONUT, NONE ,SKIP;
 
     /**
      * Returns a string representation of the milk option.
@@ -20,7 +20,6 @@ public enum MilkOptions {
     @Override
     public String toString() {
         return switch (this) {
-            case SKIP -> "Skip";
             case FULL_CREAM -> "Full-cream";
             case SKIM -> "Skim";
             case SOY -> "Soy";
@@ -28,6 +27,7 @@ public enum MilkOptions {
             case OAT -> "Oat";
             case COCONUT -> "Coconut";
             case NONE -> "None";
+            case SKIP -> "Skip";
         };
     }
 
@@ -39,7 +39,6 @@ public enum MilkOptions {
     public static MilkOptions fromString(String milkOption) {
         milkOption = milkOption.strip().toUpperCase();
         return switch (milkOption) {
-            case "SKIP" -> SKIP;
             case "FULL-CREAM" -> FULL_CREAM;
             case "SKIM" -> SKIM;
             case "SOY" -> SOY;
@@ -47,6 +46,7 @@ public enum MilkOptions {
             case "OAT" -> OAT;
             case "COCONUT" -> COCONUT;
             case "NONE","" -> NONE;
+            case "SKIP" -> SKIP;
             default -> throw new IllegalStateException("Unexpected value: " + milkOption);
         };
     }

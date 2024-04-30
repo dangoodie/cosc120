@@ -40,7 +40,10 @@ public class MenuSearcher {
         }
         System.out.println("Menu loaded successfully");
 
-        JOptionPane.showMessageDialog(null, "Welcome to " + appName, appName, JOptionPane.INFORMATION_MESSAGE, icon);
+        int response = JOptionPane.showConfirmDialog(null, "Welcome to " + appName, appName, JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, icon);
+        if (response == JOptionPane.CLOSED_OPTION) {
+            System.exit(0);
+        }
 
         // Get the user's dream drink order
         DreamDrink dreamDrink = getDreamDrink();
@@ -81,12 +84,12 @@ public class MenuSearcher {
 
                 // build type functions
                 if (type == DrinkType.TEA) {
-                    Drink drink = handleTea(drinkData);
+                    Drink drink = handleLoadingTea(drinkData);
                     menu.add(drink);
                 }
 
                 if (type == DrinkType.COFFEE) {
-                    Drink drink = handleCoffee(drinkData);
+                    Drink drink = handleLoadingCoffee(drinkData);
                     menu.add(drink);
                 }
             }
@@ -105,14 +108,14 @@ public class MenuSearcher {
      * @return a Drink object representing the tea drink
      */
 
-    private static Drink handleTea(List<String> drinkData) {
+    private static Drink handleLoadingTea(List<String> drinkData) {
         // common features
         int id = Integer.parseInt(drinkData.get(1).trim());
         String name = drinkData.get(2).trim();
         Double price = Double.parseDouble(drinkData.get(3).trim());
         String description = drinkData.get(10).trim().replace("[", "").replace("]", "");
-        List<MilkOptions> milkOptions = MilkOptions.fromStringList(parseOptions(drinkData.get(8)));
-        List<String> extras = parseOptions(drinkData.get(9));
+        List<MilkOptions> milkOptions = MilkOptions.fromStringList(parseArray(drinkData.get(8)));
+        List<String> extras = parseArray(drinkData.get(9));
         Boolean sugar = drinkData.get(7).trim().equalsIgnoreCase("YES");
 
         // tea specific features
@@ -138,14 +141,14 @@ public class MenuSearcher {
      * @return a Drink object representing the coffee drink
      */
 
-    private static Drink handleCoffee(List<String> drinkData) {
+    private static Drink handleLoadingCoffee(List<String> drinkData) {
         // common features
         int id = Integer.parseInt(drinkData.get(1).trim());
         String name = drinkData.get(2).trim();
         Double price = Double.parseDouble(drinkData.get(3).trim());
         String description = drinkData.get(10).trim().replace("[", "").replace("]", "");
-        List<MilkOptions> milkOptions = MilkOptions.fromStringList(parseOptions(drinkData.get(8)));
-        List<String> extras = parseOptions(drinkData.get(9));
+        List<MilkOptions> milkOptions = MilkOptions.fromStringList(parseArray(drinkData.get(8)));
+        List<String> extras = parseArray(drinkData.get(9));
         Boolean sugar = drinkData.get(7).trim().equalsIgnoreCase("YES");
 
         // coffee specific features
@@ -166,7 +169,7 @@ public class MenuSearcher {
      * @param field a String representing the field to parse
      * @return a List of Strings representing the options
      */
-    private static List<String> parseOptions(String field) {
+    private static List<String> parseArray(String field) {
         field = field.trim(); // Remove leading/trailing whitespace
         if (field.equals("[]")) {
             return new ArrayList<>();
@@ -250,12 +253,12 @@ public class MenuSearcher {
             }
         }
 
-        MilkOptions milkOptions = (MilkOptions) JOptionPane.showInputDialog(null, "What type of milk would you like?", "Milk Options", JOptionPane.QUESTION_MESSAGE, icon, MilkOptions.values(), MilkOptions.NONE);
-        if (milkOptions == null) {
+        MilkOptions selectedMilkOption = (MilkOptions) JOptionPane.showInputDialog(null, "What type of milk would you like?", "Milk Options", JOptionPane.QUESTION_MESSAGE, icon, MilkOptions.values(), MilkOptions.FULL_CREAM);
+        if (selectedMilkOption == null) {
             System.exit(0);
         }
-        if (milkOptions != MilkOptions.SKIP) {
-            criteria.put(Criteria.MILK_TYPE, List.of(milkOptions));
+        if (selectedMilkOption != MilkOptions.SKIP) {
+            criteria.put(Criteria.MILK_TYPE, List.of(selectedMilkOption));
         }
 
         List<String> sugarOptions = List.of("Yes", "No", "Skip");
@@ -267,7 +270,7 @@ public class MenuSearcher {
             criteria.put(Criteria.SUGAR, sugar.equalsIgnoreCase("Yes"));
         }
 
-        List<String> extras = findExtras(drinkType);
+        List<String> extras = menu.findExtras(drinkType);
         extras.add("None");
         extras.add("Skip");
 
@@ -332,28 +335,6 @@ public class MenuSearcher {
         }
 
         return new DreamDrink(minPrice, maxPrice, criteria);
-    }
-
-    /**
-     * A method to find the extras that are available for a drink of a given type
-     * It checks to make sure that there is no duplication of extras
-     *
-     * @param drinkType a DrinkType object representing the type of drink
-     * @return a List of Extras objects representing the extras available for the drink
-     */
-    private static List<String> findExtras(DrinkType drinkType) {
-        List<String> extras = new ArrayList<>();
-        for (Drink drink : menu.getMenu()) {
-            if (drink.genericFeatures().getCriteria(Criteria.DRINK_TYPE) == drinkType) {
-                List<String> e = (List<String>) drink.genericFeatures().getCriteria(Criteria.EXTRAS);
-                for (String extra : e) {
-                    if (!extras.contains(extra)) {
-                        extras.add(extra);
-                    }
-                }
-            }
-        }
-        return extras;
     }
 
     /**
@@ -456,6 +437,12 @@ public class MenuSearcher {
         return drinkOrder;
     }
 
+    /**
+     * A method to customise the drink after selecting from the menu.
+     * @param drinkOrder a Drink object representing the selected drink
+     * @return a Drink object representing the customised drink
+     */
+
     private static Drink customiseDrink(Drink drinkOrder) {
         Map<Criteria, Object> criteria = new HashMap<>(drinkOrder.genericFeatures().getAllCriteria());
 
@@ -468,7 +455,7 @@ public class MenuSearcher {
 
         DrinkType drinkType = (DrinkType) drinkOrder.genericFeatures().getCriteria(Criteria.DRINK_TYPE);
 
-        List<String> extras = findExtras(drinkType);
+        List<String> extras = menu.findExtras(drinkType);
         extras.add("None");
         extras.add("Skip");
 

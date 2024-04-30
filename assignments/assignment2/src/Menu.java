@@ -59,4 +59,23 @@ public class Menu {
         }
         return matches;
     }
+
+    /**
+     * A method to find the extras that are available for a drink of a given type
+     * It checks to make sure that there is no duplication of extras
+     *
+     * @param drinkType a DrinkType object representing the type of drink
+     * @return a List of Extras objects representing the extras available for the drink
+     */
+
+    public List<String> findExtras(DrinkType drinkType) {
+        Set<String> extras = new HashSet<>();
+        for (Drink drink : this.getMenu()) {
+            if (drink.genericFeatures().getCriteria(Criteria.DRINK_TYPE) == drinkType) {
+                List<String> e = (List<String>) drink.genericFeatures().getCriteria(Criteria.EXTRAS);
+                extras.addAll(e);
+            }
+        }
+        return new ArrayList<>(extras);
+    }
 }
