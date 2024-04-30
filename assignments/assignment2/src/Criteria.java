@@ -1,3 +1,8 @@
+/**
+ * Criteria enum for the different criteria that can be used to filter the drinks.
+ * Each criteria has a string representation that is used in the GUI.
+ */
+
 public enum Criteria {
     // generic
     DRINK_TYPE, MILK_TYPE, SUGAR, EXTRAS,
@@ -6,6 +11,11 @@ public enum Criteria {
     // tea
     TEMPERATURE, STEEP_TIME;
 
+    /**
+     * Returns a string representation of the criteria.
+     * @return
+     */
+    @Override
     public String toString() {
         return switch (this) {
             case DRINK_TYPE -> "Drink type";

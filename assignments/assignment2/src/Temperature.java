@@ -2,6 +2,11 @@ public enum Temperature {
 
     EIGHTY, EIGHTY_FIVE, NINETY, NINETY_FIVE, ONE_HUNDRED, SKIP;
 
+    /**
+     * Returns a string representation of the temperature.
+     * @return a string representation of the temperature
+     */
+    @Override
     public String toString() {
         return switch (this) {
             case EIGHTY -> "80 degrees: For a mellow, gentler taste";
@@ -13,6 +18,11 @@ public enum Temperature {
         };
     }
 
+    /**
+     * Converts a string to a temperature.
+     * @param temperature the string to convert
+     * @return the temperature
+     */
     public static Temperature fromString(String temperature) {
         temperature = temperature.strip();
         return switch (temperature) {

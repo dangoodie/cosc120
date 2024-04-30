@@ -1,5 +1,13 @@
 public record Drink(int id, String name, Double price, String description, DreamDrink genericFeatures) {
 
+    /**
+     * Constructor used to create a Drink object
+     * @param id
+     * @param name
+     * @param price
+     * @param description
+     * @param genericFeatures
+     */
     public Drink {
         if (id < 0) {
             throw new IllegalArgumentException("ID cannot be negative");
@@ -19,6 +27,10 @@ public record Drink(int id, String name, Double price, String description, Dream
 
     }
 
+    /**
+     * Returns the id of the drink
+     * @return the id of the drink
+     */
     public String getDrinkDescription() {
         return this.description + "\n" + this.genericFeatures.getDescription() + "Price: $" + String.format("%.2f", this.price) + "\n\n";
     }

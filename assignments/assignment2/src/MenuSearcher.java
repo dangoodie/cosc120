@@ -18,6 +18,7 @@ import javax.swing.text.*;
  * The menu searcher allows the user to search for coffees based on their preferences and order a coffee.
  * This class contains the main method.
  */
+
 public class MenuSearcher {
     private static final String MENU_FILE = "menu.txt";
     private static Menu menu;
@@ -358,6 +359,7 @@ public class MenuSearcher {
      * @param matches a List of Drink objects representing the drinks found
      * @return a String representing the message
      */
+
     private static JTextPane buildFoundMessage(List<Drink> matches) {
         JTextPane textPane = new JTextPane();
         StyledDocument doc = textPane.getStyledDocument();

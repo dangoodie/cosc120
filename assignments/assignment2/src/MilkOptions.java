@@ -51,6 +51,12 @@ public enum MilkOptions {
         };
     }
 
+    /**
+     * Converts a list of strings to a list of milk options.
+     * @param milkOptions the list of strings to convert
+     * @return the list of milk options
+     */
+
     public static List<MilkOptions> fromStringList(List<String> milkOptions) {
         List<MilkOptions> milkOptionsSet = new LinkedList<>();
         for (String milkOption : milkOptions) {
