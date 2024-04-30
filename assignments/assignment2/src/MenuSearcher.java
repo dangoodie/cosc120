@@ -178,10 +178,26 @@ public class MenuSearcher {
         field = field.substring(1, field.length() - 1); // Remove the surrounding brackets
         String[] options = field.split(",");
         for (int i = 0; i < options.length; i++) {
-            options[i] = options[i].trim();
+            options[i] = sanitiseOption(options[i].trim());
         }
 
         return new ArrayList<>(Arrays.asList(options));
+    }
+
+    /**
+     * A method to sanitiseOption the first letter of each word in a string.
+     * This allows for bad string input from the file to be capitalised correctly.
+     * @param s a String representing the string to sanitiseOption
+     * @return a String representing the capitalised string
+     */
+
+    private static String sanitiseOption(String s) {
+        String[] words = s.split(" ");
+        StringBuilder sb = new StringBuilder();
+        for (String word : words) {
+            sb.append(word.substring(0, 1).toUpperCase()).append(word.substring(1).toLowerCase()).append(" ");
+        }
+        return sb.toString().trim();
     }
 
     /**
