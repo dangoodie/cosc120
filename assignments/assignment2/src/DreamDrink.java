@@ -92,12 +92,15 @@ public class DreamDrink {
     public boolean matches(DreamDrink realDrink) {
        for (Criteria key : realDrink.getAllCriteria().keySet()) {
            if(this.getAllCriteria().containsKey(key)) {
-               if(getCriteria(key) instanceof Collection<?>) {
+               if(getCriteria(key) instanceof Collection<?> && realDrink.getCriteria(key) instanceof Collection<?>){ // if both values are collections
                    Set<Object> intersect = new HashSet<>((Collection<?>) realDrink.getCriteria(key));
                      intersect.retainAll((Collection<?>) getCriteria(key));
                         if(intersect.isEmpty()) return false;
-               }
-                else if(!getCriteria(key).equals(realDrink.getCriteria(key))) return false;
+               } else if (getCriteria(key) instanceof Collection<?> && !(realDrink.getCriteria(key) instanceof Collection<?>)){ // if this value is a collection
+                   if(!((Collection<?>) getCriteria(key)).contains(realDrink.getCriteria(key))) return false;
+               } else if (!(getCriteria(key) instanceof Collection<?>) && realDrink.getCriteria(key) instanceof Collection<?>){ // if other value is a collection
+                   if(!((Collection<?>) realDrink.getCriteria(key)).contains(getCriteria(key))) return false;
+               } else if(!getCriteria(key).equals(realDrink.getCriteria(key))) return false; // if neither value is a collection
            }
        }
         return true;
