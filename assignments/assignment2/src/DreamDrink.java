@@ -75,8 +75,11 @@ public class DreamDrink {
                 }
                 sb.delete(sb.length()-2, sb.length());
                 sb.append("\n");
-            }
-            else sb.append(key).append(": ").append(criteria.get(key)).append("\n"); // if the value is not a collection
+            } else if (items instanceof Boolean) {
+                sb.append(key).append(": ");
+                if((Boolean) items) sb.append("Yes\n");
+                else sb.append("No\n");
+            } else sb.append(key).append(": ").append(criteria.get(key)).append("\n"); // if the value is not a collection
         }
         return sb.toString();
     }
