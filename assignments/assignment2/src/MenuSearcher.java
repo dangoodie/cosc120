@@ -230,7 +230,7 @@ public class MenuSearcher {
             }
 
             int steepTime = -1;
-            List<String> steepTimeOptions = List.of("Skip", "1", "2", "3", "4", "5", "6", "7", "8");
+            List<String> steepTimeOptions = List.of("1", "2", "3", "4", "5", "6", "7", "8", "Skip");
             String steepTimeString = null;
             while (steepTime < 0) {
                 steepTimeString = (String) JOptionPane.showInputDialog(null, "Enter the steep time (minutes): ", "Steep Time", JOptionPane.QUESTION_MESSAGE, icon, steepTimeOptions.toArray(), steepTimeOptions.toArray()[0]);
