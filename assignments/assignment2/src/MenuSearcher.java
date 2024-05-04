@@ -465,40 +465,53 @@ public class MenuSearcher {
         Map<Criteria, Object> criteria = new HashMap<>(drinkOrder.genericFeatures().getAllCriteria());
 
         List<MilkOptions> milkOptions = new ArrayList<>((List<MilkOptions>) drinkOrder.genericFeatures().getCriteria(Criteria.MILK_TYPE));
-        MilkOptions selectedMilk = (MilkOptions) JOptionPane.showInputDialog(null, "Select a milk option", "Milk Options", JOptionPane.QUESTION_MESSAGE, icon, milkOptions.toArray(), milkOptions.toArray()[0]);
-        if (selectedMilk == null) {
-            System.exit(0);
+        if (milkOptions.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No milk available for this drink");
+        } else {
+            MilkOptions selectedMilk = (MilkOptions) JOptionPane.showInputDialog(null, "Select a milk option", "Milk Options", JOptionPane.QUESTION_MESSAGE, icon, milkOptions.toArray(), milkOptions.toArray()[0]);
+            if (selectedMilk == null) {
+                System.exit(0);
+            }
+            criteria.put(Criteria.MILK_TYPE, List.of(selectedMilk));
         }
-        criteria.put(Criteria.MILK_TYPE, List.of(selectedMilk));
 
         DrinkType drinkType = (DrinkType) drinkOrder.genericFeatures().getCriteria(Criteria.DRINK_TYPE);
 
-        List<String> extras = menu.findExtras(drinkType);
-        extras.add("None");
-        extras.add("Skip");
+        List<String> extras = (List<String>) drinkOrder.genericFeatures().getCriteria(Criteria.EXTRAS);
+        if (extras.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No extras available for this drink");
+        } else {
+            extras.add("None");
+            extras.add("Skip");
 
-        List<String> selectedExtras = new ArrayList<>();
+            List<String> selectedExtras = new ArrayList<>();
 
-        while (true) {
-            if (!selectedExtras.isEmpty()) {
-                extras.remove("None");
-            }
-            String selectedExtra = (String) JOptionPane.showInputDialog(null, "Select an extra", "Extras", JOptionPane.QUESTION_MESSAGE, icon, extras.toArray(), extras.toArray()[0]);
-            if (selectedExtra == null) {
-                System.exit(0);
-            }
-
-            if (selectedExtra.equalsIgnoreCase("Skip") || selectedExtra.equalsIgnoreCase("None")) {
-                if (selectedExtras.isEmpty()) {
-                    selectedExtras.add("None");
+            while (true) {
+                if (!selectedExtras.isEmpty()) {
+                    extras.remove("None");
                 }
-                break;
+                if (extras.size() == 1 && extras.contains("Skip")) { // no more extras to select
+                    JOptionPane.showMessageDialog(null, "All available extras have been selected.");
+                    break;
+                }
+                String selectedExtra = (String) JOptionPane.showInputDialog(null, "Select an extra", "Extras", JOptionPane.QUESTION_MESSAGE, icon, extras.toArray(), extras.toArray()[0]);
+                if (selectedExtra == null) {
+                    System.exit(0);
+                }
+
+                if (selectedExtra.equalsIgnoreCase("Skip") || selectedExtra.equalsIgnoreCase("None")) {
+                    if (selectedExtras.isEmpty()) {
+                        selectedExtras.add("None");
+                    }
+                    break;
+                }
+                selectedExtras.add(selectedExtra);
+                extras.remove(selectedExtra);
             }
-            selectedExtras.add(selectedExtra);
-            extras.remove(selectedExtra);
+
+            criteria.put(Criteria.EXTRAS, selectedExtras);
         }
 
-        criteria.put(Criteria.EXTRAS, selectedExtras);
         return new Drink(drinkOrder.id(), drinkOrder.name(), drinkOrder.price(), drinkOrder.description(), new DreamDrink(criteria));
     }
 
