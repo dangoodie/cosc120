@@ -109,4 +109,12 @@ public class DreamDrink {
        }
         return true;
     }
+    /**
+     * This method filters out extras that are not available for the selected drink
+     */
+    public void filterExtras(Drink drink) {
+        List<String> intersect = new ArrayList<>((Collection) drink.genericFeatures().getCriteria(Criteria.EXTRAS));
+        intersect.retainAll((Collection<?>) this.getCriteria(Criteria.EXTRAS));
+        this.criteria.put(Criteria.EXTRAS, intersect);
+    }
 }

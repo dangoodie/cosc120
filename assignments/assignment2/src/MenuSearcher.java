@@ -445,6 +445,7 @@ public class MenuSearcher {
             if (customise == JOptionPane.NO_OPTION) {
                 drinkOrder = customiseDrink(drinkOrder);
             } else {
+                dreamDrink.filterExtras(drinkOrder); // filters excess extras carried over from DreamDrink selection not available for that drink
                 drinkOrder = new Drink(drinkOrder.id(), drinkOrder.name(), drinkOrder.price(), drinkOrder.description(), dreamDrink);
             }
         } else { // user selected a drink from the full menu

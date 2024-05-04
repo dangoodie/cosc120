@@ -1,6 +1,6 @@
 Order details:
 	Name: Daniel Gooden
-	Order number: 0412121212
+	Order number: 0404040404
 	Item: Cappuccino (30210)
 	Milk: [Soy]
-	Extras: [Caramel syrup, Cinnamon]
+	Extras: [Cinnamon]
