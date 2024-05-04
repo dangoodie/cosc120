@@ -63,7 +63,6 @@ public class Menu {
     /**
      * A method to find the extras that are available for a drink of a given type
      * It checks to make sure that there is no duplication of extras
-     *
      * @param drinkType a DrinkType object representing the type of drink
      * @return a List of Extras objects representing the extras available for the drink
      */

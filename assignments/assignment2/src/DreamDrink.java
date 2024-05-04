@@ -89,6 +89,7 @@ public class DreamDrink {
     // methods
     /**
      * Checks if the dream drink matches the given drink.
+     * This method is modified from matches in UNE COSC120 Topic 7.2 Dream Geek
      * @param realDrink the drink to check
      * @return true if the drink matches the dream drink, false otherwise
      */

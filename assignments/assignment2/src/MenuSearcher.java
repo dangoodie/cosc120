@@ -28,8 +28,8 @@ public class MenuSearcher {
 
     /**
      * The main method of the program.
-     * This method loads the menu from a file, gets the user's coffee order, finds coffees that match the order,
-     * allows the user to select a coffee, milk option, and extras, gets the user's geek info, and writes the order to a file.
+     * This method loads the menu from a file, gets the user's drink order, finds drinks that match the order,
+     * allows the user to select a drink, all relevant options, gets the user's geek info, and writes the order to a file.
      * @param args the command line arguments
      */
     public static void main(String[] args) {
@@ -46,10 +46,10 @@ public class MenuSearcher {
             System.exit(0);
         }
 
-        // Get the user's dream drink order
+        // Get the user's dream drink order for searching
         DreamDrink dreamDrink = getDreamDrink();
 
-        // Get the user's final coffee order
+        // Get the user's final drink order
         Drink drinkOrder = getDrinkOrder(dreamDrink);
 
         // Get the geek info
@@ -123,7 +123,6 @@ public class MenuSearcher {
         Temperature temperature = Temperature.fromString(drinkData.get(5));
         int steepTime = Integer.parseInt(drinkData.get(6).trim());
 
-
         Map<Criteria, Object> criteriaObjectMap = new LinkedHashMap<>();
         criteriaObjectMap.put(Criteria.DRINK_TYPE, DrinkType.TEA); // Add the drink type (tea)
         criteriaObjectMap.put(Criteria.SUGAR, sugar);
@@ -186,7 +185,7 @@ public class MenuSearcher {
     }
 
     /**
-     * A method to sanitiseOption the first letter of each word in a string.
+     * A method to sanitise a string to capitalise the first letter of a word.
      * This allows for bad string input from the file to be capitalised correctly.
      * @param s a String representing the string to sanitiseOption
      * @return a String representing the capitalised string
