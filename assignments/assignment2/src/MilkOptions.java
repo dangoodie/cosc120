@@ -58,11 +58,11 @@ public enum MilkOptions {
      */
 
     public static List<MilkOptions> fromStringList(List<String> milkOptions) {
-        List<MilkOptions> milkOptionsSet = new LinkedList<>();
+        List<MilkOptions> milkOptionsList = new LinkedList<>();
         for (String milkOption : milkOptions) {
-            milkOptionsSet.add(fromString(milkOption));
+            milkOptionsList.add(fromString(milkOption));
         }
-        return milkOptionsSet;
+        return milkOptionsList;
     }
 
 }

@@ -1,6 +1,6 @@
 Order details:
 	Name: Daniel Gooden
-	Order number: 0412121212
-	Item: Cappuccino (30210)
-	Milk: [Soy]
-	Extras: [Caramel syrup, Cinnamon]
+	Order number: 0404040404
+	Item: Affogato (30218)
+	Milk: []
+	Extras: [Vanilla Ice Cream]

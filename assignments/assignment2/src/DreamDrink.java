@@ -89,6 +89,7 @@ public class DreamDrink {
     // methods
     /**
      * Checks if the dream drink matches the given drink.
+     * This method is modified from matches in UNE COSC120 Topic 7.2 Dream Geek
      * @param realDrink the drink to check
      * @return true if the drink matches the dream drink, false otherwise
      */
@@ -107,5 +108,13 @@ public class DreamDrink {
            }
        }
         return true;
+    }
+    /**
+     * This method filters out extras that are not available for the selected drink
+     */
+    public void filterExtras(Drink drink) {
+        List<String> intersect = new ArrayList<>((Collection) drink.genericFeatures().getCriteria(Criteria.EXTRAS));
+        intersect.retainAll((Collection<?>) this.getCriteria(Criteria.EXTRAS));
+        this.criteria.put(Criteria.EXTRAS, intersect);
     }
 }
