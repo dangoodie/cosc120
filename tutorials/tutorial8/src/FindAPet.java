@@ -16,10 +16,6 @@ import java.util.regex.Pattern;
 
 public class FindAPet {
 
-    private final static String appName = "Pinkman's Pets Pet Finder";
-    private final static String filePath = "./allPets.txt";
-    private final static String iconPath = "./icon.jpg";
-    private static final ImageIcon icon = new ImageIcon(iconPath);
     private static AllPets allPets;
 
     /**

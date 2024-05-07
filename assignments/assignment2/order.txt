@@ -1,6 +1,6 @@
 Order details:
 	Name: Daniel Gooden
 	Order number: 0404040404
-	Item: Affogato (30218)
-	Milk: []
-	Extras: [Vanilla Ice Cream]
+	Item: Oolong Latte Vegan (94885)
+	Milk: [Oat]
+	Extras: [Lemon Zest, Honey]
