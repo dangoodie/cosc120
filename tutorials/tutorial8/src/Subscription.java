@@ -1,6 +1,12 @@
 import javax.swing.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public interface Subscription {
     static final String appName = "Pinkman's Pets Pet Finder";
@@ -24,8 +30,8 @@ public interface Subscription {
            return type;
     }
 
-    default Breed getUserBreed(Set<String> allBreeds) {
-        String breed  = (String) JOptionPane.showInputDialog(null,"Please select your preferred breed.",appName, JOptionPane.QUESTION_MESSAGE,icon,allPets.getAllBreeds(type).toArray(),"");
+    default String getUserBreed(Set<String> allBreeds) {
+        String breed  = (String) JOptionPane.showInputDialog(null,"Please select your preferred breed.",appName, JOptionPane.QUESTION_MESSAGE,icon,allBreeds.toArray(),"");
         if(breed==null) System.exit(0);
         return breed;
     }
@@ -35,10 +41,10 @@ public interface Subscription {
        if(sex==null) System.exit(0);
        return sex;
     }
-    default Desexed getUserDesexed() {   
-        DeSexed deSexed = (DeSexed) JOptionPane.showInputDialog(null,"Would you like your Pet to be de-sexed or not?",appName, JOptionPane.QUESTION_MESSAGE,icon,DeSexed.values(),DeSexed.YES);
-        if(deSexed==null) System.exit(0);
-        return deSexed;
+    default DeSexed getUserDesexed() {
+        DeSexed desexed = (DeSexed) JOptionPane.showInputDialog(null,"Would you like your Pet to be de-sexed or not?",appName, JOptionPane.QUESTION_MESSAGE,icon,DeSexed.values(),DeSexed.YES);
+        if(desexed==null) System.exit(0);
+        return desexed;
     }
     default Purebred getUserPurebred() { 
         Purebred purebred  = (Purebred) JOptionPane.showInputDialog(null,"Would you like the Pet to be a purebred?",appName, JOptionPane.QUESTION_MESSAGE,null,Purebred.values(), "");
@@ -79,9 +85,44 @@ public interface Subscription {
         String lineToWrite = person.name()+" wishes to adopt "+Pet.name()+" ("+Pet.microchipNumber()+"). Their phone number is "+person.phoneNumber()+" and their email address is "+person.emailAddress();
         try {
             Files.writeString(path, lineToWrite);
-        }catch (IOException io){
+        } catch (IOException io){
             System.out.println("File could not be written. \nError message: "+io.getMessage());
             System.exit(0);
         }
+    }
+
+    /**
+     * a very simple regex for full name in Firstname Surname format
+     * @param fullName the candidate full name entered by the user
+     * @return true if name matches regex/false if not
+     */
+    private boolean isValidFullName(String fullName) {
+        String regex = "^[A-Z][a-z]+\\s[A-Z][a-zA-Z]+$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(fullName);
+        return matcher.matches();
+    }
+
+    /**
+     * a regex matcher that ensures that the user's entry starts with a 0 and is followed by 9 digits
+     * @param phoneNumber the candidate phone number entered by the user
+     * @return true if phone number matches regex/false if not
+     */
+    default boolean isValidPhoneNumber(String phoneNumber) {
+        Pattern pattern = Pattern.compile("^0\\d{9}$");
+        Matcher matcher = pattern.matcher(phoneNumber);
+        return matcher.matches();
+    }
+
+    /**
+     * a regex matcher that ensures that the user's entry complies with RFC 5322
+     * source: <a href="https://www.baeldung.com/java-email-validation-regex">...</a>
+     * @param email the candidate email entered by the user
+     * @return true if email matches regex/false if not
+     */
+    private boolean isValidEmail(String email) {
+        Pattern pattern = Pattern.compile("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
     }
 }
