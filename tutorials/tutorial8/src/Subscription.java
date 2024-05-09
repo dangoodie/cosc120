@@ -9,16 +9,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public interface Subscription {
-    static final String appName = "Pinkman's Pets Pet Finder";
-    static final String filePath = "./allPets.txt";
-    static final String iconPath = "./icon.jpg";
-    static final ImageIcon icon = new ImageIcon(iconPath);
-    
-    static final double premiumSubscriptionFee = 14.99;
-    static final double premiumDiscount = 0.1;
-    static final double voucher = 100;
+    String appName = "Pinkman's Pets Pet Finder";
+    String iconPath = "./icon.jpg";
+    ImageIcon icon = new ImageIcon(iconPath);
 
-    DreamPet getUserInput(HashSet<String> availableBreeds, PetType petType);
+    double premiumSubscriptionFee = 14.99;
+    double premiumDiscount = 0.1;
+    double voucher = 100;
+
+    DreamPet getUserInput(Set<String> availableBreeds, PetType petType);
 
     Pet displayResults(ArrayList<Pet> pets, Criteria[] criteria);
 
@@ -50,6 +49,16 @@ public interface Subscription {
         Purebred purebred  = (Purebred) JOptionPane.showInputDialog(null,"Would you like the Pet to be a purebred?",appName, JOptionPane.QUESTION_MESSAGE,null,Purebred.values(), "");
         if(purebred==null) System.exit(0);
         return purebred;
+    }
+
+    /**
+     * a method to get the user to select what hair type they want, e.g. short, long, hairless
+     * @return Hair enum representing user's choice
+     */
+    default Hair getUserHairType() {
+        Hair hair = (Hair) JOptionPane.showInputDialog(null, "Please select from the following options", "Pinkman's Pet Finder", JOptionPane.QUESTION_MESSAGE, null, Hair.values(), "");
+        if (hair == null) System.exit(0);
+        return hair;
     }
     
     default String getUserName() {
@@ -89,6 +98,55 @@ public interface Subscription {
             System.out.println("File could not be written. \nError message: "+io.getMessage());
             System.exit(0);
         }
+    }
+
+    /**
+     * method to get user to select age range (min - max)
+     * @return an int array where [0] is min age and [1] is max age
+     */
+    default double[] getUserAgeRange(){
+        return minMaxValues("What is the age (years) of the youngest Pet you'd like to adopt?","What is the age (years) of the oldest Pet you'd be willing to adopt?");
+    }
+
+    /**
+     * method to get user to select adoption fee range (min - max)
+     * @return an int array where [0] is min fee and [1] is max fee
+     */
+    default double[] getUserFeeRange(){
+        return minMaxValues("What is the lowest adoption fee you're interested in? ","What is the max. adoption fee you're willing to pay?");
+    }
+
+    /**
+     * a method to get the user to enter a value range (min - max)
+     * @param minMessage the message to the user asking them to input a min value
+     * @param maxMessage the message to the user asking them to input a max value
+     * @return an int[] array where [0] is min and [1] is max
+     */
+    private double[] minMaxValues(String minMessage, String maxMessage){ //private methods are allowed in interfaces since Java 9
+        double[] range = {-1,-1};
+        while(range[0]<0) {
+            String input = JOptionPane.showInputDialog(null, minMessage, appName, JOptionPane.QUESTION_MESSAGE);
+            if(input==null) System.exit(0);
+            try {
+                range[0] = Double.parseDouble(input);
+                if(range[0]<0) JOptionPane.showMessageDialog(null,"Min. must be >= 0.",appName, JOptionPane.ERROR_MESSAGE);
+            }
+            catch (NumberFormatException e){
+                JOptionPane.showMessageDialog(null,"Invalid input. Please try again.", appName, JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        while(range[1]<range[0]) {
+            String input = JOptionPane.showInputDialog(null, maxMessage, appName, JOptionPane.QUESTION_MESSAGE);
+            if(input==null) System.exit(0);
+            try {
+                range[1] = Double.parseDouble(input);
+                if(range[1]<range[0]) JOptionPane.showMessageDialog(null,"Max must be >= "+range[0],appName, JOptionPane.ERROR_MESSAGE);
+            }
+            catch (NumberFormatException e){
+                JOptionPane.showMessageDialog(null,"Invalid input. Please try again.", appName, JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        return range;
     }
 
     /**
