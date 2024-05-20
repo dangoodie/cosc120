@@ -25,6 +25,8 @@ public class MenuSearcher {
     private static final String appName = "The Caffeinated Geek";
     private static final String iconPath = "the_caffeinated_geek.png";
     private static final ImageIcon icon = new ImageIcon(iconPath);
+    private static JFrame mainWindow = null;
+    private static JPanel searchView = null;
 
     /**
      * The main method of the program.
@@ -35,31 +37,21 @@ public class MenuSearcher {
     public static void main(String[] args) {
         // Load the menu from a file
         menu = loadMenuFromFile(MENU_FILE);
-        if (menu == null) {
-            System.out.println("Error loading menu");
-            System.exit(1);
-        }
-        System.out.println("Menu loaded successfully");
-
-        int response = JOptionPane.showConfirmDialog(null, "Welcome to " + appName, appName, JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, icon);
-        if (response == JOptionPane.CLOSED_OPTION) {
-            System.exit(0);
-        }
-
-        // Get the user's dream drink order for searching
-        DreamDrink dreamDrink = getDreamDrink();
-
-        // Get the user's final drink order
-        Drink drinkOrder = getDrinkOrder(dreamDrink);
-
-        // Get the geek info
-        Geek geek = getGeekInfo();
-
-        // Write the order to a file
-        writeOrderToFile(geek, drinkOrder);
-        JOptionPane.showMessageDialog(null, "Order written to file", "Success", JOptionPane.INFORMATION_MESSAGE);
-
+        mainWindow = new JFrame(appName);
+        mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainWindow.setIconImage(icon.getImage());
+        searchView = generateSearchView();
+        mainWindow.setContentPane(searchView);
+        mainWindow.pack();
+        mainWindow.setVisible(true);
         System.exit(0);
+    }
+
+    public static JPanel generateSearchView() {
+        JPanel searchPanel = new JPanel();
+        searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.Y_AXIS));
+
+        return searchPanel;
     }
 
     /**
