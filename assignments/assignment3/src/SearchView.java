@@ -45,4 +45,26 @@ public class SearchView {
         this.userExtras = new HashSet<>();
     }
 
+    public JPanel generateSearchView() {
+        JPanel criteria = new JPanel();
+        criteria.setLayout(new BoxLayout(criteria, BoxLayout.Y_AXIS));
+
+        JPanel type = this.userInputDrinkType();
+        type.setAlignmentX(0);
+        criteria.add(type);
+        JPanel generic = this.userInputGenericCriteria();
+        generic.setAlignmentX(0);
+        criteria.add(generic);
+
+        criteria.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        this.typeOfDreamDrinkSpecificCriteriaPanel = new JPanel(cardLayout);
+        this.typeOfDreamDrinkSpecificCriteriaPanel.setAlignmentX(0);
+        this.typeOfDreamDrinkSpecificCriteriaPanel.add(this.userInputCoffeeCriteria(), COFFEE_PANEL);
+        this.typeOfDreamDrinkSpecificCriteriaPanel.add(this.userInputTeaCriteria(), TEA_PANEL);
+
+        criteria.add(this.typeOfDreamDrinkSpecificCriteriaPanel);
+        return criteria;
+    }
+
 }
