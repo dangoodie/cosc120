@@ -1,0 +1,6 @@
+Order details:
+	Name: Daniel Gooden
+	Order number: 0404040404
+	Item: Oolong Latte Vegan (94885)
+	Milk: [Oat]
+	Extras: [Lemon Zest, Honey]
