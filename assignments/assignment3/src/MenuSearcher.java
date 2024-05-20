@@ -3,6 +3,8 @@
  * created for COSC120 Assignment 2
  */
 
+import java.awt.*;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,8 +27,12 @@ public class MenuSearcher {
     private static final String appName = "The Caffeinated Geek";
     private static final String iconPath = "the_caffeinated_geek.png";
     private static final ImageIcon icon = new ImageIcon(iconPath);
+
+    private static DrinkType type = null;
     private static JFrame mainWindow = null;
     private static JPanel searchView = null;
+
+    private static final Set<String> availableExtras = new HashSet<>();
 
     /**
      * The main method of the program.
@@ -47,11 +53,71 @@ public class MenuSearcher {
         System.exit(0);
     }
 
-    public static JPanel generateSearchView() {
-        JPanel searchPanel = new JPanel();
-        searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.Y_AXIS));
+    public static SearchView refreshSearchView() {
+        return new SearchView(availableExtras);
+    }
 
-        return searchPanel;
+    public static JPanel generateSearchView() {
+        JPanel searchWindow = new JPanel();
+        searchWindow.setLayout(new BorderLayout());
+
+        SearchView searchCriteria = refreshSearchView();
+        JPanel searchCriteriaPanel = searchCriteria.generateSearchView();
+
+        searchWindow.add(searchCriteriaPanel, BorderLayout.CENTER);
+
+        JButton search = new JButton("Search");
+        ActionListener actionListener = e -> conductSearch(searchCriteria);
+        search.addActionListener(actionListener);
+        searchWindow.add(search, BorderLayout.SOUTH);
+
+        searchWindow.add(Box.createRigidArea(new Dimension(20,0)), BorderLayout.WEST);
+        searchWindow.add(Box.createRigidArea(new Dimension(20,0)), BorderLayout.EAST);
+
+        return searchWindow;
+    }
+
+    public static void conductSearch(SearchView searchCriteria) {
+        Map<Criteria, Object> criteria = searchCriteria.getCriteria();
+        type = searchCriteria.getDrinkType();
+        if (type == DrinkType.SELECT_DRINK_TYPE) {
+            JOptionPane.showMessageDialog(null, "Please select a drink type", appName, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        criteria.put(Criteria.DRINK_TYPE, type);
+
+        int minPrice = searchCriteria.getUserMinPrice();
+        int maxPrice = searchCriteria.getUserMaxPrice();
+        MilkOptions milk = searchCriteria.getUserMilkOption();
+        Boolean sugar = searchCriteria.getUserSugar();
+        Set<String> extras = searchCriteria.getUserExtras();
+
+        if (type.equals(DrinkType.COFFEE)) {
+            int numberOfShots = searchCriteria.getUserNumOfShots();
+            criteria.put(Criteria.NUM_OF_SHOTS, numberOfShots);
+        } else if (type.equals(DrinkType.TEA)) {
+            Temperature temperature = searchCriteria.getUserTemperature();
+            int steepTime = searchCriteria.getUserSteepTime();
+            criteria.put(Criteria.TEMPERATURE, temperature);
+            criteria.put(Criteria.STEEP_TIME, steepTime);
+        }
+
+        if (milk != MilkOptions.SKIP) {
+            criteria.put(Criteria.MILK_TYPE, milk);
+        }
+
+        if (sugar != null) {
+            criteria.put(Criteria.SUGAR, sugar);
+        }
+
+        if (!extras.isEmpty()) {
+            criteria.put(Criteria.EXTRAS, extras);
+        }
+
+        DreamDrink dreamDrink = new DreamDrink(minPrice, maxPrice, criteria);
+        List<Drink> matches = menu.findDreamDrink(dreamDrink);
+        showResults(matches);
     }
 
     /**

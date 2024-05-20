@@ -1,5 +1,5 @@
 public enum DrinkType {
-    TEA, COFFEE;
+    TEA, COFFEE, SELECT_DRINK_TYPE
 
     /**
      * Builds a string representation of the drink type.
@@ -11,6 +11,7 @@ public enum DrinkType {
         return switch (this) {
             case TEA -> "Tea";
             case COFFEE -> "Coffee";
+            case SELECT_DRINK_TYPE -> "Select drink type";
         };
     }
 
@@ -24,6 +25,7 @@ public enum DrinkType {
         return switch (drinkType) {
             case "TEA" -> TEA;
             case "COFFEE" -> COFFEE;
+            case "SELECT DRINK TYPE" -> SELECT_DRINK_TYPE;
             default -> throw new IllegalStateException("Unexpected value: " + drinkType);
         };
     }
