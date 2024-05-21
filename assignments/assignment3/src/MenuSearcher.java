@@ -5,6 +5,7 @@
 
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,10 +28,13 @@ public class MenuSearcher {
     private static final String appName = "The Caffeinated Geek";
     private static final String iconPath = "the_caffeinated_geek.png";
     private static final ImageIcon icon = new ImageIcon(iconPath);
+    private static final String imagesPath = "drinks_images/";
+    private static final int imageSizeResultsView = 100;
 
     private static DrinkType type = null;
     private static JFrame mainWindow = null;
     private static JPanel searchView = null;
+    private static JComboBox<String> optionsCombo = null;
 
     private static final Set<String> availableExtras = new HashSet<>();
 
@@ -78,7 +82,7 @@ public class MenuSearcher {
     }
 
     public static void conductSearch(SearchView searchCriteria) {
-        Map<Criteria, Object> criteria = searchCriteria.getCriteria();
+        Map<Criteria, Object> criteria = new HashMap<>();
         type = searchCriteria.getDrinkType();
         if (type == DrinkType.SELECT_DRINK_TYPE) {
             JOptionPane.showMessageDialog(null, "Please select a drink type", appName, JOptionPane.ERROR_MESSAGE);
@@ -118,6 +122,132 @@ public class MenuSearcher {
         DreamDrink dreamDrink = new DreamDrink(minPrice, maxPrice, criteria);
         List<Drink> matches = menu.findDreamDrink(dreamDrink);
         showResults(matches);
+    }
+
+    public static void showResults(List<Drink> potentialMatches) {
+        if (potentialMatches.isEmpty()) {
+            noResults();
+            return;
+        }
+
+        JPanel results = new JPanel();
+        results.setLayout(new BorderLayout());
+        results.add(Box.createRigidArea(new Dimension(0, 10)), BorderLayout.NORTH);
+        results.add(generateDrinkDescription(potentialMatches), BorderLayout.CENTER);
+        results.add(selectFromResultsPanel(potentialMatches), BorderLayout.SOUTH);
+        results.add(Box.createRigidArea(new Dimension(20, 0)), BorderLayout.WEST);
+        results.add(Box.createRigidArea(new Dimension(20, 0)), BorderLayout.EAST);
+        mainWindow.setContentPane(results);
+        mainWindow.revalidate();
+    }
+
+    public static ImageIcon loadImageFromPath(String path, int imageSize) {
+        ImageIcon image = new ImageIcon(path);
+        Image img = image.getImage();
+        Image newImg = img.getScaledInstance(imageSize, imageSize, Image.SCALE_SMOOTH);
+        return new ImageIcon(newImg);
+    }
+
+    public static Map<String, JLabel> loadImages(Set<File> filesList, int imageSize) {
+        assert filesList != null;
+        Map<String, JLabel> images = new HashMap<>();
+        for (File file : filesList) {
+            ImageIcon image = loadImageFromPath(file.getPath(), imageSize);
+            JLabel label = new JLabel(image);
+            images.put(file.getName(), label);
+        }
+        return images;
+    }
+
+    private static Set<File> optionsImages(List<Drink> matching) {
+        Set<File> optionsImages = new HashSet<>();
+        for (Drink drink : matching) {
+            String matchingKey = drink.name().toLowerCase().replace(" ", "_");
+            optionsImages.add(new File(imagesPath+ matchingKey + ".png"));
+        }
+        return optionsImages;
+    }
+
+    public static JScrollPane generateDrinkDescription(List<Drink> potentialMatches) {
+        Map<String, Drink> options = new HashMap<>();
+        Map<String, JLabel> optionsImages = loadImages(optionsImages(potentialMatches), imageSizeResultsView);
+
+        JPanel drinkDescriptions = new JPanel();
+        drinkDescriptions.setBorder(BorderFactory.createTitledBorder("Matches found:"));
+        drinkDescriptions.setLayout(new GridLayout(0, 2));
+
+        for (Drink drink : potentialMatches) {
+            JPanel image = new JPanel();
+            image.add(optionsImages.get(drink.name().toLowerCase().replace(" ", "_") + ".png"));
+
+            JTextArea description = new JTextArea(drink.getDrinkDescription());
+            description.setEditable(false);
+            description.setLineWrap(true);
+            description.setWrapStyleWord(true);
+
+            JPanel textAndImage = new JPanel();
+            textAndImage.setLayout(new BorderLayout());
+            textAndImage.add(image, BorderLayout.WEST);
+            textAndImage.add(description, BorderLayout.CENTER);
+
+            drinkDescriptions.add(textAndImage);
+            drinkDescriptions.add(Box.createRigidArea(new Dimension(0, 10)));
+
+            options.put(drink.name(), drink);
+        }
+
+        optionsCombo = new JComboBox<>(options.keySet().toArray(new String[0]));
+
+        JScrollPane scrollPane = new JScrollPane(drinkDescriptions);
+        scrollPane.setPreferredSize(new Dimension(300, 450));
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        SwingUtilities.invokeLater(() -> scrollPane.getViewport().setViewPosition(new Point(0, 0)));
+        return scrollPane;
+    }
+
+    public static JPanel selectFromResultsPanel(List<Drink> potentialMatches) {
+        JPanel selectFromResults = new JPanel();
+        selectFromResults.setLayout(new BorderLayout());
+
+        JButton select = new JButton("Select");
+        ActionListener actionListener = e -> selectFromResults(potentialMatches);
+        select.addActionListener(actionListener);
+
+        selectFromResults.add(optionsCombo, BorderLayout.CENTER);
+        selectFromResults.add(select, BorderLayout.EAST);
+
+        return selectFromResults;
+    }
+
+    public static void selectFromResults(List<Drink> potentialMatches) {
+        String selected = (String) optionsCombo.getSelectedItem();
+        Drink selectedDrink = null;
+        for (Drink drink : potentialMatches) {
+            if (drink.name().equals(selected)) {
+                selectedDrink = drink;
+                break;
+            }
+        }
+        if (selectedDrink == null) {
+            JOptionPane.showMessageDialog(null, "Error: Drink not found", "Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
+        Drink drinkOrder = customiseDrink(selectedDrink);
+        Geek geek = getGeekInfo();
+        writeOrderToFile(geek, drinkOrder);
+        JOptionPane.showMessageDialog(null, "Order written to file", appName, JOptionPane.INFORMATION_MESSAGE);
+        System.exit(0);
+    }
+
+    public static void reGenerateSearchView() {
+        searchView = generateSearchView();
+        mainWindow.setContentPane(searchView);
+        mainWindow.revalidate();
+    }
+
+    public static void noResults() {
+        JOptionPane.showMessageDialog(null, "No matches found", appName, JOptionPane.INFORMATION_MESSAGE);
+        reGenerateSearchView();
     }
 
     /**
