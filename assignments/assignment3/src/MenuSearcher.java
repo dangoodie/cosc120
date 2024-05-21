@@ -50,11 +50,11 @@ public class MenuSearcher {
         mainWindow = new JFrame(appName);
         mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainWindow.setIconImage(icon.getImage());
+        mainWindow.setMinimumSize(new Dimension(300, 300));
         searchView = generateSearchView();
         mainWindow.setContentPane(searchView);
         mainWindow.pack();
         mainWindow.setVisible(true);
-        System.exit(0);
     }
 
     public static SearchView refreshSearchView() {

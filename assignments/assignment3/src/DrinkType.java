@@ -1,5 +1,5 @@
 public enum DrinkType {
-    TEA, COFFEE, SELECT_DRINK_TYPE
+    TEA, COFFEE, SELECT_DRINK_TYPE;
 
     /**
      * Builds a string representation of the drink type.
