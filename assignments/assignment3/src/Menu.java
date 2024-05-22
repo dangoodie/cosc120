@@ -67,15 +67,19 @@ public class Menu {
      * @return a List of Extras objects representing the extras available for the drink
      */
 
-    public List<String> findExtras(DrinkType drinkType) {
+    public Set<String> findExtras(DrinkType drinkType) {
         Set<String> extras = new HashSet<>();
+
+        // If the drink type is SELECT_DRINK_TYPE, return empty set
+        if (drinkType == DrinkType.SELECT_DRINK_TYPE) return new HashSet<>(extras);
+
         for (Drink drink : this.getMenu()) {
             if (drink.genericFeatures().getCriteria(Criteria.DRINK_TYPE) == drinkType) {
                 List<String> e = (List<String>) drink.genericFeatures().getCriteria(Criteria.EXTRAS);
                 extras.addAll(e);
             }
         }
-        return new ArrayList<>(extras);
+        return new HashSet<>(extras);
     }
 
 

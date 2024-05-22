@@ -10,6 +10,7 @@ import java.util.Set;
 
 public class SearchView {
     private DrinkType drinkType;
+    private final Menu menu;
 
     private final CardLayout cardLayout = new CardLayout();
 
@@ -18,7 +19,9 @@ public class SearchView {
     private final String IMAGE_PANEL = "Image";
 
     private JPanel typeOfDreamDrinkSpecificCriteriaPanel;
+    private JPanel extrasPanel;
 
+    // Generic fields
     private int minPrice;
     private int maxPrice;
     private Set<MilkOptions> availableMilkOptions;
@@ -43,8 +46,9 @@ public class SearchView {
     private Temperature userTemperature;
     private int userSteepTime;
 
-    public SearchView(Set<String> availableExtras) {
-        this.availableExtras = availableExtras;
+    public SearchView(Menu menu) {
+        this.menu = menu;
+        this.availableExtras = new HashSet<>();
         this.availableMilkOptions = new HashSet<>();
         this.availableTemperatures = new HashSet<>();
         this.userExtras = new HashSet<>();
@@ -85,7 +89,9 @@ public class SearchView {
         drinkType = (DrinkType) drinkTypeComboBox.getSelectedItem();
 
         drinkTypeComboBox.addItemListener(e -> {
-            if (e.getStateChange() == ItemEvent.SELECTED) ifTypeSelected(drinkTypeComboBox);
+            if (e.getStateChange() == ItemEvent.SELECTED)
+                ifTypeSelected(drinkTypeComboBox);
+                this.refreshExtrasPanel();
         });
 
         drinkTypePanel.add(drinkTypeComboBox);
@@ -94,6 +100,8 @@ public class SearchView {
 
     public void ifTypeSelected(JComboBox<DrinkType> drinkTypeComboBox) {
         this.drinkType = (DrinkType) drinkTypeComboBox.getSelectedItem();
+        availableExtras = menu.findExtras(drinkType);
+
         assert this.drinkType != null;
         if (this.drinkType == DrinkType.COFFEE) {
             cardLayout.show(this.typeOfDreamDrinkSpecificCriteriaPanel, COFFEE_PANEL);
@@ -113,7 +121,14 @@ public class SearchView {
         genericCriteriaPanel.add(this.getPriceRange());
         genericCriteriaPanel.add(this.getMilkOptions());
         genericCriteriaPanel.add(this.getSugar());
-        genericCriteriaPanel.add(this.getExtras());
+
+        // extras panel special stuff
+        this.extrasPanel = new JPanel();
+        this.extrasPanel.setLayout(new BoxLayout(this.extrasPanel, BoxLayout.Y_AXIS));
+        JLabel extrasLabel = new JLabel("Extras:");
+        this.extrasPanel.add(extrasLabel);
+
+        genericCriteriaPanel.add(this.extrasPanel);
 
         return genericCriteriaPanel;
     }
@@ -168,12 +183,10 @@ public class SearchView {
         return sugarPanel;
     }
 
-    public JPanel getExtras() {
-        JPanel extrasPanel = new JPanel();
-        extrasPanel.setLayout(new BoxLayout(extrasPanel, BoxLayout.Y_AXIS));
+    public void refreshExtrasPanel() {
+        this.extrasPanel.removeAll();
         JLabel extrasLabel = new JLabel("Extras:");
-        extrasPanel.add(extrasLabel);
-
+        this.extrasPanel.add(extrasLabel);
         for (String extra : this.availableExtras) {
             JCheckBox extraCheckBox = new JCheckBox(extra);
             extraCheckBox.addActionListener(e -> {
@@ -183,10 +196,10 @@ public class SearchView {
                     this.userExtras.remove(extraCheckBox.getText());
                 }
             });
-            extrasPanel.add(extraCheckBox);
+            this.extrasPanel.add(extraCheckBox);
         }
-
-        return extrasPanel;
+        this.extrasPanel.revalidate();
+        this.extrasPanel.repaint();
     }
 
     /*--------------Coffee Criteria--------------*/

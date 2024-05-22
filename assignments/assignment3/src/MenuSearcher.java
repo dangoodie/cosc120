@@ -36,7 +36,7 @@ public class MenuSearcher {
     private static JPanel searchView = null;
     private static JComboBox<String> optionsCombo = null;
 
-    private static final Set<String> availableExtras = new HashSet<>();
+    private static Set<String> availableExtras = new HashSet<>();
 
     /**
      * The main method of the program.
@@ -58,7 +58,7 @@ public class MenuSearcher {
     }
 
     public static SearchView refreshSearchView() {
-        return new SearchView(availableExtras);
+        return new SearchView(menu);
     }
 
     public static JPanel generateSearchView() {
@@ -474,7 +474,7 @@ public class MenuSearcher {
             criteria.put(Criteria.SUGAR, sugar.equalsIgnoreCase("Yes"));
         }
 
-        List<String> extras = menu.findExtras(drinkType);
+        Set<String> extras = menu.findExtras(drinkType);
         extras.add("None");
         extras.add("Skip");
 
