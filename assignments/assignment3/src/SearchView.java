@@ -1,5 +1,10 @@
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,6 +15,7 @@ public class SearchView {
 
     private final String COFFEE_PANEL = "Coffee";
     private final String TEA_PANEL = "Tea";
+    private final String IMAGE_PANEL = "Image";
 
     private JPanel typeOfDreamDrinkSpecificCriteriaPanel;
 
@@ -59,6 +65,7 @@ public class SearchView {
 
         this.typeOfDreamDrinkSpecificCriteriaPanel = new JPanel(cardLayout);
         this.typeOfDreamDrinkSpecificCriteriaPanel.setAlignmentX(0);
+        this.typeOfDreamDrinkSpecificCriteriaPanel.add(this.generateImagePanel(), IMAGE_PANEL);
         this.typeOfDreamDrinkSpecificCriteriaPanel.add(this.userInputCoffeeCriteria(), COFFEE_PANEL);
         this.typeOfDreamDrinkSpecificCriteriaPanel.add(this.userInputTeaCriteria(), TEA_PANEL);
 
@@ -73,16 +80,28 @@ public class SearchView {
         drinkTypePanel.add(drinkTypeLabel);
 
         JComboBox<DrinkType> drinkTypeComboBox = new JComboBox<>(DrinkType.values());
-        drinkTypeComboBox.addActionListener(e -> ifTypeSelected(drinkTypeComboBox));
-        drinkTypePanel.add(drinkTypeComboBox);
+        drinkTypeComboBox.requestFocusInWindow();
+        drinkTypeComboBox.setSelectedItem(DrinkType.SELECT_DRINK_TYPE);
+        drinkType = (DrinkType) drinkTypeComboBox.getSelectedItem();
 
+        drinkTypeComboBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) ifTypeSelected(drinkTypeComboBox);
+        });
+
+        drinkTypePanel.add(drinkTypeComboBox);
         return drinkTypePanel;
     }
 
     public void ifTypeSelected(JComboBox<DrinkType> drinkTypeComboBox) {
         this.drinkType = (DrinkType) drinkTypeComboBox.getSelectedItem();
         assert this.drinkType != null;
-        this.cardLayout.show(this.typeOfDreamDrinkSpecificCriteriaPanel, this.drinkType == DrinkType.COFFEE ? COFFEE_PANEL : TEA_PANEL);
+        if (this.drinkType == DrinkType.COFFEE) {
+            cardLayout.show(this.typeOfDreamDrinkSpecificCriteriaPanel, COFFEE_PANEL);
+        } else if (this.drinkType == DrinkType.TEA) {
+            cardLayout.show(this.typeOfDreamDrinkSpecificCriteriaPanel, TEA_PANEL);
+        } else if (this.drinkType == DrinkType.SELECT_DRINK_TYPE) {
+            cardLayout.show(this.typeOfDreamDrinkSpecificCriteriaPanel, IMAGE_PANEL);
+        }
     }
 
     /*--------------Generic Criteria--------------*/
