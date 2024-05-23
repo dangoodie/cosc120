@@ -104,8 +104,12 @@ public class MenuSearcher {
         } else if (type.equals(DrinkType.TEA)) {
             Temperature temperature = searchCriteria.getUserTemperature();
             int steepTime = searchCriteria.getUserSteepTime();
-            criteria.put(Criteria.TEMPERATURE, temperature);
-            criteria.put(Criteria.STEEP_TIME, steepTime);
+            if (temperature != Temperature.SKIP) {
+                criteria.put(Criteria.TEMPERATURE, temperature);
+            }
+            if (steepTime != -1) {
+                criteria.put(Criteria.STEEP_TIME, steepTime);
+            }
         }
 
         if (milk != MilkOptions.SKIP) {

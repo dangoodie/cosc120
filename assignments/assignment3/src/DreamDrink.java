@@ -94,21 +94,27 @@ public class DreamDrink {
      * @return true if the drink matches the dream drink, false otherwise
      */
     public boolean matches(DreamDrink realDrink) {
-       for (Criteria key : realDrink.getAllCriteria().keySet()) {
-           if(this.getAllCriteria().containsKey(key)) {
-               if(getCriteria(key) instanceof Collection<?> && realDrink.getCriteria(key) instanceof Collection<?>){ // if both values are collections
-                   Set<Object> intersect = new HashSet<>((Collection<?>) realDrink.getCriteria(key));
-                     intersect.retainAll((Collection<?>) getCriteria(key));
-                        if(intersect.isEmpty()) return false;
-               } else if (getCriteria(key) instanceof Collection<?> && !(realDrink.getCriteria(key) instanceof Collection<?>)){ // if this value is a collection
-                   if(!((Collection<?>) getCriteria(key)).contains(realDrink.getCriteria(key))) return false;
-               } else if (!(getCriteria(key) instanceof Collection<?>) && realDrink.getCriteria(key) instanceof Collection<?>){ // if other value is a collection
-                   if(!((Collection<?>) realDrink.getCriteria(key)).contains(getCriteria(key))) return false;
-               } else if(!getCriteria(key).equals(realDrink.getCriteria(key))) return false; // if neither value is a collection
-           }
-       }
+        for (Criteria key : realDrink.getAllCriteria().keySet()) {
+            if (this.getAllCriteria().containsKey(key)) {
+                Object thisCriteria = getCriteria(key);
+                Object realCriteria = realDrink.getCriteria(key);
+
+                if (thisCriteria instanceof Collection<?> && realCriteria instanceof Collection<?>) { // if both values are collections
+                    Set<Object> intersect = new HashSet<>((Collection<?>) realCriteria);
+                    intersect.retainAll((Collection<?>) thisCriteria);
+                    if (intersect.isEmpty()) return false;
+                } else if (thisCriteria instanceof Collection<?> && !(realCriteria instanceof Collection<?>)) { // if this value is a collection
+                    if (!((Collection<?>) thisCriteria).contains(realCriteria)) return false;
+                } else if (!(thisCriteria instanceof Collection<?>) && realCriteria instanceof Collection<?>) { // if other value is a collection
+                    if (!((Collection<?>) realCriteria).contains(thisCriteria)) return false;
+                } else { // if neither value is a collection
+                    if (!thisCriteria.equals(realCriteria)) return false;
+                }
+            }
+        }
         return true;
     }
+
     /**
      * This method filters out extras that are not available for the selected drink
      */

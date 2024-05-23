@@ -22,18 +22,11 @@ public class SearchView {
     private JPanel extrasPanel;
 
     // Generic fields
-    private int minPrice;
-    private int maxPrice;
     private Set<MilkOptions> availableMilkOptions;
-    private boolean sugar;
     private Set<String> availableExtras;
-
-    // Coffee fields
-    private int numOfShots;
 
     // Tea fields
     private Set<Temperature> availableTemperatures;
-    private int steepTime;
 
 
     // user choices
@@ -155,7 +148,22 @@ public class SearchView {
         JTextField minPriceField = new JTextField();
         minPriceField.setPreferredSize(new Dimension(50, 25)); // Set preferred size to control height
         minPriceField.setColumns(10); // Set columns to make it expand
-        minPriceField.addActionListener(e -> this.userMinPrice = Integer.parseInt(minPriceField.getText()));
+        minPriceField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                userMinPrice = Integer.parseInt(minPriceField.getText());
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                userMinPrice = Integer.parseInt(minPriceField.getText());
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                userMinPrice = Integer.parseInt(minPriceField.getText());
+            }
+        });
         innerPanel.add(minPriceField);
 
         innerPanel.add(new JLabel(" to "));
@@ -163,7 +171,22 @@ public class SearchView {
         JTextField maxPriceField = new JTextField();
         maxPriceField.setPreferredSize(new Dimension(50, 25)); // Set preferred size to control height
         maxPriceField.setColumns(10); // Set columns to make it expand
-        maxPriceField.addActionListener(e -> this.userMaxPrice = Integer.parseInt(maxPriceField.getText()));
+        maxPriceField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                userMaxPrice = Integer.parseInt(maxPriceField.getText());
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                userMaxPrice = Integer.parseInt(maxPriceField.getText());
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                userMaxPrice = Integer.parseInt(maxPriceField.getText());
+            }
+        });
         innerPanel.add(maxPriceField);
 
         priceRangePanel.add(innerPanel);
@@ -183,6 +206,8 @@ public class SearchView {
         innerPanel.add(milkOptionsLabel);
 
         JComboBox<MilkOptions> milkOptionsComboBox = new JComboBox<>(MilkOptions.values());
+        milkOptionsComboBox.setSelectedItem(MilkOptions.FULL_CREAM);
+        this.userMilkOption = (MilkOptions) milkOptionsComboBox.getSelectedItem();
         milkOptionsComboBox.setPreferredSize(new Dimension(150, 25)); // Set preferred size
         milkOptionsComboBox.addActionListener(e -> this.userMilkOption = (MilkOptions) milkOptionsComboBox.getSelectedItem());
         innerPanel.add(milkOptionsComboBox);
@@ -198,20 +223,28 @@ public class SearchView {
         sugarPanel.setLayout(new BoxLayout(sugarPanel, BoxLayout.Y_AXIS));
 
         JPanel innerPanel = new JPanel();
-        innerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        innerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0)); // Use FlowLayout for single line layout
 
         JLabel sugarLabel = new JLabel("Sugar:");
         innerPanel.add(sugarLabel);
 
-        JCheckBox sugarCheckBox = new JCheckBox();
-        sugarCheckBox.addActionListener(e -> this.userSugar = sugarCheckBox.isSelected());
-        innerPanel.add(sugarCheckBox);
+        String[] sugarOptions = {"Yes", "No", "Skip"};
+        JComboBox<String> sugarComboBox = new JComboBox<>(sugarOptions);
+        sugarComboBox.setPreferredSize(new Dimension(100, 25)); // Set preferred size
+        sugarComboBox.addActionListener(e -> {
+            String selected = (String) sugarComboBox.getSelectedItem();
+            if ("Skip".equals(selected)) {
+                this.userSugar = false;
+            } else {
+                this.userSugar = "Yes".equals(selected);
+            }
+        });
+        innerPanel.add(sugarComboBox);
 
         sugarPanel.add(innerPanel);
 
         return sugarPanel;
     }
-
 
     public void refreshExtrasPanel() {
         this.extrasPanel.removeAll();
@@ -257,19 +290,23 @@ public class SearchView {
         JLabel numOfShotsLabel = new JLabel("Number of Shots:");
         innerPanel.add(numOfShotsLabel);
 
-        JTextField numOfShotsField = new JTextField();
-        numOfShotsField.setPreferredSize(new Dimension(50, 25)); // Set preferred size
-        numOfShotsField.setColumns(10); // Set columns to make it expand
-        numOfShotsField.addActionListener(e -> this.userNumOfShots = Integer.parseInt(numOfShotsField.getText()));
-        innerPanel.add(numOfShotsField);
+        String[] numOfShotsOptions = {"0", "1", "2", "3", "Skip"};
+        JComboBox<String> numOfShotsComboBox = new JComboBox<>(numOfShotsOptions);
+        numOfShotsComboBox.setPreferredSize(new Dimension(100, 25)); // Set preferred size
+        numOfShotsComboBox.addActionListener(e -> {
+            String selected = (String) numOfShotsComboBox.getSelectedItem();
+            if ("Skip".equals(selected)) {
+                this.userNumOfShots = 0;
+            } else {
+                this.userNumOfShots = Integer.parseInt(selected);
+            }
+        });
+        innerPanel.add(numOfShotsComboBox);
 
         numOfShotsPanel.add(innerPanel);
 
         return numOfShotsPanel;
     }
-
-
-
 
     /*--------------Tea Criteria--------------*/
 
@@ -295,7 +332,9 @@ public class SearchView {
 
         JComboBox<Temperature> temperatureComboBox = new JComboBox<>(Temperature.values());
         temperatureComboBox.setPreferredSize(new Dimension(200, 25)); // Adjust the width to fit the longest text
-        temperatureComboBox.addActionListener(e -> this.userTemperature = (Temperature) temperatureComboBox.getSelectedItem());
+        temperatureComboBox.addActionListener(e -> {
+            this.userTemperature = (Temperature) temperatureComboBox.getSelectedItem();
+        });
         innerPanel.add(temperatureComboBox);
 
         temperaturePanel.add(innerPanel);
@@ -316,16 +355,24 @@ public class SearchView {
         JLabel steepTimeLabel = new JLabel("Steep Time:");
         innerPanel.add(steepTimeLabel);
 
-        JTextField steepTimeField = new JTextField();
-        steepTimeField.setPreferredSize(new Dimension(50, 25)); // Set preferred size
-        steepTimeField.setColumns(10); // Set columns to make it expand
-        steepTimeField.addActionListener(e -> this.userSteepTime = Integer.parseInt(steepTimeField.getText()));
-        innerPanel.add(steepTimeField);
+        String[] steepTimeOptions = {"1", "2", "3", "4", "5", "6", "7", "8", "Skip"};
+        JComboBox<String> steepTimeComboBox = new JComboBox<>(steepTimeOptions);
+        steepTimeComboBox.setPreferredSize(new Dimension(100, 25)); // Set preferred size
+        steepTimeComboBox.addActionListener(e -> {
+            String selected = (String) steepTimeComboBox.getSelectedItem();
+            if ("Skip".equals(selected)) {
+                this.userSteepTime = -1;
+            } else {
+                this.userSteepTime = Integer.parseInt(selected);
+            }
+        });
+        innerPanel.add(steepTimeComboBox);
 
         steepTimePanel.add(innerPanel);
 
         return steepTimePanel;
     }
+
 
 
 
@@ -392,14 +439,4 @@ public class SearchView {
     public Set<Temperature> getAvailableTemperatures() {
         return this.availableTemperatures;
     }
-
-    public int getMinPrice() {
-        return this.minPrice;
-    }
-
-    public int getMaxPrice() {
-        return this.maxPrice;
-    }
-
-
 }
