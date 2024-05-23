@@ -80,23 +80,32 @@ public class SearchView {
     public JPanel userInputDrinkType() {
         JPanel drinkTypePanel = new JPanel();
         drinkTypePanel.setLayout(new BoxLayout(drinkTypePanel, BoxLayout.Y_AXIS));
+
+        JPanel innerPanel = new JPanel();
+        innerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+
         JLabel drinkTypeLabel = new JLabel("Drink Type:");
-        drinkTypePanel.add(drinkTypeLabel);
+        innerPanel.add(drinkTypeLabel);
 
         JComboBox<DrinkType> drinkTypeComboBox = new JComboBox<>(DrinkType.values());
+        drinkTypeComboBox.setPreferredSize(new Dimension(150, 25)); // Set preferred size
         drinkTypeComboBox.requestFocusInWindow();
         drinkTypeComboBox.setSelectedItem(DrinkType.SELECT_DRINK_TYPE);
         drinkType = (DrinkType) drinkTypeComboBox.getSelectedItem();
 
         drinkTypeComboBox.addItemListener(e -> {
-            if (e.getStateChange() == ItemEvent.SELECTED)
+            if (e.getStateChange() == ItemEvent.SELECTED) {
                 ifTypeSelected(drinkTypeComboBox);
                 this.refreshExtrasPanel();
+            }
         });
 
-        drinkTypePanel.add(drinkTypeComboBox);
+        innerPanel.add(drinkTypeComboBox);
+        drinkTypePanel.add(innerPanel);
+
         return drinkTypePanel;
     }
+
 
     public void ifTypeSelected(JComboBox<DrinkType> drinkTypeComboBox) {
         this.drinkType = (DrinkType) drinkTypeComboBox.getSelectedItem();
@@ -136,57 +145,82 @@ public class SearchView {
     public JPanel getPriceRange() {
         JPanel priceRangePanel = new JPanel();
         priceRangePanel.setLayout(new BoxLayout(priceRangePanel, BoxLayout.Y_AXIS));
-        JLabel priceRangeLabel = new JLabel("Price Range:");
-        priceRangePanel.add(priceRangeLabel);
 
-        JPanel priceRangeInput = new JPanel();
-        priceRangeInput.setLayout(new BoxLayout(priceRangeInput, BoxLayout.X_AXIS));
+        JPanel innerPanel = new JPanel();
+        innerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+
+        JLabel priceRangeLabel = new JLabel("Price Range:");
+        innerPanel.add(priceRangeLabel);
 
         JTextField minPriceField = new JTextField();
+        minPriceField.setPreferredSize(new Dimension(50, 25)); // Set preferred size to control height
+        minPriceField.setColumns(10); // Set columns to make it expand
         minPriceField.addActionListener(e -> this.userMinPrice = Integer.parseInt(minPriceField.getText()));
-        priceRangeInput.add(minPriceField);
+        innerPanel.add(minPriceField);
 
-        priceRangeInput.add(new JLabel(" to "));
+        innerPanel.add(new JLabel(" to "));
 
         JTextField maxPriceField = new JTextField();
+        maxPriceField.setPreferredSize(new Dimension(50, 25)); // Set preferred size to control height
+        maxPriceField.setColumns(10); // Set columns to make it expand
         maxPriceField.addActionListener(e -> this.userMaxPrice = Integer.parseInt(maxPriceField.getText()));
-        priceRangeInput.add(maxPriceField);
+        innerPanel.add(maxPriceField);
 
-        priceRangePanel.add(priceRangeInput);
+        priceRangePanel.add(innerPanel);
 
         return priceRangePanel;
     }
 
+
     public JPanel getMilkOptions() {
         JPanel milkOptionsPanel = new JPanel();
         milkOptionsPanel.setLayout(new BoxLayout(milkOptionsPanel, BoxLayout.Y_AXIS));
+
+        JPanel innerPanel = new JPanel();
+        innerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+
         JLabel milkOptionsLabel = new JLabel("Milk Options:");
-        milkOptionsPanel.add(milkOptionsLabel);
+        innerPanel.add(milkOptionsLabel);
 
         JComboBox<MilkOptions> milkOptionsComboBox = new JComboBox<>(MilkOptions.values());
+        milkOptionsComboBox.setPreferredSize(new Dimension(150, 25)); // Set preferred size
         milkOptionsComboBox.addActionListener(e -> this.userMilkOption = (MilkOptions) milkOptionsComboBox.getSelectedItem());
-        milkOptionsPanel.add(milkOptionsComboBox);
+        innerPanel.add(milkOptionsComboBox);
+
+        milkOptionsPanel.add(innerPanel);
 
         return milkOptionsPanel;
     }
 
+
     public JPanel getSugar() {
         JPanel sugarPanel = new JPanel();
         sugarPanel.setLayout(new BoxLayout(sugarPanel, BoxLayout.Y_AXIS));
+
+        JPanel innerPanel = new JPanel();
+        innerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+
         JLabel sugarLabel = new JLabel("Sugar:");
-        sugarPanel.add(sugarLabel);
+        innerPanel.add(sugarLabel);
 
         JCheckBox sugarCheckBox = new JCheckBox();
         sugarCheckBox.addActionListener(e -> this.userSugar = sugarCheckBox.isSelected());
-        sugarPanel.add(sugarCheckBox);
+        innerPanel.add(sugarCheckBox);
+
+        sugarPanel.add(innerPanel);
 
         return sugarPanel;
     }
+
 
     public void refreshExtrasPanel() {
         this.extrasPanel.removeAll();
         JLabel extrasLabel = new JLabel("Extras:");
         this.extrasPanel.add(extrasLabel);
+
+        int rows = (int) Math.ceil((double) this.availableExtras.size() / 3);
+        this.extrasPanel.setLayout(new GridLayout(rows, 3));
+
         for (String extra : this.availableExtras) {
             JCheckBox extraCheckBox = new JCheckBox(extra);
             extraCheckBox.addActionListener(e -> {
@@ -216,15 +250,26 @@ public class SearchView {
     public JPanel getNumOfShots() {
         JPanel numOfShotsPanel = new JPanel();
         numOfShotsPanel.setLayout(new BoxLayout(numOfShotsPanel, BoxLayout.Y_AXIS));
+
+        JPanel innerPanel = new JPanel();
+        innerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0)); // Use FlowLayout for single line layout
+
         JLabel numOfShotsLabel = new JLabel("Number of Shots:");
-        numOfShotsPanel.add(numOfShotsLabel);
+        innerPanel.add(numOfShotsLabel);
 
         JTextField numOfShotsField = new JTextField();
+        numOfShotsField.setPreferredSize(new Dimension(50, 25)); // Set preferred size
+        numOfShotsField.setColumns(10); // Set columns to make it expand
         numOfShotsField.addActionListener(e -> this.userNumOfShots = Integer.parseInt(numOfShotsField.getText()));
-        numOfShotsPanel.add(numOfShotsField);
+        innerPanel.add(numOfShotsField);
+
+        numOfShotsPanel.add(innerPanel);
 
         return numOfShotsPanel;
     }
+
+
+
 
     /*--------------Tea Criteria--------------*/
 
@@ -241,28 +286,49 @@ public class SearchView {
     public JPanel getTemperature() {
         JPanel temperaturePanel = new JPanel();
         temperaturePanel.setLayout(new BoxLayout(temperaturePanel, BoxLayout.Y_AXIS));
+
+        JPanel innerPanel = new JPanel();
+        innerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0)); // Use FlowLayout for single line layout
+
         JLabel temperatureLabel = new JLabel("Temperature:");
-        temperaturePanel.add(temperatureLabel);
+        innerPanel.add(temperatureLabel);
 
         JComboBox<Temperature> temperatureComboBox = new JComboBox<>(Temperature.values());
+        temperatureComboBox.setPreferredSize(new Dimension(200, 25)); // Adjust the width to fit the longest text
         temperatureComboBox.addActionListener(e -> this.userTemperature = (Temperature) temperatureComboBox.getSelectedItem());
-        temperaturePanel.add(temperatureComboBox);
+        innerPanel.add(temperatureComboBox);
+
+        temperaturePanel.add(innerPanel);
 
         return temperaturePanel;
     }
 
+
+
+
     public JPanel getSteepTime() {
         JPanel steepTimePanel = new JPanel();
         steepTimePanel.setLayout(new BoxLayout(steepTimePanel, BoxLayout.Y_AXIS));
+
+        JPanel innerPanel = new JPanel();
+        innerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0)); // Use FlowLayout for single line layout
+
         JLabel steepTimeLabel = new JLabel("Steep Time:");
-        steepTimePanel.add(steepTimeLabel);
+        innerPanel.add(steepTimeLabel);
 
         JTextField steepTimeField = new JTextField();
+        steepTimeField.setPreferredSize(new Dimension(50, 25)); // Set preferred size
+        steepTimeField.setColumns(10); // Set columns to make it expand
         steepTimeField.addActionListener(e -> this.userSteepTime = Integer.parseInt(steepTimeField.getText()));
-        steepTimePanel.add(steepTimeField);
+        innerPanel.add(steepTimeField);
+
+        steepTimePanel.add(innerPanel);
 
         return steepTimePanel;
     }
+
+
+
 
     public JPanel generateImagePanel() {
 
