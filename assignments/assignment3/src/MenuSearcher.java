@@ -290,7 +290,6 @@ public class MenuSearcher {
 
     /**
      * Show the full menu to the user
-     * @return a Drink object representing the user's selected drink
      */
 
     private static void showFullMenu() {
@@ -344,7 +343,6 @@ public class MenuSearcher {
     /**
      * A method to customise the drink after selecting from the menu.
      * Uses the selectedDrink field to customise the drink.
-     * @return a Drink object representing the customised drink
      */
 
     private static void customiseDrink() {
@@ -354,7 +352,21 @@ public class MenuSearcher {
         }
 
         JPanel customizePanel = new JPanel();
-        customizePanel.setLayout(new BoxLayout(customizePanel, BoxLayout.Y_AXIS));
+        customizePanel.setLayout(new BorderLayout());
+
+        JLabel titleLabel = new JLabel("Customize Your Drink");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        titleLabel.setHorizontalAlignment(JLabel.CENTER);
+        customizePanel.add(titleLabel, BorderLayout.NORTH);
+
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Drink options (Milk options + Extras)
+        JPanel drinkOptionsPanel = new JPanel();
+        drinkOptionsPanel.setLayout(new BoxLayout(drinkOptionsPanel, BoxLayout.Y_AXIS));
+        drinkOptionsPanel.setBorder(BorderFactory.createTitledBorder("Drink Options"));
 
         // Milk options
         List<MilkOptions> milkOptions = (List<MilkOptions>) selectedDrink.genericFeatures().getCriteria(Criteria.MILK_TYPE);
@@ -363,53 +375,136 @@ public class MenuSearcher {
             milkPanel.add(new JLabel("Milk Options:"));
             JComboBox<MilkOptions> milkComboBox = new JComboBox<>(milkOptions.toArray(new MilkOptions[0]));
             milkPanel.add(milkComboBox);
-            customizePanel.add(milkPanel);
+            drinkOptionsPanel.add(milkPanel);
         }
 
-        // Extras
+        // Extras with checkboxes
         List<String> extras = (List<String>) selectedDrink.genericFeatures().getCriteria(Criteria.EXTRAS);
         if (!extras.isEmpty()) {
-            JPanel extrasPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            extrasPanel.add(new JLabel("Extras:"));
-            DefaultListModel<String> listModel = new DefaultListModel<>();
+            JPanel extrasPanel = new JPanel();
+            extrasPanel.setLayout(new BoxLayout(extrasPanel, BoxLayout.Y_AXIS));
+
+            JLabel extrasLabel = new JLabel("Extras:");
+            extrasPanel.add(extrasLabel);
+
             for (String extra : extras) {
-                listModel.addElement(extra);
+                JCheckBox extraCheckBox = new JCheckBox(extra);
+                extrasPanel.add(extraCheckBox);
             }
-            JList<String> extrasList = new JList<>(listModel);
-            extrasList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-            JScrollPane extrasScrollPane = new JScrollPane(extrasList);
-            extrasScrollPane.setPreferredSize(new Dimension(200, 100));
-            extrasPanel.add(extrasScrollPane);
-            customizePanel.add(extrasPanel);
+
+            drinkOptionsPanel.add(extrasPanel);
         }
+
+        contentPanel.add(drinkOptionsPanel);
+
+        // Geek info
+        JPanel geekInfoPanel = getGeekInfoPanel();
+        contentPanel.add(geekInfoPanel);
 
         Map<Criteria, Object> criteria = new HashMap<>(selectedDrink.genericFeatures().getAllCriteria());
 
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
             if (!milkOptions.isEmpty()) {
-                JComboBox<MilkOptions> milkComboBox = (JComboBox<MilkOptions>) ((JPanel) customizePanel.getComponent(0)).getComponent(1);
+                JComboBox<MilkOptions> milkComboBox = (JComboBox<MilkOptions>) ((JPanel) drinkOptionsPanel.getComponent(0)).getComponent(1);
                 MilkOptions selectedMilk = (MilkOptions) milkComboBox.getSelectedItem();
                 criteria.put(Criteria.MILK_TYPE, List.of(selectedMilk));
             }
 
             if (!extras.isEmpty()) {
-                JList<String> extrasList = (JList<String>) ((JScrollPane) ((JPanel) customizePanel.getComponent(1)).getComponent(1)).getViewport().getView();
-                List<String> selectedExtras = extrasList.getSelectedValuesList();
+                JPanel extrasPanel = (JPanel) drinkOptionsPanel.getComponent(1);
+                List<String> selectedExtras = new ArrayList<>();
+                for (Component comp : extrasPanel.getComponents()) {
+                    if (comp instanceof JCheckBox) {
+                        JCheckBox checkBox = (JCheckBox) comp;
+                        if (checkBox.isSelected()) {
+                            selectedExtras.add(checkBox.getText());
+                        }
+                    }
+                }
                 criteria.put(Criteria.EXTRAS, selectedExtras);
             }
 
             Drink customisedDrink = new Drink(selectedDrink.id(), selectedDrink.name(), selectedDrink.price(), selectedDrink.description(), new DreamDrink(criteria));
 
-            // Get geek info and write order to file
-            Geek geek = getGeekInfo();
+            // Get geek info from fields
+            JTextField nameField = (JTextField) ((JPanel) geekInfoPanel.getComponent(0)).getComponent(1);
+            JTextField phoneField = (JTextField) ((JPanel) geekInfoPanel.getComponent(1)).getComponent(1);
+
+            String name = nameField.getText().trim();
+            String phoneNumber = phoneField.getText().trim();
+
+            if (name.isEmpty() || phoneNumber.isEmpty()) {
+                JOptionPane.showMessageDialog(mainWindow, "Please enter all required fields", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (!isValidPhoneNumber(phoneNumber)) {
+                JOptionPane.showMessageDialog(mainWindow, "Please enter a valid phone number", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Geek geek = new Geek(name, phoneNumber);
             writeOrderToFile(geek, customisedDrink);
+            JOptionPane.showMessageDialog(mainWindow, "Order saved!", "Success", JOptionPane.INFORMATION_MESSAGE);
         });
 
-        customizePanel.add(saveButton);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.add(saveButton);
+        contentPanel.add(buttonPanel);
+
+        customizePanel.add(contentPanel, BorderLayout.CENTER);
 
         mainWindow.setContentPane(customizePanel);
         mainWindow.revalidate();
+    }
+
+    private static JPanel getGeekInfoPanel() {
+        JPanel geekInfoPanel = new JPanel();
+        geekInfoPanel.setLayout(new BoxLayout(geekInfoPanel, BoxLayout.Y_AXIS));
+        geekInfoPanel.setBorder(BorderFactory.createTitledBorder("Geek Info"));
+
+        JPanel namePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        namePanel.add(new JLabel("Name:"));
+        JTextField nameField = new JTextField(20);
+        namePanel.add(nameField);
+        geekInfoPanel.add(namePanel);
+
+        JPanel phonePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        phonePanel.add(new JLabel("Phone Number:"));
+        JTextField phoneField = new JTextField(20);
+        phonePanel.add(phoneField);
+        geekInfoPanel.add(phonePanel);
+
+        return geekInfoPanel;
+    }
+    /**
+     * A method to write the order to a file.
+     * @param geek a Geek object representing the user's geek info
+     * @param drinkOrder a Coffee object representing the selected coffee
+     */
+
+    private static void writeOrderToFile(Geek geek, Drink drinkOrder) {
+        // Write Geek info and coffee order to file
+        try {
+            Path path = Path.of("order.txt");
+
+            StringBuilder orderDetails = new StringBuilder("Order details:\n");
+            orderDetails.append("\tName: ").append(geek.name()).append("\n");
+            orderDetails.append("\tOrder number: ").append(geek.phoneNumber()).append("\n");
+            orderDetails.append("\tItem: ").append(drinkOrder.name()).append(" (").append(drinkOrder.id()).append(")\n");
+            orderDetails.append("\tMilk: ").append(drinkOrder.genericFeatures().getCriteria(Criteria.MILK_TYPE)).append("\n");
+            List<String> extras = (List<String>) drinkOrder.genericFeatures().getCriteria(Criteria.EXTRAS);
+            if (extras.contains("None") || extras.isEmpty()){
+                orderDetails.append("\tExtras: None\n");
+            } else {
+                orderDetails.append("\tExtras: ").append(extras).append("\n");
+            }
+            Files.writeString(path, orderDetails.toString());
+            System.out.println("Order written to file");
+        } catch (IOException e) {
+            System.out.println("Error writing file: " + e.getMessage());
+        }
     }
 
 
@@ -551,223 +646,6 @@ public class MenuSearcher {
         return sb.toString().trim();
     }
 
-    /**
-     * A method to get the user's dream drink order.
-     * @return a Dream drink object representing the user's dream drink order
-     */
-
-    private static DreamDrink getDreamDrink() {
-        Map<Criteria, Object> criteria = new HashMap<>();
-
-        // Get the user's dream drink order
-        DrinkType drinkType = (DrinkType) JOptionPane.showInputDialog(null, "What type of drink would you like? (Coffee/Tea)", "Drink Type", JOptionPane.QUESTION_MESSAGE, icon, DrinkType.values(), DrinkType.COFFEE);
-        if (drinkType == null) {
-            System.exit(0);
-        }
-        criteria.put(Criteria.DRINK_TYPE, drinkType);
-
-        if (drinkType == DrinkType.COFFEE) {
-            int numberOfShots = -1;
-            while (numberOfShots < 0) {
-                String numberOfShotsString = JOptionPane.showInputDialog("Enter the number of shots: ");
-                if (numberOfShotsString == null) {
-                    System.exit(0);
-                }
-                try {
-                    numberOfShots = Integer.parseInt(numberOfShotsString);
-                    break;
-                } catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-                if (numberOfShots < 0) {
-                    JOptionPane.showMessageDialog(null, "Please enter a positive number", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-
-            criteria.put(Criteria.NUM_OF_SHOTS, numberOfShots);
-        }
-
-        if (drinkType == DrinkType.TEA) {
-            Temperature temperature = (Temperature) JOptionPane.showInputDialog(null, "What temperature would you like?", "Temperature", JOptionPane.QUESTION_MESSAGE, icon, Temperature.values(), Temperature.SKIP);
-            if (temperature == null) {
-                System.exit(0);
-            }
-            if (temperature != Temperature.SKIP) {
-                criteria.put(Criteria.TEMPERATURE, temperature);
-            }
-
-            int steepTime = -1;
-            List<String> steepTimeOptions = List.of("1", "2", "3", "4", "5", "6", "7", "8", "Skip");
-            String steepTimeString = null;
-            while (steepTime < 0) {
-                steepTimeString = (String) JOptionPane.showInputDialog(null, "Enter the steep time (minutes): ", "Steep Time", JOptionPane.QUESTION_MESSAGE, icon, steepTimeOptions.toArray(), steepTimeOptions.toArray()[0]);
-                if (steepTimeString == null) {
-                    System.exit(0);
-                }
-                if (steepTimeString.equalsIgnoreCase("SKIP")) break;
-                try {
-                    steepTime = Integer.parseInt(steepTimeString);
-                    break;
-                } catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-                if (steepTime < 0) {
-                    JOptionPane.showMessageDialog(null, "Please enter a positive number", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-            if (!steepTimeString.equalsIgnoreCase("SKIP")) {
-                criteria.put(Criteria.STEEP_TIME, steepTime);
-            }
-        }
-
-        MilkOptions selectedMilkOption = (MilkOptions) JOptionPane.showInputDialog(null, "What type of milk would you like?", "Milk Options", JOptionPane.QUESTION_MESSAGE, icon, MilkOptions.values(), MilkOptions.FULL_CREAM);
-        if (selectedMilkOption == null) {
-            System.exit(0);
-        }
-        if (selectedMilkOption != MilkOptions.SKIP) {
-            criteria.put(Criteria.MILK_TYPE, List.of(selectedMilkOption));
-        }
-
-        List<String> sugarOptions = List.of("Yes", "No", "Skip");
-        String sugar = (String) JOptionPane.showInputDialog(null, "Would you like sugar?", "Sugar", JOptionPane.QUESTION_MESSAGE, icon, sugarOptions.toArray(), sugarOptions.toArray()[0]);
-        if (sugar == null) {
-            System.exit(0);
-        }
-        if (!sugar.equalsIgnoreCase("SKIP")) {
-            criteria.put(Criteria.SUGAR, sugar.equalsIgnoreCase("Yes"));
-        }
-
-        Set<String> extras = menu.findExtras(drinkType);
-        extras.add("None");
-        extras.add("Skip");
-
-        List<String> selectedExtras = new ArrayList<>();
-
-        while (true) {
-            if (!selectedExtras.isEmpty()) {
-                extras.remove("None");
-            }
-            String selectedExtra = (String) JOptionPane.showInputDialog(null, "Select an extra", "Extras", JOptionPane.QUESTION_MESSAGE, icon, extras.toArray(), extras.toArray()[0]);
-            if (selectedExtra == null) {
-                System.exit(0);
-            }
-
-            if (selectedExtra.equalsIgnoreCase("Skip") || selectedExtra.equalsIgnoreCase("None")) {
-                if (selectedExtras.isEmpty()) {
-                    selectedExtras.add(selectedExtra);
-                }
-                break;
-            }
-            selectedExtras.add(selectedExtra);
-            extras.remove(selectedExtra);
-        }
-
-        if (!selectedExtras.contains("Skip")) {
-            criteria.put(Criteria.EXTRAS, selectedExtras);
-        }
-
-        // Get min and max price
-        int minPrice = -1;
-        while (minPrice < 0) {
-            String minPriceString = JOptionPane.showInputDialog("Enter the minimum price: ");
-            if (minPriceString == null) {
-                System.exit(0);
-            }
-            try {
-                minPrice = Integer.parseInt(minPriceString);
-                break;
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-            if (minPrice < 0) {
-                JOptionPane.showMessageDialog(null, "Please enter a positive number", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-
-        int maxPrice = -1;
-        while (maxPrice < minPrice) {
-            String maxPriceString = JOptionPane.showInputDialog("Enter the maximum price: ");
-            if (maxPriceString == null) {
-                System.exit(0);
-            }
-            try {
-                maxPrice = Integer.parseInt(maxPriceString);
-                break;
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-            if (maxPrice < minPrice) {
-                JOptionPane.showMessageDialog(null, "Please enter a number greater than or equal to the minimum price", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-
-        return new DreamDrink(minPrice, maxPrice, criteria);
-    }
-
-
-
-
-    /**
-     * A method to get the user's geek info.
-     * @return a Geek object representing the user's geek info
-     */
-    private static Geek getGeekInfo() {
-        String name;
-        while (true) {
-            name = JOptionPane.showInputDialog("Enter your name: ");
-            if (name == null) {
-                System.exit(0);
-            }
-            if (name.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Please enter a name", "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                break;
-            }
-        }
-
-        String phoneNumber;
-        while (true) {
-            phoneNumber = JOptionPane.showInputDialog("Enter your phone number: ");
-            if (phoneNumber == null) {
-                System.exit(0);
-            }
-            if (!isValidPhoneNumber(phoneNumber)) {
-                JOptionPane.showMessageDialog(null, "Please enter a valid phone number", "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                break;
-            }
-        }
-        return new Geek(name, phoneNumber);
-    }
-
-    /**
-     * A method to write the order to a file.
-     * @param geek a Geek object representing the user's geek info
-     * @param drinkOrder a Coffee object representing the selected coffee
-     */
-
-    private static void writeOrderToFile(Geek geek, Drink drinkOrder) {
-        // Write Geek info and coffee order to file
-        try {
-            Path path = Path.of("order.txt");
-
-            StringBuilder orderDetails = new StringBuilder("Order details:\n");
-            orderDetails.append("\tName: ").append(geek.name()).append("\n");
-            orderDetails.append("\tOrder number: ").append(geek.phoneNumber()).append("\n");
-            orderDetails.append("\tItem: ").append(drinkOrder.name()).append(" (").append(drinkOrder.id()).append(")\n");
-            orderDetails.append("\tMilk: ").append(drinkOrder.genericFeatures().getCriteria(Criteria.MILK_TYPE)).append("\n");
-            List<String> extras = (List<String>) drinkOrder.genericFeatures().getCriteria(Criteria.EXTRAS);
-            if (extras.contains("None") || extras.isEmpty()){
-                orderDetails.append("\tExtras: None\n");
-            } else {
-                orderDetails.append("\tExtras: ").append(extras).append("\n");
-            }
-            Files.writeString(path, orderDetails.toString());
-            System.out.println("Order written to file");
-        } catch (IOException e) {
-            System.out.println("Error writing file: " + e.getMessage());
-        }
-    }
     
     /**
      * A method to validate a phone number
