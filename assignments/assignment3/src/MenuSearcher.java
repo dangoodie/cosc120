@@ -234,7 +234,7 @@ public class MenuSearcher {
             return;
         }
 
-        Drink selectedDrink = null;
+        selectedDrink = null;
         for (Drink drink : potentialMatches) {
             if (drink.name().equals(selected)) {
                 selectedDrink = drink;
@@ -245,11 +245,8 @@ public class MenuSearcher {
             JOptionPane.showMessageDialog(null, "Error: Drink not found", "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
         }
-        Drink drinkOrder = customiseDrink(selectedDrink);
-        Geek geek = getGeekInfo();
-        writeOrderToFile(geek, drinkOrder);
-        JOptionPane.showMessageDialog(null, "Order written to file", appName, JOptionPane.INFORMATION_MESSAGE);
-        System.exit(0);
+
+        customiseDrink();
     }
 
     public static void reGenerateSearchView() {
@@ -305,13 +302,18 @@ public class MenuSearcher {
 
         List<Drink> drinks = new ArrayList<>(menu.getMenu());
         JScrollPane descriptionScrollPane = generateDrinkDescription(drinks);
+
+        // Increase the scroll speed
+        descriptionScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        descriptionScrollPane.getHorizontalScrollBar().setUnitIncrement(16);
+
         fullMenuPanel.add(descriptionScrollPane, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         ArrayList<String> listModel = new ArrayList<>();
         for (Drink drink : drinks) {
-            listModel.add(drink.name() + " (" + drink.id() + ") - $" + String.format("%.2f", drink.price()));
+            listModel.add(drink.name() + " (" + drink.id() + ")");
         }
 
         JComboBox<String> drinkComboBox = new JComboBox<>(listModel.toArray(new String[0]));
@@ -325,7 +327,7 @@ public class MenuSearcher {
                 int id = Integer.parseInt(selectedDrinkString.substring(selectedDrinkString.indexOf("(") + 1, selectedDrinkString.indexOf(")")));
                 selectedDrink = menu.getDrinkById(id);
                 if (selectedDrink != null) {
-                    customiseDrink(selectedDrink);
+                    customiseDrink();
                 } else {
                     JOptionPane.showMessageDialog(mainWindow, "Error: Drink not found", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -336,6 +338,77 @@ public class MenuSearcher {
         fullMenuPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         mainWindow.setContentPane(fullMenuPanel);
+        mainWindow.revalidate();
+    }
+
+    /**
+     * A method to customise the drink after selecting from the menu.
+     * Uses the selectedDrink field to customise the drink.
+     * @return a Drink object representing the customised drink
+     */
+
+    private static void customiseDrink() {
+        if (selectedDrink == null) {
+            JOptionPane.showMessageDialog(mainWindow, "No drink selected", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JPanel customizePanel = new JPanel();
+        customizePanel.setLayout(new BoxLayout(customizePanel, BoxLayout.Y_AXIS));
+
+        // Milk options
+        List<MilkOptions> milkOptions = (List<MilkOptions>) selectedDrink.genericFeatures().getCriteria(Criteria.MILK_TYPE);
+        if (!milkOptions.isEmpty()) {
+            JPanel milkPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            milkPanel.add(new JLabel("Milk Options:"));
+            JComboBox<MilkOptions> milkComboBox = new JComboBox<>(milkOptions.toArray(new MilkOptions[0]));
+            milkPanel.add(milkComboBox);
+            customizePanel.add(milkPanel);
+        }
+
+        // Extras
+        List<String> extras = (List<String>) selectedDrink.genericFeatures().getCriteria(Criteria.EXTRAS);
+        if (!extras.isEmpty()) {
+            JPanel extrasPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            extrasPanel.add(new JLabel("Extras:"));
+            DefaultListModel<String> listModel = new DefaultListModel<>();
+            for (String extra : extras) {
+                listModel.addElement(extra);
+            }
+            JList<String> extrasList = new JList<>(listModel);
+            extrasList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+            JScrollPane extrasScrollPane = new JScrollPane(extrasList);
+            extrasScrollPane.setPreferredSize(new Dimension(200, 100));
+            extrasPanel.add(extrasScrollPane);
+            customizePanel.add(extrasPanel);
+        }
+
+        Map<Criteria, Object> criteria = new HashMap<>(selectedDrink.genericFeatures().getAllCriteria());
+
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(e -> {
+            if (!milkOptions.isEmpty()) {
+                JComboBox<MilkOptions> milkComboBox = (JComboBox<MilkOptions>) ((JPanel) customizePanel.getComponent(0)).getComponent(1);
+                MilkOptions selectedMilk = (MilkOptions) milkComboBox.getSelectedItem();
+                criteria.put(Criteria.MILK_TYPE, List.of(selectedMilk));
+            }
+
+            if (!extras.isEmpty()) {
+                JList<String> extrasList = (JList<String>) ((JScrollPane) ((JPanel) customizePanel.getComponent(1)).getComponent(1)).getViewport().getView();
+                List<String> selectedExtras = extrasList.getSelectedValuesList();
+                criteria.put(Criteria.EXTRAS, selectedExtras);
+            }
+
+            Drink customisedDrink = new Drink(selectedDrink.id(), selectedDrink.name(), selectedDrink.price(), selectedDrink.description(), new DreamDrink(criteria));
+
+            // Get geek info and write order to file
+            Geek geek = getGeekInfo();
+            writeOrderToFile(geek, customisedDrink);
+        });
+
+        customizePanel.add(saveButton);
+
+        mainWindow.setContentPane(customizePanel);
         mainWindow.revalidate();
     }
 
@@ -629,67 +702,6 @@ public class MenuSearcher {
         }
 
         return new DreamDrink(minPrice, maxPrice, criteria);
-    }
-
-
-    /**
-     * A method to customise the drink after selecting from the menu.
-     * @param drinkOrder a Drink object representing the selected drink
-     * @return a Drink object representing the customised drink
-     */
-
-    private static Drink customiseDrink(Drink drinkOrder) {
-        Map<Criteria, Object> criteria = new HashMap<>(drinkOrder.genericFeatures().getAllCriteria());
-
-        List<MilkOptions> milkOptions = new ArrayList<>((List<MilkOptions>) drinkOrder.genericFeatures().getCriteria(Criteria.MILK_TYPE));
-        if (milkOptions.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "No milk available for this drink");
-        } else {
-            MilkOptions selectedMilk = (MilkOptions) JOptionPane.showInputDialog(null, "Select a milk option", "Milk Options", JOptionPane.QUESTION_MESSAGE, icon, milkOptions.toArray(), milkOptions.toArray()[0]);
-            if (selectedMilk == null) {
-                System.exit(0);
-            }
-            criteria.put(Criteria.MILK_TYPE, List.of(selectedMilk));
-        }
-
-        DrinkType drinkType = (DrinkType) drinkOrder.genericFeatures().getCriteria(Criteria.DRINK_TYPE);
-
-        List<String> extras = (List<String>) drinkOrder.genericFeatures().getCriteria(Criteria.EXTRAS);
-        if (extras.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "No extras available for this drink");
-        } else {
-            extras.add("None");
-            extras.add("Skip");
-
-            List<String> selectedExtras = new ArrayList<>();
-
-            while (true) {
-                if (!selectedExtras.isEmpty()) {
-                    extras.remove("None");
-                }
-                if (extras.size() == 1 && extras.contains("Skip")) { // no more extras to select
-                    JOptionPane.showMessageDialog(null, "All available extras have been selected.");
-                    break;
-                }
-                String selectedExtra = (String) JOptionPane.showInputDialog(null, "Select an extra", "Extras", JOptionPane.QUESTION_MESSAGE, icon, extras.toArray(), extras.toArray()[0]);
-                if (selectedExtra == null) {
-                    System.exit(0);
-                }
-
-                if (selectedExtra.equalsIgnoreCase("Skip") || selectedExtra.equalsIgnoreCase("None")) {
-                    if (selectedExtras.isEmpty()) {
-                        selectedExtras.add("None");
-                    }
-                    break;
-                }
-                selectedExtras.add(selectedExtra);
-                extras.remove(selectedExtra);
-            }
-
-            criteria.put(Criteria.EXTRAS, selectedExtras);
-        }
-
-        return new Drink(drinkOrder.id(), drinkOrder.name(), drinkOrder.price(), drinkOrder.description(), new DreamDrink(criteria));
     }
 
 
