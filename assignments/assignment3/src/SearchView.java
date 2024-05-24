@@ -229,6 +229,7 @@ public class SearchView {
         innerPanel.add(sugarLabel);
 
         String[] sugarOptions = {"Yes", "No", "Skip"};
+        this.userSugar = sugarOptions[0]; // Default to "Yes"
         JComboBox<String> sugarComboBox = new JComboBox<>(sugarOptions);
         sugarComboBox.setPreferredSize(new Dimension(100, 25)); // Set preferred size
         sugarComboBox.addActionListener(e -> {

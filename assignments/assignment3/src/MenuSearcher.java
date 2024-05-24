@@ -203,7 +203,7 @@ public class MenuSearcher {
 
         optionsCombo = new JComboBox<>(options.keySet().toArray(new String[0]));
         optionsCombo.addItem("See the full menu");
-        
+
         JScrollPane scrollPane = new JScrollPane(drinkDescriptions);
         scrollPane.setPreferredSize(new Dimension(300, 450));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
