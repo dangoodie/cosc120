@@ -32,6 +32,6 @@ public record Drink(int id, String name, Double price, String description, Dream
      * @return the id of the drink
      */
     public String getDrinkDescription() {
-        return this.description + "\n" + this.genericFeatures.getDescription() + "Price: $" + String.format("%.2f", this.price) + "\n\n";
+        return this.name + "\n" + this.description + "\n" + this.genericFeatures.getDescription() + "Price: $" + String.format("%.2f", this.price) + "\n\n";
     }
 }
