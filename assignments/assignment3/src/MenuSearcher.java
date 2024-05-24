@@ -227,6 +227,12 @@ public class MenuSearcher {
 
     public static void selectFromResults(List<Drink> potentialMatches) {
         String selected = (String) optionsCombo.getSelectedItem();
+
+        if (selected.equalsIgnoreCase("See the full menu")) {
+            showFullMenu();
+            return;
+        }
+
         Drink selectedDrink = null;
         for (Drink drink : potentialMatches) {
             if (drink.name().equals(selected)) {
@@ -252,8 +258,36 @@ public class MenuSearcher {
     }
 
     public static void noResults() {
-        JOptionPane.showMessageDialog(null, "No matches found", appName, JOptionPane.INFORMATION_MESSAGE);
-        reGenerateSearchView();
+        // give user the option to search again or see the full menu
+        JPanel noResults = new JPanel();
+        noResults.setLayout(new BorderLayout(10, 10)); // Adding gaps between components
+
+        // Title
+        JLabel title = new JLabel("No results found", JLabel.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 16)); // Setting a larger font for the title
+        noResults.add(title, BorderLayout.NORTH);
+
+        // Button panel
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 10)); // Centering buttons with gaps
+
+        JButton searchAgain = new JButton("Search Again");
+        ActionListener actionListener = e -> reGenerateSearchView();
+        searchAgain.addActionListener(actionListener);
+
+        JButton fullMenu = new JButton("See the full menu");
+        ActionListener fullMenuActionListener = e -> showFullMenu();
+        fullMenu.addActionListener(fullMenuActionListener);
+
+        // Add buttons to the button panel
+        buttonPanel.add(searchAgain);
+        buttonPanel.add(fullMenu);
+
+        noResults.add(buttonPanel, BorderLayout.CENTER);
+
+        mainWindow.setContentPane(noResults);
+        mainWindow.revalidate();
+        mainWindow.repaint();
     }
 
     /**
