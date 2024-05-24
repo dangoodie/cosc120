@@ -95,7 +95,7 @@ public class MenuSearcher {
         int minPrice = searchCriteria.getUserMinPrice();
         int maxPrice = searchCriteria.getUserMaxPrice();
         MilkOptions milk = searchCriteria.getUserMilkOption();
-        Boolean sugar = searchCriteria.getUserSugar();
+        String sugarString = searchCriteria.getUserSugar();
         Set<String> extras = searchCriteria.getUserExtras();
 
         if (type.equals(DrinkType.COFFEE)) {
@@ -116,8 +116,8 @@ public class MenuSearcher {
             criteria.put(Criteria.MILK_TYPE, milk);
         }
 
-        if (sugar != null) {
-            criteria.put(Criteria.SUGAR, sugar);
+        if (!sugarString.equalsIgnoreCase("Skip")) {
+            criteria.put(Criteria.SUGAR, sugarString.equalsIgnoreCase("Yes"));
         }
 
         if (!extras.isEmpty()) {

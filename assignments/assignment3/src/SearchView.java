@@ -33,7 +33,7 @@ public class SearchView {
     private int userMinPrice;
     private int userMaxPrice;
     private MilkOptions userMilkOption;
-    private boolean userSugar;
+    private String userSugar;
     private Set<String> userExtras;
     private int userNumOfShots;
     private Temperature userTemperature;
@@ -233,11 +233,8 @@ public class SearchView {
         sugarComboBox.setPreferredSize(new Dimension(100, 25)); // Set preferred size
         sugarComboBox.addActionListener(e -> {
             String selected = (String) sugarComboBox.getSelectedItem();
-            if ("Skip".equals(selected)) {
-                this.userSugar = false;
-            } else {
-                this.userSugar = "Yes".equals(selected);
-            }
+            // Set user sugar to true if "Yes" is selected, false if "No" is selected, and skip if "Skip" is selected
+            this.userSugar = selected;
         });
         innerPanel.add(sugarComboBox);
 
@@ -404,7 +401,7 @@ public class SearchView {
         return this.userMilkOption;
     }
 
-    public boolean getUserSugar() {
+    public String getUserSugar() {
         return this.userSugar;
     }
 
