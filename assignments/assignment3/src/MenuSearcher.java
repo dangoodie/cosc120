@@ -36,7 +36,7 @@ public class MenuSearcher {
     private static JPanel searchView = null;
     private static JComboBox<String> optionsCombo = null;
 
-    private static Set<String> availableExtras = new HashSet<>();
+    private static Drink selectedDrink = null;
 
     /**
      * The main method of the program.
@@ -207,6 +207,7 @@ public class MenuSearcher {
         JScrollPane scrollPane = new JScrollPane(drinkDescriptions);
         scrollPane.setPreferredSize(new Dimension(300, 450));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         SwingUtilities.invokeLater(() -> scrollPane.getViewport().setViewPosition(new Point(0, 0)));
         return scrollPane;
     }
@@ -289,6 +290,55 @@ public class MenuSearcher {
         mainWindow.revalidate();
         mainWindow.repaint();
     }
+
+    /**
+     * Show the full menu to the user
+     * @return a Drink object representing the user's selected drink
+     */
+
+    private static void showFullMenu() {
+        JPanel fullMenuPanel = new JPanel(new BorderLayout());
+
+        JLabel titleLabel = new JLabel("Full Menu");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        fullMenuPanel.add(titleLabel, BorderLayout.NORTH);
+
+        List<Drink> drinks = new ArrayList<>(menu.getMenu());
+        JScrollPane descriptionScrollPane = generateDrinkDescription(drinks);
+        fullMenuPanel.add(descriptionScrollPane, BorderLayout.CENTER);
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+        ArrayList<String> listModel = new ArrayList<>();
+        for (Drink drink : drinks) {
+            listModel.add(drink.name() + " (" + drink.id() + ") - $" + String.format("%.2f", drink.price()));
+        }
+
+        JComboBox<String> drinkComboBox = new JComboBox<>(listModel.toArray(new String[0]));
+        drinkComboBox.setPreferredSize(new Dimension(400, 25));
+        bottomPanel.add(drinkComboBox);
+
+        JButton selectButton = new JButton("Select");
+        selectButton.addActionListener(e -> {
+            String selectedDrinkString = (String) drinkComboBox.getSelectedItem();
+            if (selectedDrinkString != null) {
+                int id = Integer.parseInt(selectedDrinkString.substring(selectedDrinkString.indexOf("(") + 1, selectedDrinkString.indexOf(")")));
+                selectedDrink = menu.getDrinkById(id);
+                if (selectedDrink != null) {
+                    customiseDrink(selectedDrink);
+                } else {
+                    JOptionPane.showMessageDialog(mainWindow, "Error: Drink not found", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        bottomPanel.add(selectButton);
+
+        fullMenuPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        mainWindow.setContentPane(fullMenuPanel);
+        mainWindow.revalidate();
+    }
+
 
     /**
      * A method to load the menu from a file.
@@ -581,107 +631,6 @@ public class MenuSearcher {
         return new DreamDrink(minPrice, maxPrice, criteria);
     }
 
-    /**
-     * A method to build a message showing the drinks found.
-     * @param matches a List of Drink objects representing the drinks found
-     * @return a String representing the message
-     */
-
-    private static JTextPane buildFoundMessage(List<Drink> matches) {
-        JTextPane textPane = new JTextPane();
-        StyledDocument doc = textPane.getStyledDocument();
-
-        // define a bold attribute
-        SimpleAttributeSet bold = new SimpleAttributeSet();
-        StyleConstants.setBold(bold, true);
-
-        // define a bold and italic attribute
-        SimpleAttributeSet boldItalic = new SimpleAttributeSet();
-        StyleConstants.setBold(boldItalic, true);
-        StyleConstants.setItalic(boldItalic, true);
-
-        // define a regular attribute
-        SimpleAttributeSet regular = new SimpleAttributeSet();
-        StyleConstants.setBold(regular, false);
-
-        // Add the message to the text pane
-        try {
-            doc.insertString(doc.getLength(), "Matches found:\n\n", bold);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-
-        for (Drink drink : matches) {
-           try{
-               // Add title with bold attribute
-               doc.insertString(doc.getLength(), drink.name() + " (" + drink.id() + ")\n", boldItalic);
-
-               // Add description with regular attribute
-               doc.insertString(doc.getLength(), drink.getDrinkDescription() + "\n\n", regular);
-           } catch (BadLocationException e) {
-               e.printStackTrace();
-           }
-        }
-        return textPane;
-    }
-
-    /**
-     * A method to get the user's final drink order.
-     * @return a Coffee object representing the user's final coffee order
-     */
-
-    private static Drink getDrinkOrder(DreamDrink dreamDrink) {
-
-        // Find the coffees that match the user's dream drink order
-        List<Drink> matches = menu.findDreamDrink(dreamDrink);
-
-        // If there are matches then show the user the matches and let them select a coffee or see the full menu
-        Drink selection = null;
-        if (!matches.isEmpty()) {
-            JTextPane message = buildFoundMessage(matches);
-
-            List<String> matchesMenu = new ArrayList<>();
-            matchesMenu.add("See the full menu");
-            for (Drink drink : matches) {
-                matchesMenu.add(drink.name() + " (" + drink.id() + ") - $" + String.format("%.2f", drink.price()));
-            }
-            String selectionString = (String) JOptionPane.showInputDialog(null, message, appName, JOptionPane.QUESTION_MESSAGE, icon, matchesMenu.toArray(), matchesMenu.get(0));
-            if (selectionString == null) {
-                System.exit(0);
-            }
-
-            if (!selectionString.equalsIgnoreCase("See the full menu")) {
-                Drink drinkSelection = menu.getDrinkById(Integer.parseInt(selectionString.substring(selectionString.indexOf("(") + 1, selectionString.indexOf(")"))));
-                selection = new Drink(drinkSelection.id(), drinkSelection.name(), drinkSelection.price(), drinkSelection.description(), dreamDrink);
-            }
-
-        } else { // No matches found - show a message and let the user see the full menu
-            JOptionPane.showMessageDialog(null, "No matches!", appName, JOptionPane.INFORMATION_MESSAGE);
-        }
-
-        Drink drinkOrder = null;
-        if (selection != null) { // user selected a drink from the matches
-            drinkOrder = menu.getDrinkById(selection.id());
-
-        } else {
-            drinkOrder = showFullMenu();
-        }
-
-        if (selection != null) { // offer to keep the drink as the dream drink or customise it
-            int customise = JOptionPane.showConfirmDialog(null, "Do you want to keep your previous selections?", appName, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
-
-            if (customise == JOptionPane.NO_OPTION) {
-                drinkOrder = customiseDrink(drinkOrder);
-            } else {
-                dreamDrink.filterExtras(drinkOrder); // filters excess extras carried over from DreamDrink selection not available for that drink
-                drinkOrder = new Drink(drinkOrder.id(), drinkOrder.name(), drinkOrder.price(), drinkOrder.description(), dreamDrink);
-            }
-        } else { // user selected a drink from the full menu
-            drinkOrder = customiseDrink(drinkOrder);
-        }
-
-        return drinkOrder;
-    }
 
     /**
      * A method to customise the drink after selecting from the menu.
@@ -743,31 +692,8 @@ public class MenuSearcher {
         return new Drink(drinkOrder.id(), drinkOrder.name(), drinkOrder.price(), drinkOrder.description(), new DreamDrink(criteria));
     }
 
-    /**
-     * Show the full menu to the user
-     * @return a Drink object representing the user's selected drink
-     */
 
-    private static Drink showFullMenu() {
-        // User wants to see the full menu
-        List<String> drinkOptions = new ArrayList<>();
-        for (Drink drink : menu.getMenu()) {
-            drinkOptions.add(drink.name() + " (" + drink.id() + ") - $" + String.format("%.2f", drink.price()));
-        }
 
-        String selectedDrink = (String) JOptionPane.showInputDialog(null, "Select a drink", appName, JOptionPane.QUESTION_MESSAGE, icon, drinkOptions.toArray(), drinkOptions.toArray()[0]);
-        if (selectedDrink == null) {
-            System.exit(0);
-        }
-
-        int id = Integer.parseInt(selectedDrink.substring(selectedDrink.indexOf("(") + 1, selectedDrink.indexOf(")")));
-        Drink drinkOrder = menu.getDrinkById(id);
-        if (drinkOrder == null) {
-            JOptionPane.showMessageDialog(null, "Error: Drink not found", "Error", JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
-        }
-        return drinkOrder;
-    }
 
     /**
      * A method to get the user's geek info.
