@@ -1,6 +1,6 @@
 Order details:
-	Name: Daniel Gooden
-	Order number: 0405050050
-	Item: Cortado (30220)
-	Milk: [Full-cream]
-	Extras: None
+	Name: Glop
+	Order number: 0404040040
+	Item: White Tea (49959)
+	Milk: []
+	Extras: [Honey, Agave Syrup, Mint]

@@ -412,7 +412,7 @@ public class MenuSearcher {
             }
 
             if (!extras.isEmpty()) {
-                JPanel extrasPanel = (JPanel) drinkOptionsPanel.getComponent(1);
+                JPanel extrasPanel = (JPanel) drinkOptionsPanel.getComponent(0);
                 List<String> selectedExtras = new ArrayList<>();
                 for (Component comp : extrasPanel.getComponents()) {
                     if (comp instanceof JCheckBox) {
@@ -447,6 +447,7 @@ public class MenuSearcher {
             Geek geek = new Geek(name, phoneNumber);
             writeOrderToFile(geek, customisedDrink);
             JOptionPane.showMessageDialog(mainWindow, "Order saved!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            System.exit(0);
         });
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
