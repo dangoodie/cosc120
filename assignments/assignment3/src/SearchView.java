@@ -1,13 +1,16 @@
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * A class that represents the search view of the application.
+ * This search view contains user inputs to search through the menu.
+ * It has been modified from UNE COSC120 Lecture 10 material.
+ */
 public class SearchView {
     private DrinkType drinkType;
     private final Menu menu;
@@ -38,7 +41,10 @@ public class SearchView {
     private int userNumOfShots;
     private Temperature userTemperature;
     private int userSteepTime;
-
+    /**
+     * Constructor used to create a SearchView object.
+     * @param menu the menu object to search through
+     */
     public SearchView(Menu menu) {
         this.menu = menu;
         this.availableExtras = new HashSet<>();
@@ -46,6 +52,11 @@ public class SearchView {
         this.availableTemperatures = new HashSet<>();
         this.userExtras = new HashSet<>();
     }
+
+    /**
+     * Generates the search view.
+     * @return a JPanel containing the search view
+     */
 
     public JPanel generateSearchView() {
         JPanel criteria = new JPanel();
@@ -70,13 +81,16 @@ public class SearchView {
         return criteria;
     }
 
+    /**
+     * Generates the drink type panel.
+     * @return a JPanel containing the drink type panel
+     */
     public JPanel userInputDrinkType() {
         JPanel drinkTypePanel = new JPanel();
         drinkTypePanel.setLayout(new BoxLayout(drinkTypePanel, BoxLayout.Y_AXIS));
 
         JPanel innerPanel = new JPanel();
         innerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
-
         JLabel drinkTypeLabel = new JLabel("Drink Type:");
         innerPanel.add(drinkTypeLabel);
 
@@ -99,7 +113,10 @@ public class SearchView {
         return drinkTypePanel;
     }
 
-
+    /**
+     * Method to show the specific drink panel based on the selected drink type.
+     * @param drinkTypeComboBox the combo box containing the drink type
+     */
     public void ifTypeSelected(JComboBox<DrinkType> drinkTypeComboBox) {
         this.drinkType = (DrinkType) drinkTypeComboBox.getSelectedItem();
         availableExtras = menu.findExtras(drinkType);
@@ -115,7 +132,12 @@ public class SearchView {
     }
 
     /*--------------Generic Criteria--------------*/
-
+    /**
+     * Generates the generic criteria panel.
+     * This panel contains the generic criteria that are common to all drinks.
+     * It includes price range, milk options, sugar, and extras.
+     * @return a JPanel containing the generic criteria panel
+     */
     public JPanel userInputGenericCriteria() {
         JPanel genericCriteriaPanel = new JPanel();
         genericCriteriaPanel.setLayout(new BoxLayout(genericCriteriaPanel, BoxLayout.Y_AXIS));
@@ -135,6 +157,10 @@ public class SearchView {
         return genericCriteriaPanel;
     }
 
+    /**
+     * Generates the price range panel.
+     * @return a JPanel containing the price range panel
+     */
     public JPanel getPriceRange() {
         JPanel priceRangePanel = new JPanel();
         priceRangePanel.setLayout(new BoxLayout(priceRangePanel, BoxLayout.Y_AXIS));
@@ -210,7 +236,10 @@ public class SearchView {
         return priceRangePanel;
     }
 
-
+    /**
+     * Generates the milk options panel.
+     * @return a JPanel containing the milk options panel
+     */
     public JPanel getMilkOptions() {
         JPanel milkOptionsPanel = new JPanel();
         milkOptionsPanel.setLayout(new BoxLayout(milkOptionsPanel, BoxLayout.Y_AXIS));
@@ -233,7 +262,10 @@ public class SearchView {
         return milkOptionsPanel;
     }
 
-
+    /**
+     * Generates the sugar panel.
+     * @return a JPanel containing the sugar panel
+     */
     public JPanel getSugar() {
         JPanel sugarPanel = new JPanel();
         sugarPanel.setLayout(new BoxLayout(sugarPanel, BoxLayout.Y_AXIS));
@@ -260,6 +292,10 @@ public class SearchView {
         return sugarPanel;
     }
 
+    /**
+     * Refreshes the extras panel with the available extras
+     * based on the type of drink selected.
+     */
     public void refreshExtrasPanel() {
         this.extrasPanel.removeAll();
         JLabel extrasLabel = new JLabel("Extras:");
@@ -285,6 +321,10 @@ public class SearchView {
 
     /*--------------Coffee Criteria--------------*/
 
+    /**
+     * Generates the coffee criteria panel.
+     * @return a JPanel containing the coffee criteria panel
+     */
     public JPanel userInputCoffeeCriteria() {
         JPanel coffeeCriteriaPanel = new JPanel();
         coffeeCriteriaPanel.setLayout(new BoxLayout(coffeeCriteriaPanel, BoxLayout.Y_AXIS));
@@ -294,6 +334,10 @@ public class SearchView {
         return coffeeCriteriaPanel;
     }
 
+    /**
+     * Generates the number of shots panel.
+     * @return a JPanel containing the number of shots panel
+     */
     public JPanel getNumOfShots() {
         JPanel numOfShotsPanel = new JPanel();
         numOfShotsPanel.setLayout(new BoxLayout(numOfShotsPanel, BoxLayout.Y_AXIS));
@@ -324,6 +368,10 @@ public class SearchView {
 
     /*--------------Tea Criteria--------------*/
 
+    /**
+     * Generates the tea criteria panel.
+     * @return a JPanel containing the tea criteria panel
+     */
     public JPanel userInputTeaCriteria() {
         JPanel teaCriteriaPanel = new JPanel();
         teaCriteriaPanel.setLayout(new BoxLayout(teaCriteriaPanel, BoxLayout.Y_AXIS));
@@ -334,6 +382,10 @@ public class SearchView {
         return teaCriteriaPanel;
     }
 
+    /**
+     * Generates the temperature panel.
+     * @return a JPanel containing the temperature panel
+     */
     public JPanel getTemperature() {
         JPanel temperaturePanel = new JPanel();
         temperaturePanel.setLayout(new BoxLayout(temperaturePanel, BoxLayout.Y_AXIS));
@@ -356,9 +408,10 @@ public class SearchView {
         return temperaturePanel;
     }
 
-
-
-
+    /**
+     * Generates the steep time panel.
+     * @return a JPanel containing the steep time panel
+     */
     public JPanel getSteepTime() {
         JPanel steepTimePanel = new JPanel();
         steepTimePanel.setLayout(new BoxLayout(steepTimePanel, BoxLayout.Y_AXIS));
@@ -387,10 +440,10 @@ public class SearchView {
         return steepTimePanel;
     }
 
-
-
-
-
+    /**
+     * Generates the image panel.
+     * @return a JPanel containing the image panel
+     */
     public JPanel generateImagePanel() {
 
         // load images of coffee and tea
@@ -406,50 +459,86 @@ public class SearchView {
 
     /*--------------Getters--------------*/
 
+    /**
+     * @return the user's minimum price
+     */
     public float getUserMinPrice() {
         return this.userMinPrice;
     }
 
+    /**
+     * @return the user's maximum price
+     */
     public float getUserMaxPrice() {
         return this.userMaxPrice;
     }
 
+    /**
+     * @return the user's milk option
+     */
     public MilkOptions getUserMilkOption() {
         return this.userMilkOption;
     }
 
+    /**
+     * @return the user's sugar choice
+     */
     public String getUserSugar() {
         return this.userSugar;
     }
 
+    /**
+     * @return the user's extras
+     */
     public Set<String> getUserExtras() {
         return this.userExtras;
     }
 
+    /**
+     * @return the user's number of shots
+     */
     public int getUserNumOfShots() {
         return this.userNumOfShots;
     }
 
+    /**
+     * @return the user's temperature
+     */
     public Temperature getUserTemperature() {
         return this.userTemperature;
     }
 
+    /**
+     * @return the user's steep time
+     */
     public int getUserSteepTime() {
         return this.userSteepTime;
     }
 
+    /**
+     * @return the drink type
+     */
     public DrinkType getDrinkType() {
         return this.drinkType;
     }
 
+    /**
+     * @return the available milk options
+     */
     public Set<MilkOptions> getAvailableMilkOptions() {
         return this.availableMilkOptions;
     }
 
+    /**
+     * @return the available extras
+     */
     public Set<String> getAvailableExtras() {
         return this.availableExtras;
     }
 
+    /**
+     * @return the available temperatures
+     */
     public Set<Temperature> getAvailableTemperatures() {
         return this.availableTemperatures;
     }
