@@ -353,7 +353,6 @@ public class MenuSearcher {
 
         JPanel customizePanel = new JPanel();
         customizePanel.setLayout(new BorderLayout());
-        customizePanel.setPreferredSize(new Dimension(500, 500));
 
         JLabel titleLabel = new JLabel("Customize Your Drink");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
