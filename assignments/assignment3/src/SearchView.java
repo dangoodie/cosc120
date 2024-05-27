@@ -30,8 +30,8 @@ public class SearchView {
 
 
     // user choices
-    private int userMinPrice;
-    private int userMaxPrice;
+    private float userMinPrice;
+    private float userMaxPrice;
     private MilkOptions userMilkOption;
     private String userSugar;
     private Set<String> userExtras;
@@ -151,18 +151,26 @@ public class SearchView {
         minPriceField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                userMinPrice = Integer.parseInt(minPriceField.getText());
+                String minPriceText = minPriceField.getText();
+                if (minPriceText.isBlank()) {
+                    userMinPrice = 0;
+                } else {
+                    userMinPrice = Float.parseFloat(minPriceField.getText());
+                }
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                userMinPrice = Integer.parseInt(minPriceField.getText());
+                String minPriceText = minPriceField.getText();
+                if (minPriceText.isBlank()) {
+                    userMinPrice = 0;
+                } else {
+                    userMinPrice = Float.parseFloat(minPriceField.getText());
+                }
             }
 
             @Override
-            public void changedUpdate(DocumentEvent e) {
-                userMinPrice = Integer.parseInt(minPriceField.getText());
-            }
+            public void changedUpdate(DocumentEvent e) {} // do nothing
         });
         innerPanel.add(minPriceField);
 
@@ -174,18 +182,26 @@ public class SearchView {
         maxPriceField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                userMaxPrice = Integer.parseInt(maxPriceField.getText());
+                String maxPriceText = maxPriceField.getText();
+                if (maxPriceText.isBlank()) {
+                    userMaxPrice = Float.MAX_VALUE;
+                } else {
+                    userMaxPrice = Float.parseFloat(maxPriceField.getText());
+                }
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                userMaxPrice = Integer.parseInt(maxPriceField.getText());
+                String maxPriceText = maxPriceField.getText();
+                if (maxPriceText.isBlank()) {
+                    userMaxPrice = Float.MAX_VALUE;
+                } else {
+                    userMaxPrice = Float.parseFloat(maxPriceField.getText());
+                }
             }
 
             @Override
-            public void changedUpdate(DocumentEvent e) {
-                userMaxPrice = Integer.parseInt(maxPriceField.getText());
-            }
+            public void changedUpdate(DocumentEvent e) {} // do nothing
         });
         innerPanel.add(maxPriceField);
 
@@ -390,11 +406,11 @@ public class SearchView {
 
     /*--------------Getters--------------*/
 
-    public int getUserMinPrice() {
+    public float getUserMinPrice() {
         return this.userMinPrice;
     }
 
-    public int getUserMaxPrice() {
+    public float getUserMaxPrice() {
         return this.userMaxPrice;
     }
 

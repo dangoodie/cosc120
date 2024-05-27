@@ -1,6 +1,6 @@
 Order details:
-	Name: Glop
-	Order number: 0404040040
-	Item: White Tea (49959)
-	Milk: []
-	Extras: [Honey, Agave Syrup, Mint]
+	Name: Daniel Gooden
+	Order number: 0405050050
+	Item: Flat White Sucre (30223)
+	Milk: [Soy]
+	Extras: None
