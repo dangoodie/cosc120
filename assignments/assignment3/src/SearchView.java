@@ -2,6 +2,10 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.util.HashSet;
@@ -32,6 +36,9 @@ public class SearchView {
     // Tea fields
     private Set<Temperature> availableTemperatures;
 
+    // Decimal filter fields
+    private JTextField minPriceField;
+    private JTextField maxPriceField;
 
     // user choices
     private double userMinPrice;
@@ -194,69 +201,75 @@ public class SearchView {
         JLabel priceRangeLabel = new JLabel("Price Range:");
         innerPanel.add(priceRangeLabel);
 
-        JTextField minPriceField = new JTextField();
+        minPriceField = new JTextField();
         minPriceField.setPreferredSize(new Dimension(50, 25)); // Set preferred size to control height
         minPriceField.setColumns(10); // Set columns to make it expand
-        minPriceField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                String minPriceText = minPriceField.getText();
-                if (minPriceText.isBlank()) {
-                    userMinPrice = 0;
-                } else {
-                    userMinPrice = Double.parseDouble(minPriceField.getText());
-                }
-            }
 
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                String minPriceText = minPriceField.getText();
-                if (minPriceText.isBlank()) {
-                    userMinPrice = 0;
-                } else {
-                    userMinPrice = Double.parseDouble(minPriceField.getText());
-                }
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {} // do nothing
-        });
-        innerPanel.add(minPriceField);
-
-        innerPanel.add(new JLabel(" to "));
-
-        JTextField maxPriceField = new JTextField();
+        maxPriceField = new JTextField();
         maxPriceField.setPreferredSize(new Dimension(50, 25)); // Set preferred size to control height
         maxPriceField.setColumns(10); // Set columns to make it expand
-        maxPriceField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                String maxPriceText = maxPriceField.getText();
-                if (maxPriceText.isBlank()) {
-                    userMaxPrice = Double.MAX_VALUE;
-                } else {
-                    userMaxPrice = Double.parseDouble(maxPriceField.getText());
-                }
-            }
 
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                String maxPriceText = maxPriceField.getText();
-                if (maxPriceText.isBlank()) {
-                    userMaxPrice = Double.MAX_VALUE;
-                } else {
-                    userMaxPrice = Double.parseDouble(maxPriceField.getText());
-                }
-            }
+        minPriceField.getDocument().addDocumentListener(new PriceDocumentListener());
+        maxPriceField.getDocument().addDocumentListener(new PriceDocumentListener());
 
-            @Override
-            public void changedUpdate(DocumentEvent e) {} // do nothing
-        });
+        innerPanel.add(minPriceField);
+        innerPanel.add(new JLabel(" to "));
         innerPanel.add(maxPriceField);
 
         priceRangePanel.add(innerPanel);
 
         return priceRangePanel;
+    }
+
+    private class PriceDocumentListener implements DocumentListener {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            validatePrices();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            validatePrices();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            validatePrices();
+        }
+
+        private void validatePrices() {
+            String minText = minPriceField.getText();
+            String maxText = maxPriceField.getText();
+
+            try {
+                userMinPrice = minText.isEmpty() ? 0 : Double.parseDouble(minText);
+                if (userMinPrice < 0) throw new NumberFormatException();
+            } catch (NumberFormatException e) {
+                userMinPrice = 0;
+                minPriceField.setBackground(Color.PINK); // Indicate error
+                JOptionPane.showMessageDialog(null, "Please enter a valid positive number for the minimum price.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                userMaxPrice = maxText.isEmpty() ? Double.MAX_VALUE : Double.parseDouble(maxText);
+                if (userMaxPrice < 0) throw new NumberFormatException();
+            } catch (NumberFormatException e) {
+                userMaxPrice = Double.MAX_VALUE;
+                maxPriceField.setBackground(Color.PINK); // Indicate error
+                JOptionPane.showMessageDialog(null, "Please enter a valid positive number for the maximum price.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (userMaxPrice < userMinPrice) {
+                minPriceField.setBackground(Color.PINK); // Indicate error
+                maxPriceField.setBackground(Color.PINK); // Indicate error
+                JOptionPane.showMessageDialog(null, "Maximum price cannot be less than minimum price.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                minPriceField.setBackground(Color.WHITE); // Reset background
+                maxPriceField.setBackground(Color.WHITE); // Reset background
+            }
+        }
     }
 
     /**
