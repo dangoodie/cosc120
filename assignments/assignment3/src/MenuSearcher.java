@@ -353,6 +353,7 @@ public class MenuSearcher {
 
         JPanel customizePanel = new JPanel();
         customizePanel.setLayout(new BorderLayout());
+        customizePanel.setPreferredSize(new Dimension(500, 500));
 
         JLabel titleLabel = new JLabel("Customize Your Drink");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
@@ -360,18 +361,19 @@ public class MenuSearcher {
         customizePanel.add(titleLabel, BorderLayout.NORTH);
 
         JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setLayout(new GridLayout(0, 1)); // Adding gaps between components
         contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Drink options (Milk options + Extras)
         JPanel drinkOptionsPanel = new JPanel();
-        drinkOptionsPanel.setLayout(new BoxLayout(drinkOptionsPanel, BoxLayout.Y_AXIS));
+        drinkOptionsPanel.setLayout(new GridLayout(0, 1)); // Adding gaps between components
         drinkOptionsPanel.setBorder(BorderFactory.createTitledBorder("Drink Options"));
+        drinkOptionsPanel.setPreferredSize(new Dimension(400, 200));
 
         // Milk options
         List<MilkOptions> milkOptions = (List<MilkOptions>) selectedDrink.genericFeatures().getCriteria(Criteria.MILK_TYPE);
         if (!milkOptions.isEmpty()) {
-            JPanel milkPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JPanel milkPanel = new JPanel(new GridLayout(0, 1));
             milkPanel.add(new JLabel("Milk Options:"));
             JComboBox<MilkOptions> milkComboBox = new JComboBox<>(milkOptions.toArray(new MilkOptions[0]));
             milkPanel.add(milkComboBox);
@@ -382,7 +384,7 @@ public class MenuSearcher {
         List<String> extras = (List<String>) selectedDrink.genericFeatures().getCriteria(Criteria.EXTRAS);
         if (!extras.isEmpty()) {
             JPanel extrasPanel = new JPanel();
-            extrasPanel.setLayout(new BoxLayout(extrasPanel, BoxLayout.Y_AXIS));
+            extrasPanel.setLayout(new GridLayout(0, 1));
 
             JLabel extrasLabel = new JLabel("Extras:");
             extrasPanel.add(extrasLabel);
@@ -458,20 +460,21 @@ public class MenuSearcher {
 
         mainWindow.setContentPane(customizePanel);
         mainWindow.revalidate();
+        mainWindow.repaint();
     }
 
     private static JPanel getGeekInfoPanel() {
         JPanel geekInfoPanel = new JPanel();
-        geekInfoPanel.setLayout(new BoxLayout(geekInfoPanel, BoxLayout.Y_AXIS));
+        geekInfoPanel.setLayout(new GridLayout(0, 1));
         geekInfoPanel.setBorder(BorderFactory.createTitledBorder("Geek Info"));
 
-        JPanel namePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel namePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         namePanel.add(new JLabel("Name:"));
         JTextField nameField = new JTextField(20);
         namePanel.add(nameField);
         geekInfoPanel.add(namePanel);
 
-        JPanel phonePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel phonePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         phonePanel.add(new JLabel("Phone Number:"));
         JTextField phoneField = new JTextField(20);
         phonePanel.add(phoneField);
@@ -479,6 +482,7 @@ public class MenuSearcher {
 
         return geekInfoPanel;
     }
+
     /**
      * A method to write the order to a file.
      * @param geek a Geek object representing the user's geek info
