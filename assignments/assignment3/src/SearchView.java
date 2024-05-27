@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
@@ -41,6 +42,7 @@ public class SearchView {
     private int userNumOfShots;
     private Temperature userTemperature;
     private int userSteepTime;
+
     /**
      * Constructor used to create a SearchView object.
      * @param menu the menu object to search through
@@ -57,27 +59,38 @@ public class SearchView {
      * Generates the search view.
      * @return a JPanel containing the search view
      */
-
     public JPanel generateSearchView() {
         JPanel criteria = new JPanel();
         criteria.setLayout(new BoxLayout(criteria, BoxLayout.Y_AXIS));
+        criteria.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        // Title label
+        JLabel titleLabel = new JLabel("Search for your dream drink!");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        criteria.add(titleLabel);
+
+        criteria.add(Box.createRigidArea(new Dimension(0, 10)));
 
         JPanel type = this.userInputDrinkType();
-        type.setAlignmentX(0);
+        type.setAlignmentX(Component.LEFT_ALIGNMENT);
         criteria.add(type);
+
         JPanel generic = this.userInputGenericCriteria();
-        generic.setAlignmentX(0);
+        generic.setAlignmentX(Component.LEFT_ALIGNMENT);
         criteria.add(generic);
 
         criteria.add(Box.createRigidArea(new Dimension(0, 20)));
 
         this.typeOfDreamDrinkSpecificCriteriaPanel = new JPanel(cardLayout);
-        this.typeOfDreamDrinkSpecificCriteriaPanel.setAlignmentX(0);
+        this.typeOfDreamDrinkSpecificCriteriaPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         this.typeOfDreamDrinkSpecificCriteriaPanel.add(this.generateImagePanel(), IMAGE_PANEL);
         this.typeOfDreamDrinkSpecificCriteriaPanel.add(this.userInputCoffeeCriteria(), COFFEE_PANEL);
         this.typeOfDreamDrinkSpecificCriteriaPanel.add(this.userInputTeaCriteria(), TEA_PANEL);
 
         criteria.add(this.typeOfDreamDrinkSpecificCriteriaPanel);
+
+        criteria.add(Box.createRigidArea(new Dimension(0, 20)));
         return criteria;
     }
 
@@ -141,16 +154,26 @@ public class SearchView {
     public JPanel userInputGenericCriteria() {
         JPanel genericCriteriaPanel = new JPanel();
         genericCriteriaPanel.setLayout(new BoxLayout(genericCriteriaPanel, BoxLayout.Y_AXIS));
+        genericCriteriaPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        genericCriteriaPanel.add(this.getPriceRange());
-        genericCriteriaPanel.add(this.getMilkOptions());
-        genericCriteriaPanel.add(this.getSugar());
+        JPanel priceRangePanel = this.getPriceRange();
+        priceRangePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        genericCriteriaPanel.add(priceRangePanel);
+
+        JPanel milkOptionsPanel = this.getMilkOptions();
+        milkOptionsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        genericCriteriaPanel.add(milkOptionsPanel);
+
+        JPanel sugarPanel = this.getSugar();
+        sugarPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        genericCriteriaPanel.add(sugarPanel);
 
         // extras panel special stuff
         this.extrasPanel = new JPanel();
         this.extrasPanel.setLayout(new BoxLayout(this.extrasPanel, BoxLayout.Y_AXIS));
         JLabel extrasLabel = new JLabel("Extras:");
         this.extrasPanel.add(extrasLabel);
+        this.extrasPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         genericCriteriaPanel.add(this.extrasPanel);
 
@@ -403,6 +426,8 @@ public class SearchView {
         });
         innerPanel.add(temperatureComboBox);
 
+        // set the default temperature
+        this.userTemperature = (Temperature) temperatureComboBox.getSelectedItem();
         temperaturePanel.add(innerPanel);
 
         return temperaturePanel;
@@ -445,7 +470,6 @@ public class SearchView {
      * @return a JPanel containing the image panel
      */
     public JPanel generateImagePanel() {
-
         // load images of coffee and tea
         JLabel coffeeImage = new JLabel(new ImageIcon("coffee.jpg"));
         JLabel teaImage = new JLabel(new ImageIcon("tea.jpg"));
