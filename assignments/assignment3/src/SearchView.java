@@ -33,8 +33,8 @@ public class SearchView {
 
 
     // user choices
-    private float userMinPrice;
-    private float userMaxPrice;
+    private double userMinPrice;
+    private double userMaxPrice;
     private MilkOptions userMilkOption;
     private String userSugar;
     private Set<String> userExtras;
@@ -181,7 +181,7 @@ public class SearchView {
                 if (minPriceText.isBlank()) {
                     userMinPrice = 0;
                 } else {
-                    userMinPrice = Float.parseFloat(minPriceField.getText());
+                    userMinPrice = Double.parseDouble(minPriceField.getText());
                 }
             }
 
@@ -191,7 +191,7 @@ public class SearchView {
                 if (minPriceText.isBlank()) {
                     userMinPrice = 0;
                 } else {
-                    userMinPrice = Float.parseFloat(minPriceField.getText());
+                    userMinPrice = Double.parseDouble(minPriceField.getText());
                 }
             }
 
@@ -210,9 +210,9 @@ public class SearchView {
             public void insertUpdate(DocumentEvent e) {
                 String maxPriceText = maxPriceField.getText();
                 if (maxPriceText.isBlank()) {
-                    userMaxPrice = Float.MAX_VALUE;
+                    userMaxPrice = Double.MAX_VALUE;
                 } else {
-                    userMaxPrice = Float.parseFloat(maxPriceField.getText());
+                    userMaxPrice = Double.parseDouble(maxPriceField.getText());
                 }
             }
 
@@ -220,9 +220,9 @@ public class SearchView {
             public void removeUpdate(DocumentEvent e) {
                 String maxPriceText = maxPriceField.getText();
                 if (maxPriceText.isBlank()) {
-                    userMaxPrice = Float.MAX_VALUE;
+                    userMaxPrice = Double.MAX_VALUE;
                 } else {
-                    userMaxPrice = Float.parseFloat(maxPriceField.getText());
+                    userMaxPrice = Double.parseDouble(maxPriceField.getText());
                 }
             }
 
@@ -462,14 +462,14 @@ public class SearchView {
     /**
      * @return the user's minimum price
      */
-    public float getUserMinPrice() {
+    public double getUserMinPrice() {
         return this.userMinPrice;
     }
 
     /**
      * @return the user's maximum price
      */
-    public float getUserMaxPrice() {
+    public double getUserMaxPrice() {
         return this.userMaxPrice;
     }
 

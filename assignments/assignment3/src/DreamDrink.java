@@ -7,13 +7,13 @@ import java.util.*;
  */
 
 public class DreamDrink {
-    private final float minPrice;
-    private final float maxPrice;
+    private final double minPrice;
+    private final double maxPrice;
     private final Map<Criteria,Object> criteria;
 
     // constructors
 
-    public DreamDrink(float minPrice, float maxPrice, Map<Criteria,Object> criteria) {
+    public DreamDrink(double minPrice, double maxPrice, Map<Criteria,Object> criteria) {
         if(criteria==null) this.criteria=new HashMap<>();
         else this.criteria = new HashMap<>(criteria);
         this.minPrice = minPrice;
@@ -32,14 +32,14 @@ public class DreamDrink {
     /**
      * @return the minimum price of the dream drink
      */
-    public float getMinPrice() {
+    public double getMinPrice() {
         return minPrice;
     }
 
     /**
      * @return the maximum price of the dream drink
      */
-    public float getMaxPrice() {
+    public double getMaxPrice() {
         return maxPrice;
     }
 

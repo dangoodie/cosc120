@@ -92,8 +92,8 @@ public class MenuSearcher {
 
         criteria.put(Criteria.DRINK_TYPE, type);
 
-        float minPrice = searchCriteria.getUserMinPrice();
-        float maxPrice = searchCriteria.getUserMaxPrice();
+        double minPrice = searchCriteria.getUserMinPrice();
+        double maxPrice = searchCriteria.getUserMaxPrice();
         MilkOptions milk = searchCriteria.getUserMilkOption();
         String sugarString = searchCriteria.getUserSugar();
         Set<String> extras = searchCriteria.getUserExtras();
